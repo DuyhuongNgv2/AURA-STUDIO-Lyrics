@@ -12,7 +12,7 @@ J.PT = (dx = 0, dy = 0, rot = 0, s = 1, st = 1, sdir = 0, a = 1) => ({ dx, dy, r
    small gap to Japanese. Only the size / advance of each glyph changes, so every layout keeps working. */
 J.TYPESET = false;
 J.setTypeset = on => { J.TYPESET = !!on; };
-const HIRA = /[ぁ-ゟ]/, KATA = /[゠-ヿㇰ-ㇿ]/, KANJI = /[㐀-鿿豈-﫿々〆]/, LATIN = /[A-Za-z0-9]/;
+const HIRA = /[ぁ-ゟ]/, KATA = /[゠-ヿㇰ-ㇿ]/, KANJI = /[㐀-鿿豈-﫿々〆]/, LATIN = /[A-Za-z0-9\u00c0-\u024f\u1e00-\u1eff]/u;
 const PARTICLES = 'はがをにでとのへも';
 const cls = ch => (!ch ? '' : LATIN.test(ch) ? 'L' : KANJI.test(ch) ? 'K' : KATA.test(ch) ? 'T' : HIRA.test(ch) ? 'H' : /\s/.test(ch) ? 'S' : 'P');
 function isParticle(arr, i) {
@@ -45,7 +45,7 @@ J.typesetLine = (arr) => {
 
 /* layout: glyph centres relative to the item origin, in unscaled item space */
 J.layoutText = (it) => {
-  const text = String(it.text ?? '');
+  const text = String(it.text ?? '').normalize('NFC');
   const size = it.size, track = it.track || 0, sx = it.sx || 1, sy = it.sy || 1;
   const lines = text.split('\n');
   const out = [];
@@ -82,7 +82,7 @@ J.layoutText = (it) => {
       arr.forEach((ch, ci) => {
         const t = ts[ci], a = vAdv(it.font, ch, size) * t.adv * t.f;
         y += t.gap * size;
-        const r90 = J.VERT_ROTATE.includes(ch) || /[A-Za-z0-9]/.test(ch);
+        const r90 = J.VERT_ROTATE.includes(ch) || J.isLatin(ch);
         let vx = 0, vy = 0;
         if (J.isSmallKana(ch)) { vx = 0.11 * size; vy = -0.11 * size; }
         if ('、。，．'.includes(ch)) { vx = 0.3 * size; vy = -0.3 * size; }
@@ -95,7 +95,7 @@ J.layoutText = (it) => {
   out.N = gi;
   return out;
 };
-function vAdv(font, ch, size) { return /[A-Za-z0-9]/.test(ch) ? J.metrics.adv(font, ch) * size : size; }
+function vAdv(font, ch, size) { return J.isLatin(ch) ? J.metrics.adv(font, ch) * size : size; }
 
 /* Blurred / glowing items are drawn ONCE into an offscreen layer and the blur / glow is applied to the whole
    layer — a filter or shadowBlur on every glyph (× 3 chromatic passes) is very slow on canvas. */
@@ -285,6 +285,7 @@ J.weightNow = (env) => {
 J.varFontCSS = (key, px, e) => {
   const f = J.FONTS[key] || {}, serif = f.kind === 'mincho';
   const w = Math.round(serif ? 200 + e * 700 : 100 + e * 800);
+  if (J.lang === 'vi') return `${w} ${px.toFixed(2)}px ${serif ? '"Noto Serif"' : '"Noto Sans"'},${serif ? 'Georgia,serif' : 'Arial,sans-serif'}`;
   return `${w} ${px.toFixed(2)}px ${serif ? '"Noto Serif JP"' : '"Noto Sans JP"'},${f.fb || 'sans-serif'}`;
 };
 

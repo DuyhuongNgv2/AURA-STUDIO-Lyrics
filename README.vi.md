@@ -1,4 +1,4 @@
-# JIZURA — Công cụ tạo video lời bài hát kèm hiệu ứng chuyển động
+# AURA — Kinetic Lyrics & Typography Studio (Trình tạo video lời bài hát chữ nhảy)
 
 Biến lời bài hát thành video lyric động ngay trong trình duyệt. JIZURA kết hợp bố cục, hiệu ứng xuất hiện, giữ hình, biến mất, trang trí, cách xử lý chữ, hình nền, chuyển động camera, hiệu ứng màn hình và chuyển cảnh. Có thể đổi seed hoặc nhấn **Tạo biến thể** (Tạo biến thể) để khám phá một cách sắp xếp khác.
 

@@ -6,13 +6,13 @@ import importlib, json
 
 # code, output folder, html lang, native name
 EDITIONS = [
-    ('ja', '', 'ja', '日本語'),
-    ('en', 'en', 'en', 'English'),
+    ('ja', 'ja', 'ja', '日本語'),
+    ('en', 'en', 'en', 'EN · English'),
     ('zh-Hant', 'zh-hant', 'zh-Hant', '繁體中文'),
     ('zh-Hans', 'zh-hans', 'zh-Hans', '简体中文'),
     ('ko', 'ko', 'ko', '한국어'),
     ('id', 'id', 'id-ID', 'Bahasa Indonesia'),
-    ('vi', 'vi', 'vi', 'Tiếng Việt'),
+    ('vi', '', 'vi', 'VI · Tiếng Việt'),
 ]
 MODULES = {
     'zh-Hant': 'app.i18n_zh_hant', 'zh-Hans': 'app.i18n_zh_hans',
@@ -22,8 +22,8 @@ MODULES = {
 # only fills strings added later; their label scripts name every part, style and mood (after app/english.js)
 COMMUNITY = {'zh-Hant': ('app.chinese', 'app/chinese.js'), 'ko': ('app.korean', 'app/korean.js')}
 # part-name scripts for editions without a community glossary (after app/english.js and the edition's own names)
-PART_NAMES = {'zh-Hans': 'app/chinese_hans.js'}
-BASE = 'https://852wa.github.io/JIZURA/'
+PART_NAMES = {'zh-Hans': 'app/chinese_hans.js', 'vi': 'app/vietnamese.js'}
+BASE = 'https://DuyhuongNgv2.github.io/JIZURA-VI/'
 
 
 class _Merged:
@@ -88,7 +88,7 @@ def nav(code):
     here = dict((c, f) for c, f, _, _ in EDITIONS)[code]
     up = '../' if here else ''
     opts = []
-    for c, folder, hl, name in EDITIONS:
+    for c, folder, hl, name in sorted(EDITIONS, key=lambda e: {'vi': 0, 'en': 1}.get(e[0], 2)):
         href = up + (folder + '/' if folder else '') + 'index.html'
         opts.append(f'<option value="{href}" lang="{hl}"{" selected" if c == code else ""}>{name}</option>')
     label = 'Bahasa' if code == 'id' else 'Ngôn ngữ' if code == 'vi' else 'Language'

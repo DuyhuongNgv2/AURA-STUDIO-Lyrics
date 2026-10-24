@@ -1,0 +1,66 @@
+[
+  {
+    "family": "Be Vietnam Pro",
+    "path": "fonts/bevietnampro/BeVietnamPro-Regular.ttf",
+    "weight": "400",
+    "source": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/bevietnampro/BeVietnamPro-Regular.ttf",
+    "sha256": "cd1ef6e9d7db28ad5cdb88a65ccbe693870e60d340b791f349d248342b4fe4c3",
+    "license": "fonts/bevietnampro/OFL.txt"
+  },
+  {
+    "family": "Be Vietnam Pro",
+    "path": "fonts/bevietnampro/BeVietnamPro-Bold.ttf",
+    "weight": "700",
+    "source": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/bevietnampro/BeVietnamPro-Bold.ttf",
+    "sha256": "7f738fe5c43c8872807b20e2d30d42163618de8a4daf7f48a939adac32c16847",
+    "license": "fonts/bevietnampro/OFL.txt"
+  },
+  {
+    "family": "Be Vietnam Pro",
+    "path": "fonts/bevietnampro/BeVietnamPro-Black.ttf",
+    "weight": "900",
+    "source": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/bevietnampro/BeVietnamPro-Black.ttf",
+    "sha256": "dd0ec461782da7f4a58698b431a67c455ced7c09deb9c40d7b47e61975d3ffdb",
+    "license": "fonts/bevietnampro/OFL.txt"
+  },
+  {
+    "family": "Montserrat",
+    "path": "fonts/montserrat/Montserrat[wght].ttf",
+    "weight": "100 900",
+    "source": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/montserrat/Montserrat%5Bwght%5D.ttf",
+    "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7",
+    "license": "fonts/montserrat/OFL.txt"
+  },
+  {
+    "family": "Lexend",
+    "path": "fonts/lexend/Lexend[wght].ttf",
+    "weight": "100 900",
+    "source": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/lexend/Lexend%5Bwght%5D.ttf",
+    "sha256": "3add53e641fbc81da64da4bb254285e2831b52b029527bc0714e2b9610832ee6",
+    "license": "fonts/lexend/OFL.txt"
+  },
+  {
+    "family": "Noto Sans",
+    "path": "fonts/notosans/NotoSans[wdth,wght].ttf",
+    "weight": "100 900",
+    "source": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/notosans/NotoSans%5Bwdth%2Cwght%5D.ttf",
+    "sha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d",
+    "license": "fonts/notosans/OFL.txt"
+  },
+  {
+    "family": "Noto Serif",
+    "path": "fonts/notoserif/NotoSerif[wdth,wght].ttf",
+    "weight": "100 900",
+    "source": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/notoserif/NotoSerif%5Bwdth%2Cwght%5D.ttf",
+    "sha256": "4d8e6761424656867019081a1a01336f3cb086982682698714054fc33f782713",
+    "license": "fonts/notoserif/OFL.txt"
+  },
+  {
+    "family": "Oswald",
+    "path": "fonts/oswald/Oswald[wght].ttf",
+    "weight": "200 700",
+    "source": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/oswald/Oswald%5Bwght%5D.ttf",
+    "sha256": "5b38c246e255a12f5712d640d56bcced0472466fc68983d2d0410ec0457c2817",
+    "license": "fonts/oswald/OFL.txt"
+  }
+]

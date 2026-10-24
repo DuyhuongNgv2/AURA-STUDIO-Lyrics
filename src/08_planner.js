@@ -47,6 +47,7 @@ J.stepDur = (fx, fps) => { const k = J.komaOf(fx); return k > 0 ? 1 / k : 1 / (f
 
 /* ---------------- lyric parsing ---------------- */
 J.parseLyrics = (raw) => {
+  raw = String(raw || '').normalize('NFC');
   const lines = []; const meta = {};
   let pendingGap = false;
   const rows = String(raw || '').replace(/\r/g, '').split('\n');
@@ -348,7 +349,7 @@ J.plan = (project, audio) => {
     const visEnd = Math.min(e, s + Math.max(3.6, n * 0.5 + 1.2));
     const D = visEnd - s;
     plan.lines.push({ index: li, src: ln.src, lrc: ln.lrc, text: ln.text, start: s, end: e, visEnd, note: ln.note, impact: ln.impact, emph: ln.emph, chunks: null, seed: lineSeed });
-    const chunks = ln.manual || (plan.lang === 'en' ? J.phraseChunks(J.chunkText(ln.text)) : J.chunkText(ln.text));
+    const chunks = ln.manual || (['en','vi'].includes(plan.lang) ? J.phraseChunks(J.chunkText(ln.text)) : J.chunkText(ln.text));
     plan.lines[li].chunks = chunks;
     const L = J.lerp(1.3, 0.5, fx.density);
     let nC = Math.round(D / L);
@@ -717,7 +718,7 @@ function splitHalf(text, lang) {
   const t = String(text || '').trim();
   const n = [...t.replace(/\s+/g, '')].length;
   // between words, as near the middle as possible (「花が」｜「咲いた」, "Good night," | "see you tomorrow")
-  const words = (lang === 'en' ? J.phraseChunks(J.chunkText(t)) : J.chunkText(t)).map(w => String(w));
+  const words = (['en','vi'].includes(lang) ? J.phraseChunks(J.chunkText(t)) : J.chunkText(t)).map(w => String(w));
   if (words.length >= 2) {
     const L = w => [...w.replace(/\s+/g, '')].length, total = words.reduce((a2, w) => a2 + L(w), 0);
     let acc = 0, best = 1, bd = 1e9;
@@ -948,6 +949,7 @@ function pickFx(rng, st, en, fx, emph, fxHist, kind) {
 
 /* one-cut (or two-cut, for transitions) plan used by the 手法 tab thumbnails */
 J.previewPlan = (project, group, key) => {
+  const viUI = typeof document !== 'undefined' && document.documentElement && document.documentElement.lang === 'vi';
   const enUI = typeof document !== 'undefined' && document.documentElement && document.documentElement.lang === 'en';
   const st = J.resolveStyle(project);
   const fx = Object.assign({}, J.defaultProject().fx, project.fx || {}, {
@@ -958,12 +960,12 @@ J.previewPlan = (project, group, key) => {
   });
   const [W, H] = J.designSize(project.aspect || '16:9');
   const rng = J.rng(J.h(J.sid(String(group) + ':' + String(key)), 11, 22));
-  let text = enUI ? 'Lyric' : '字面';
+  let text = viUI ? 'Lời ca' : enUI ? 'Lyric' : '字面';
   if (group === 'layout') {
     const L0 = J.LAYOUTS[key];
     const n2 = [...text.replace(/\s+/g, '')].length;
-    if (L0 && L0.fits && !L0.fits(n2)) text = enUI ? 'color of dawn' : '夜明けの色を';
-    if (L0 && L0.fits && !L0.fits([...text.replace(/\s+/g, '')].length)) text = enUI ? 'I remember the color of dawn' : '夜明けの色を覚えてる';
+    if (L0 && L0.fits && !L0.fits(n2)) text = viUI ? 'Màu bình minh' : enUI ? 'color of dawn' : '夜明けの色を';
+    if (L0 && L0.fits && !L0.fits([...text.replace(/\s+/g, '')].length)) text = viUI ? 'Tôi nhớ màu bình minh' : enUI ? 'I remember the color of dawn' : '夜明けの色を覚えてる';
   }
   const nn = [...text.replace(/\s+/g, '')].length;
   const dur = 2.4;
@@ -1008,8 +1010,8 @@ J.previewPlan = (project, group, key) => {
     const TD = J.TRANS[key];
     const transDur = J.clamp(TD.dur || 0.35, 0.18, 0.7);
     const transP = TD.plan ? (TD.plan(rng, st) || {}) : {};
-    const tA = enUI ? 'BEFORE' : '前のカット';
-    const tB = enUI ? 'AFTER' : '字面';
+    const tA = viUI ? 'Trước' : enUI ? 'BEFORE' : '前のカット';
+    const tB = viUI ? 'Sau' : enUI ? 'AFTER' : '字面';
     let pA = {}, pB = {};
     try { pA = J.LAYOUTS.center.plan(rng, { text: tA, n: [...tA].length, W, H, dur: 1.2 }, st) || {}; } catch (e) {}
     try { pB = J.LAYOUTS.center.plan(rng, { text: tB, n: [...tB].length, W, H, dur: 1.2 }, st) || {}; } catch (e) {}
@@ -1024,7 +1026,7 @@ J.previewPlan = (project, group, key) => {
   }
   cuts.forEach((c, i) => { c.index = i; });
   return {
-    version: 1, generator: 'JIZURA-preview', title: '', artist: '', W, H, fps: 24,
+    version: 1, lang: J.resolveLang(project), generator: 'JIZURA-preview', title: '', artist: '', W, H, fps: 24,
     duration: cuts[cuts.length - 1].end, styleKey: project.style, style: st, fx,
     lines: [], cuts, events, beats: [], hud: false, keyBg: null,
   };

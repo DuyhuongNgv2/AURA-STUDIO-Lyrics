@@ -35,3 +35,7 @@ The web app loads the following typefaces at runtime from Google Fonts (https://
 included in this repository. They are distributed by their authors under the SIL Open Font License 1.1:
 Noto Sans JP, Noto Serif JP, Dela Gothic One, Zen Kaku Gothic New, Zen Old Mincho, Kaisei Tokumin,
 M PLUS Rounded 1c, Mochiy Pop One, DotGothic16, Yuji Syuku, IBM Plex Mono, IBM Plex Sans JP.
+
+## Bundled Vietnamese-capable fonts (JIZURA-VI)
+
+Be Vietnam Pro, Montserrat, Lexend, Noto Sans, Noto Serif, and Oswald are bundled unmodified from google/fonts under SIL OFL 1.1. Each family retains its OFL.txt in fonts/. See fonts/manifest.json for the pinned upstream commit, source URL, file hash, and exact weights. build.py embeds these files in the standalone pages. Original CJK font families may still load online when explicitly selected or used by other lyric languages. Font family names are proper names and are not translated.

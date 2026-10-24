@@ -1,7 +1,7 @@
 """Build the single-file browser editions from src/, app/ and vendor/: Japanese, English, 繁體中文, 简体中文, 한국어, Bahasa Indonesia, Tiếng Việt.
 usage: python3 build.py            -> index.html, en/, zh-hant/, zh-hans/, ko/, id/, vi/ index.html (GitHub Pages)
        python3 build.py --dev      -> also dev/www/jizura.js + dev/www/test.html for the test tools"""
-import glob, os, sys
+import glob, os, sys, json, base64
 from app.english import localize_body, localize_js
 from app import i18n
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -11,12 +11,20 @@ VERSION = read('VERSION').strip()
 sources = sorted(glob.glob('src/*.js'))
 js = '\n'.join(read(f) for f in sources)
 mux = '/*! mp4-muxer v5.2.2 | MIT License | (c) 2023 Vanilagy | see THIRD_PARTY_NOTICES.md */\n' + read('vendor/mp4-muxer.min.js')
+def font_css():
+    rules=[]
+    for f in json.loads(read('fonts/manifest.json')):
+        data=base64.b64encode(open(f['path'],'rb').read()).decode('ascii')
+        rules.append('@font-face{font-family:"'+f['family']+'";font-style:normal;font-weight:'+f['weight']+';font-display:swap;src:url(data:font/ttf;base64,'+data+') format("truetype");}')
+    return '\n'.join(rules)
+LOCAL_FONT_CSS=font_css()
+
 def build(lang):
     english = lang == 'en'
     local = lang in i18n.MODULES
     m = i18n.module(lang) if local else None
-    title = 'JIZURA — Lyric Motion Video Maker' if english else m.TITLE if local else 'JIZURA 字面'
-    description = ('Turn lyrics into animated lyric videos in your browser and export MP4.' if english else m.DESCRIPTION if local else '歌詞を入れると文字PV（リリックモーション）を自動で組み立てて MP4 に書き出すブラウザアプリ')
+    title = 'AURA — Kinetic Lyrics & Motion Video Studio' if english else m.TITLE if local else 'AURA — Kinetic Lyrics'
+    description = ('Create kinetic typography lyric videos in your browser and export MP4.' if english else m.DESCRIPTION if local else 'Trình tạo video lyric chuyển động chữ mượt mà')
     folder = dict((c, f) for c, f, _, _ in i18n.EDITIONS)[lang]
     canonical = i18n.BASE + (folder + '/' if folder else '')
     language_nav = i18n.nav(lang)
@@ -52,6 +60,8 @@ def build(lang):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <style>
 {read('app/style.css')}
+{LOCAL_FONT_CSS}
+html[lang=vi] {{ --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be Vietnam Pro',monospace; }}
 </style>
 </head>
 <body>
@@ -73,6 +83,16 @@ for code, _, _, _ in i18n.EDITIONS:
     if code in i18n.MODULES and not i18n.has_module(code):
         print('skip', code, '(no translation module yet)'); continue
     build(code)
+# Keep the original Vietnamese edition URL working alongside the default root.
+import shutil
+os.makedirs('vi', exist_ok=True)
+shutil.copyfile('index.html', 'vi/index.html')
+# vi/ needs one extra parent path for the shared language navigation.
+p = 'vi/index.html'
+h = read(p).replace('value="index.html"', 'value="../index.html"')
+for _, folder, _, _ in i18n.EDITIONS:
+    if folder: h = h.replace('value="' + folder + '/index.html"', 'value="../' + folder + '/index.html"')
+open(p, 'w', encoding='utf-8').write(h)
 # sitemap.xml for search engines: every edition, with its language alternates
 import datetime
 alts = ''.join(f'\n    <xhtml:link rel="alternate" hreflang="{hl}" href="{i18n.BASE}{f + "/" if f else ""}"/>' for c, f, hl, _ in i18n.EDITIONS)
