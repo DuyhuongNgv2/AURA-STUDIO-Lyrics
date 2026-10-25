@@ -1695,6 +1695,43 @@ function bind() {
       reader.readAsDataURL(file);
     });
   }
+  const stockPresetSel = $('stockPresetSel');
+  if (stockPresetSel) {
+    stockPresetSel.addEventListener('change', e => {
+      const val = e.target.value;
+      if (!val) return;
+      const res = J.generateStockImage(val);
+      res.img.onload = () => {
+        J.userImageElement = res.img;
+        J.userImageData = res.dataUrl;
+        const nameMap = {
+          galaxy: '🌌 Vũ trụ Deep Galaxy',
+          cyberpunk: '🌃 Thành phố Cyberpunk',
+          lofi_sunset: '☕ Hoàng hôn Lo-Fi Chill',
+          stage: '🎙️ Sân khấu Spotlight',
+          night_rain: '🌧️ Mưa đêm thành phố',
+          retro_vinyl: '📼 Đĩa than Vinyl cổ điển',
+          dark_minimal: '🖤 Đen khói huyền bí'
+        };
+        const motionMap = {
+          galaxy: 'float',
+          cyberpunk: 'beatpulse',
+          lofi_sunset: 'kenburns',
+          stage: 'beatpulse',
+          night_rain: 'float',
+          retro_vinyl: 'spin',
+          dark_minimal: 'kenburns'
+        };
+        const stockName = nameMap[val] || val;
+        J.userImageName = stockName;
+        J.userImageMode = motionMap[val] || 'kenburns';
+        J.userImageDim = 0.45;
+        S.project.image = { data: res.dataUrl, name: stockName, mode: J.userImageMode, dim: 0.45 };
+        syncImageUI(); commit(); replan();
+        toast(`ストック素材を適用：${stockName}`);
+      };
+    });
+  }
   const btnClearImg = $('btnClearImage');
   if (btnClearImg) {
     btnClearImg.addEventListener('click', () => {

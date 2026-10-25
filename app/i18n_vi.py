@@ -1095,6 +1095,15 @@ EXPORT = {"'[間奏]'": "'[interlude]'",
 
 
 BODY.update({
+    'title="ストック背景画像"': 'title="Kho ảnh nền Stock có sẵn"',
+    '<option value="">ストック素材</option>': '<option value="">-- Kho Stock mẫu --</option>',
+    '<option value="galaxy">🌌 宇宙ギャラクシー</option>': '<option value="galaxy">🌌 Vũ trụ Deep Galaxy</option>',
+    '<option value="cyberpunk">🌃 サイバーパンク</option>': '<option value="cyberpunk">🌃 Thành phố Cyberpunk</option>',
+    '<option value="lofi_sunset">☕ ローファイ夕日</option>': '<option value="lofi_sunset">☕ Hoàng hôn Lo-Fi Chill</option>',
+    '<option value="stage">🎙️ ステージライト</option>': '<option value="stage">🎙️ Sân khấu Spotlight</option>',
+    '<option value="night_rain">🌧️ 雨の夜</option>': '<option value="night_rain">🌧️ Mưa đêm thành phố</option>',
+    '<option value="retro_vinyl">📼 レコード盤</option>': '<option value="retro_vinyl">📼 Đĩa than Vinyl cổ điển</option>',
+    '<option value="dark_minimal">🖤 スモーキーダーク</option>': '<option value="dark_minimal">🖤 Đen khói huyền bí (Tôn chữ)</option>',
     'title="各行に重複のないCapCut演出を自動割り当て">独創</button>': 'title="Tự động áp dụng hiệu ứng CapCut độc bản, không trùng lặp cho từng câu hát (Phím D)">Độc bản</button>',
     '>独創</button>': '>Độc bản</button>',
     'title="各行に重複のないCapCut演出を自動割り当て">独創で作る</button>': 'title="Tự động áp dụng hiệu ứng CapCut độc bản, không trùng lặp cho từng câu hát (Phím D)">Tạo độc bản</button>',
@@ -1113,6 +1122,7 @@ BODY.update({
 })
 
 UI.update({
+    '`ストック素材を適用：${stockName}`': '`Đã áp dụng Stock: ${stockName}`',
     "'画像なし（読み込むと背景に配置されます）'": "'Chưa có ảnh (tải ảnh để đặt làm nền video)'",
 
     '`独創：${count}行に重複のない演出を割り当てました`': '`Độc bản: Đã áp dụng hiệu ứng riêng biệt không trùng lặp cho ${count} câu hát!`',

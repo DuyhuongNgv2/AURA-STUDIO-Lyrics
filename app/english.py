@@ -544,6 +544,15 @@ def localize_js(source, filename):
     return source
 
 BODY.update({
+    'title="ストック背景画像"': 'title="Built-in Stock Backgrounds"',
+    '<option value="">ストック素材</option>': '<option value="">-- Stock Library --</option>',
+    '<option value="galaxy">🌌 宇宙ギャラクシー</option>': '<option value="galaxy">🌌 Deep Galaxy Space</option>',
+    '<option value="cyberpunk">🌃 サイバーパンク</option>': '<option value="cyberpunk">🌃 Cyberpunk City</option>',
+    '<option value="lofi_sunset">☕ ローファイ夕日</option>': '<option value="lofi_sunset">☕ Lo-Fi Chill Sunset</option>',
+    '<option value="stage">🎙️ ステージライト</option>': '<option value="stage">🎙️ Concert Stage</option>',
+    '<option value="night_rain">🌧️ 雨の夜</option>': '<option value="night_rain">🌧️ City Night Rain</option>',
+    '<option value="retro_vinyl">📼 レコード盤</option>': '<option value="retro_vinyl">📼 Retro Vinyl Record</option>',
+    '<option value="dark_minimal">🖤 スモーキーダーク</option>': '<option value="dark_minimal">🖤 Smoky Minimal Dark</option>',
     'title="各行に重複のないCapCut演出を自動割り当て">独創</button>': 'title="Automatically assign non-repeating CapCut effects across song lines (Key D)">Diversity</button>',
     '>独創</button>': '>Diversity</button>',
     'title="各行に重複のないCapCut演出を自動割り当て">独創で作る</button>': 'title="Automatically assign non-repeating CapCut effects across song lines (Key D)">Create with Diversity</button>',
@@ -562,6 +571,7 @@ BODY.update({
 })
 
 UI.update({
+    '`ストック素材を適用：${stockName}`': '`Applied Stock: ${stockName}`',
     "'画像なし（読み込むと背景に配置されます）'": "'No image (loaded image will be placed as background)'",
 
     '`独創：${count}行に重複のない演出を割り当てました`': '`Diversity: Assigned non-repeating effects to ${count} lines!`',

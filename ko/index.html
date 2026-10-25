@@ -587,11 +587,21 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
       <div class="sec" id="secImage">
         <div class="sec-h"><h2>배경画像・연출</h2></div>
         <div id="imageName" class="muted audio-name">画像なし（読み込むと배경に配置されます）</div>
-        <div class="row">
+        <div class="row" style="flex-wrap:wrap; gap:6px;">
           <label class="file" title="JPG / PNG / WebP を배경画像として読み込みます">画像を読み込む<input id="imageFile" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.gif"></label>
+          <select id="stockPresetSel" title="ストック배경画像">
+            <option value="">ストック素材</option>
+            <option value="galaxy">🌌 宇宙ギャラクシー</option>
+            <option value="cyberpunk">🌃 サイバーパンク</option>
+            <option value="lofi_sunset">☕ ローファイ夕日</option>
+            <option value="stage">🎙️ ステージライト</option>
+            <option value="night_rain">🌧️ 雨の夜</option>
+            <option value="retro_vinyl">📼 レコード盤</option>
+            <option value="dark_minimal">🖤 スモーキーダーク</option>
+          </select>
           <button id="btnClearImage" class="ghost small">画像を消す</button>
         </div>
-        <div class="fields pro-only">
+        <div class="fields">
           <label class="field">動き
             <select id="imageModeSel">
               <option value="kenburns">Ken Burns（ズーム＆パン）</option>
@@ -4751,6 +4761,136 @@ J.cutAt = (plan, t) => {
   if (ans < 0) return null;
   const c = cs[ans];
   return t < c.end ? c : null;
+};
+
+
+J.generateStockImage = (key) => {
+  const c = document.createElement('canvas');
+  c.width = 1920; c.height = 1080;
+  const ctx = c.getContext('2d');
+  const W = 1920, H = 1080;
+
+  if (key === 'galaxy') {
+    const bg = ctx.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0, '#060314'); bg.addColorStop(0.5, '#12072B'); bg.addColorStop(1, '#02000A');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+    const neb1 = ctx.createRadialGradient(W * 0.35, H * 0.4, 0, W * 0.35, H * 0.4, W * 0.5);
+    neb1.addColorStop(0, 'rgba(168, 45, 230, 0.45)');
+    neb1.addColorStop(0.5, 'rgba(60, 20, 140, 0.25)');
+    neb1.addColorStop(1, 'transparent');
+    ctx.fillStyle = neb1; ctx.fillRect(0, 0, W, H);
+
+    const neb2 = ctx.createRadialGradient(W * 0.7, H * 0.65, 0, W * 0.7, H * 0.65, W * 0.45);
+    neb2.addColorStop(0, 'rgba(22, 244, 212, 0.35)');
+    neb2.addColorStop(0.6, 'rgba(10, 80, 160, 0.2)');
+    neb2.addColorStop(1, 'transparent');
+    ctx.fillStyle = neb2; ctx.fillRect(0, 0, W, H);
+
+    ctx.fillStyle = '#FFFFFF';
+    for (let i = 0; i < 280; i++) {
+      const sx = (Math.sin(i * 127.1) * 0.5 + 0.5) * W;
+      const sy = (Math.cos(i * 311.7) * 0.5 + 0.5) * H;
+      const sr = (i % 7 === 0) ? 2.5 : (i % 3 === 0) ? 1.8 : 1.0;
+      ctx.globalAlpha = 0.3 + (i % 5) * 0.14;
+      ctx.beginPath(); ctx.arc(sx, sy, sr, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  } else if (key === 'cyberpunk') {
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#0a001a'); bg.addColorStop(0.6, '#180033'); bg.addColorStop(1, '#05000d');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+    const hg = ctx.createRadialGradient(W / 2, H * 0.65, 0, W / 2, H * 0.65, W * 0.6);
+    hg.addColorStop(0, 'rgba(255, 0, 127, 0.5)');
+    hg.addColorStop(0.4, 'rgba(0, 240, 255, 0.3)');
+    hg.addColorStop(1, 'transparent');
+    ctx.fillStyle = hg; ctx.fillRect(0, 0, W, H);
+
+    ctx.strokeStyle = 'rgba(0, 240, 255, 0.35)';
+    ctx.lineWidth = 1.5;
+    const vanishY = H * 0.65;
+    for (let x = -W * 0.5; x <= W * 1.5; x += 120) {
+      ctx.beginPath(); ctx.moveTo(W / 2, vanishY); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = vanishY + 15; y <= H; y += (y - vanishY) * 0.35 + 8) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+  } else if (key === 'lofi_sunset') {
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#2D1445'); bg.addColorStop(0.35, '#8C3A5A'); bg.addColorStop(0.65, '#E06D53');
+    bg.addColorStop(0.85, '#F5A548'); bg.addColorStop(1, '#2E112D');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+    const sun = ctx.createRadialGradient(W / 2, H * 0.52, 0, W / 2, H * 0.52, 180);
+    sun.addColorStop(0, '#FFF5CC'); sun.addColorStop(0.7, '#FF9E4A'); sun.addColorStop(1, 'rgba(255, 100, 50, 0)');
+    ctx.fillStyle = sun;
+    ctx.beginPath(); ctx.arc(W / 2, H * 0.52, 180, 0, Math.PI * 2); ctx.fill();
+
+    ctx.fillStyle = '#1A0B2E';
+    ctx.beginPath();
+    ctx.moveTo(0, H); ctx.lineTo(0, H * 0.72); ctx.lineTo(W * 0.3, H * 0.62);
+    ctx.lineTo(W * 0.55, H * 0.7); ctx.lineTo(W * 0.8, H * 0.58); ctx.lineTo(W, H * 0.68); ctx.lineTo(W, H);
+    ctx.closePath(); ctx.fill();
+  } else if (key === 'stage') {
+    ctx.fillStyle = '#050508'; ctx.fillRect(0, 0, W, H);
+    const cones = [
+      { x: W * 0.25, color: 'rgba(255, 195, 60, 0.32)' },
+      { x: W * 0.5, color: 'rgba(22, 244, 212, 0.35)' },
+      { x: W * 0.75, color: 'rgba(255, 60, 140, 0.32)' }
+    ];
+    for (const c of cones) {
+      const spot = ctx.createRadialGradient(c.x, 0, 10, c.x, H * 0.9, W * 0.4);
+      spot.addColorStop(0, c.color);
+      spot.addColorStop(0.7, c.color.replace(/[\d\.]+\)$/, '0.08)'));
+      spot.addColorStop(1, 'transparent');
+      ctx.fillStyle = spot;
+      ctx.beginPath(); ctx.moveTo(c.x, 0); ctx.lineTo(c.x - W * 0.22, H); ctx.lineTo(c.x + W * 0.22, H); ctx.closePath(); ctx.fill();
+    }
+  } else if (key === 'night_rain') {
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#040B14'); bg.addColorStop(1, '#0A1E2E');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+    const colors = ['rgba(255, 80, 80, 0.25)', 'rgba(255, 200, 60, 0.25)', 'rgba(60, 220, 255, 0.25)', 'rgba(180, 100, 255, 0.2)'];
+    for (let i = 0; i < 45; i++) {
+      const bx = (Math.sin(i * 73.1) * 0.5 + 0.5) * W;
+      const by = (Math.cos(i * 47.3) * 0.4 + 0.5) * H;
+      const br = 25 + (i % 6) * 16;
+      ctx.fillStyle = colors[i % colors.length];
+      ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI * 2); ctx.fill();
+    }
+
+    ctx.strokeStyle = 'rgba(180, 220, 255, 0.2)';
+    ctx.lineWidth = 1.2;
+    for (let i = 0; i < 180; i++) {
+      const rx = (Math.sin(i * 99.3) * 0.5 + 0.5) * W;
+      const ry = (Math.cos(i * 123.7) * 0.5 + 0.5) * H;
+      const len = 40 + (i % 4) * 20;
+      ctx.beginPath(); ctx.moveTo(rx, ry); ctx.lineTo(rx - 8, ry + len); ctx.stroke();
+    }
+  } else if (key === 'retro_vinyl') {
+    ctx.fillStyle = '#0E0E12'; ctx.fillRect(0, 0, W, H);
+    const cx = W / 2, cy = H / 2;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.lineWidth = 1;
+    for (let r = 80; r < H * 0.65; r += 8) {
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+    }
+    const label = ctx.createRadialGradient(cx, cy, 0, cx, cy, 140);
+    label.addColorStop(0, '#FFE066'); label.addColorStop(0.85, '#FF8800'); label.addColorStop(1, '#CC5500');
+    ctx.fillStyle = label; ctx.beginPath(); ctx.arc(cx, cy, 140, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#1A1A1A'; ctx.beginPath(); ctx.arc(cx, cy, 24, 0, Math.PI * 2); ctx.fill();
+  } else {
+    const bg = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, W * 0.7);
+    bg.addColorStop(0, '#1c1c24'); bg.addColorStop(0.6, '#0f0f14'); bg.addColorStop(1, '#050507');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  }
+
+  const img = new Image();
+  const dataUrl = c.toDataURL('image/jpeg', 0.88);
+  img.src = dataUrl;
+  return { canvas: c, img, dataUrl };
 };
 
 J.userImageElement = null;
@@ -38742,6 +38882,43 @@ function bind() {
         img.src = dataUrl;
       };
       reader.readAsDataURL(file);
+    });
+  }
+  const stockPresetSel = $('stockPresetSel');
+  if (stockPresetSel) {
+    stockPresetSel.addEventListener('change', e => {
+      const val = e.target.value;
+      if (!val) return;
+      const res = J.generateStockImage(val);
+      res.img.onload = () => {
+        J.userImageElement = res.img;
+        J.userImageData = res.dataUrl;
+        const nameMap = {
+          galaxy: '🌌 Vũ trụ Deep Galaxy',
+          cyberpunk: '🌃 Thành phố Cyberpunk',
+          lofi_sunset: '☕ Hoàng hôn Lo-Fi Chill',
+          stage: '🎙️ Sân khấu Spotlight',
+          night_rain: '🌧️ Mưa đêm thành phố',
+          retro_vinyl: '📼 Đĩa than Vinyl cổ điển',
+          dark_minimal: '🖤 Đen khói huyền bí'
+        };
+        const motionMap = {
+          galaxy: 'float',
+          cyberpunk: 'beatpulse',
+          lofi_sunset: 'kenburns',
+          stage: 'beatpulse',
+          night_rain: 'float',
+          retro_vinyl: 'spin',
+          dark_minimal: 'kenburns'
+        };
+        const stockName = nameMap[val] || val;
+        J.userImageName = stockName;
+        J.userImageMode = motionMap[val] || 'kenburns';
+        J.userImageDim = 0.45;
+        S.project.image = { data: res.dataUrl, name: stockName, mode: J.userImageMode, dim: 0.45 };
+        syncImageUI(); commit(); replan();
+        toast(`ストック素材を適用：${stockName}`);
+      };
     });
   }
   const btnClearImg = $('btnClearImage');

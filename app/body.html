@@ -82,11 +82,21 @@
       <div class="sec" id="secImage">
         <div class="sec-h"><h2>背景画像・演出</h2></div>
         <div id="imageName" class="muted audio-name">画像なし（読み込むと背景に配置されます）</div>
-        <div class="row">
+        <div class="row" style="flex-wrap:wrap; gap:6px;">
           <label class="file" title="JPG / PNG / WebP を背景画像として読み込みます">画像を読み込む<input id="imageFile" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.gif"></label>
+          <select id="stockPresetSel" title="ストック背景画像">
+            <option value="">ストック素材</option>
+            <option value="galaxy">🌌 宇宙ギャラクシー</option>
+            <option value="cyberpunk">🌃 サイバーパンク</option>
+            <option value="lofi_sunset">☕ ローファイ夕日</option>
+            <option value="stage">🎙️ ステージライト</option>
+            <option value="night_rain">🌧️ 雨の夜</option>
+            <option value="retro_vinyl">📼 レコード盤</option>
+            <option value="dark_minimal">🖤 スモーキーダーク</option>
+          </select>
           <button id="btnClearImage" class="ghost small">画像を消す</button>
         </div>
-        <div class="fields pro-only">
+        <div class="fields">
           <label class="field">動き
             <select id="imageModeSel">
               <option value="kenburns">Ken Burns（ズーム＆パン）</option>
