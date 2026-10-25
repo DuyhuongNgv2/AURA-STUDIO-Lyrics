@@ -1636,9 +1636,18 @@ function updateTap() {
 }
 
 /* ---------------- sync all inputs from project ---------------- */
+function updateLyricCount() {
+  const el = $('lyricCount');
+  const ta = $('lyrics');
+  if (!el || !ta) return;
+  const lines = ta.value.split('\n').filter(l => l.trim().length > 0).length;
+  const chars = ta.value.length;
+  el.textContent = (document.documentElement.lang === 'vi' ? `${lines} dòng · ${chars} ký tự` : `${lines} lines · ${chars} chars`);
+}
+
 function syncUI() {
   $('songTitle').value = S.project.title || ''; $('songArtist').value = S.project.artist || '';
-  $('lyrics').value = S.project.lyrics;
+  $('lyrics').value = S.project.lyrics; updateLyricCount();
   $('bpm').value = S.project.timing.bpm > 0 ? S.project.timing.bpm : '';
   $('bpm').placeholder = S.audio ? `自動 ${S.audio.bpm}` : 'なし';
   $('offset').value = S.project.timing.offset ?? 0.4;
@@ -1656,7 +1665,33 @@ function syncUI() {
 
 /* ---------------- wiring ---------------- */
 function bind() {
-  $('lyrics').addEventListener('input', e => { S.project.lyrics = e.target.value; replanSoon(260); });
+  $('lyrics').addEventListener('input', e => { S.project.lyrics = e.target.value; replanSoon(260); updateLyricCount(); });
+  document.querySelectorAll('.lyric-tags .tag').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const t = btn.dataset.tag;
+      const ta = $('lyrics');
+      if (!ta) return;
+      const start = ta.selectionStart || 0;
+      const end = ta.selectionEnd || 0;
+      const val = ta.value;
+      let insert = '';
+      if (t === 'Verse') insert = (val && !val.endsWith('\n') ? '\n' : '') + '[Verse]\n';
+      else if (t === 'Chorus') insert = (val && !val.endsWith('\n') ? '\n' : '') + '[Chorus]\n';
+      else if (t === 'Bridge') insert = (val && !val.endsWith('\n') ? '\n' : '') + '[Bridge]\n';
+      else if (t === 'Cut') insert = ' / ';
+      else if (t === 'Impact') {
+        const sel = val.slice(start, end) || (document.documentElement.lang === 'vi' ? 'từ' : 'word');
+        insert = '*' + sel + '*';
+      }
+      ta.value = val.slice(0, start) + insert + val.slice(end);
+      ta.focus();
+      const nextPos = start + insert.length;
+      ta.setSelectionRange(nextPos, nextPos);
+      S.project.lyrics = ta.value;
+      replanSoon(260);
+      updateLyricCount();
+    });
+  });
   $('lyricLang').addEventListener('change', e => {
     remember();
     S.project.lang = e.target.value; replan(); renderFontRoles(); commit(); flushSave();
