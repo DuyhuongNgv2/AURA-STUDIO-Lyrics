@@ -238,6 +238,22 @@
   }
   for (const [key, name] of Object.entries({glitch:'Glitch', calm:'Gentle', pop:'Pop', graphic:'Graphic', editorial:'Editorial', emotional:'Emotional', chaos:'Anything goes'})) J.MOODS[key].name = name;
   J.SAMPLE_LYRICS = 'I remember/the color of dawn\nA voice faded into the distance\nCan we still make it in time?\n*Transparent* is not how this ends!';
+const extraEnConcat = {
+    trans: {
+      ccWhipPan: "Whip Pan (Motion Blur)",
+      ccFilmBurn: "Film Burn (Light Leak)",
+      ccRgbSplit: "RGB Split (Chromatic)"
+    },
+    treat: {
+      ccCyberpunk: "Cyberpunk Neon",
+      ccVhs: "VHS Retro Scanlines"
+    }
+  };
+  for (const [g, names] of Object.entries(extraEnConcat)) {
+    for (const [id, name] of Object.entries(names)) {
+      const item = J.registry(g)[id]; if (item) item.name = name;
+    }
+  }
 })();
 
 /* part sets (horror / typo / kinetic): names, styles and the horror mood */
@@ -248,4 +264,20 @@
   const S = {"hrRuin": ["Ruins", "Faded green-grey, rust red and echoing serif type"], "hrNightRec": ["Midnight Recording", "Pitch-black frames, CCTV white and red, static"], "hrCurse": ["Cursed Letter", "Yellowed paper, faded ink and dark red handwriting"]};
   for (const [k, [n, d]] of Object.entries(S)) if (J.STYLES[k]) { J.STYLES[k].name = n; J.STYLES[k].desc = d; }
   if (J.MOODS.horror) J.MOODS.horror.name = "Horror";
+const extraEnConcat = {
+    trans: {
+      ccWhipPan: "Whip Pan (Motion Blur)",
+      ccFilmBurn: "Film Burn (Light Leak)",
+      ccRgbSplit: "RGB Split (Chromatic)"
+    },
+    treat: {
+      ccCyberpunk: "Cyberpunk Neon",
+      ccVhs: "VHS Retro Scanlines"
+    }
+  };
+  for (const [g, names] of Object.entries(extraEnConcat)) {
+    for (const [id, name] of Object.entries(names)) {
+      const item = J.registry(g)[id]; if (item) item.name = name;
+    }
+  }
 })();

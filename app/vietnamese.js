@@ -8,4 +8,20 @@ for (const [g, names] of Object.entries(parts)) {
 }
 for (const [id,name] of Object.entries({title:"Tiêu đề",interlude:"Đoạn không lời"})) if(J.LAYOUTS[id]) J.LAYOUTS[id].name=name;
 J.LANG_LABEL = {auto:"Tự động",vi:"Tiếng Việt",en:"Tiếng Anh",ja:"Tiếng Nhật","zh-Hant":"Tiếng Trung phồn thể","zh-Hans":"Tiếng Trung giản thể",ko:"Tiếng Hàn"};
+const extraViConcat = {
+  trans: {
+    ccWhipPan: "Whip Pan (Vút mờ)",
+    ccFilmBurn: "Cháy phim & Lóe sáng",
+    ccRgbSplit: "RGB Split (Tách màu 3D)"
+  },
+  treat: {
+    ccCyberpunk: "Cyberpunk (Neon Cyan/Tím)",
+    ccVhs: "VHS Retro (Băng từ & Scanline)"
+  }
+};
+for (const [g, names] of Object.entries(extraViConcat)) {
+  for (const [id, name] of Object.entries(names)) {
+    const item = J.registry(g)[id]; if (item) item.name = name;
+  }
+}
 })();

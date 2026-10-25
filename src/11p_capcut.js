@@ -247,6 +247,161 @@ reg('treat', 'ccNeonGlowTube', {
 });
 
 /* ----------------------------------------------------------------
+   TRANSITIONS (Chuyển cảnh điện ảnh phong cách Concat & CapCut)
+   ---------------------------------------------------------------- */
+const trReg = (k, d) => reg('trans', k, Object.assign({}, d, {
+  draw(ctx, A, B, p, I) {
+    ctx.save();
+    try {
+      if (!(p > 0)) ctx.drawImage(A, 0, 0);
+      else if (p >= 1) ctx.drawImage(B, 0, 0);
+      else d.draw(ctx, A, B, p, I, I.P || {});
+    } finally { ctx.restore(); }
+  }
+}));
+
+// 15. Whip Pan with Directional Motion Blur (Lia máy tốc độ cao)
+trReg('ccWhipPan', {
+  name: 'ホイップパン', tags: ['pop', 'graphic', 'kinetic'], w: 2.2, dur: 0.38,
+  plan: rng => ({ dir: rng.chance(0.5) ? 'R' : 'L' }),
+  draw(ctx, A, B, p, I, P) {
+    const { cw, ch } = I;
+    const e = E.inOutCubic(p);
+    const sign = (P.dir === 'L') ? -1 : 1;
+    const shift = cw * e * sign;
+    const blur = Math.sin(p * Math.PI) * (cw * 0.04);
+
+    ctx.drawImage(A, -shift, 0);
+    ctx.drawImage(B, cw * sign - shift, 0);
+
+    // High-speed motion blur trails
+    if (blur > 2) {
+      ctx.save();
+      ctx.globalAlpha = 0.22;
+      ctx.drawImage(A, -shift - blur * sign, 0);
+      ctx.drawImage(B, cw * sign - shift + blur * sign, 0);
+      ctx.drawImage(A, -shift + blur * 0.6 * sign, 0);
+      ctx.drawImage(B, cw * sign - shift - blur * 0.6 * sign, 0);
+
+      // Light flash speedline at the seam
+      ctx.globalAlpha = Math.sin(p * Math.PI) * 0.35;
+      ctx.fillStyle = '#FFFFFF';
+      const streakX = (cw * sign - shift);
+      ctx.fillRect(streakX - 4, 0, 8, ch);
+      ctx.restore();
+    }
+  }
+});
+
+// 16. Film Burn & Organic Light Leak (Cháy phim & Lóe sáng điện ảnh)
+trReg('ccFilmBurn', {
+  name: 'フィルムバーン', tags: ['emotional', 'pop', 'calm'], w: 2.0, dur: 0.42,
+  plan: rng => ({ x: rng.range(0.2, 0.8), y: rng.range(0.2, 0.8) }),
+  draw(ctx, A, B, p, I, P) {
+    const { cw, ch } = I;
+    if (p < 0.5) {
+      ctx.drawImage(A, 0, 0);
+    } else {
+      ctx.drawImage(B, 0, 0);
+    }
+
+    const bell = Math.sin(p * Math.PI);
+    if (bell > 0.04) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      ctx.globalAlpha = Math.min(1.0, Math.pow(bell, 0.75) * 1.5);
+
+      const cx = cw * (P.x || 0.5) + (p - 0.5) * cw * 0.4;
+      const cy = ch * (P.y || 0.5) + (p - 0.5) * ch * 0.2;
+      const rMax = Math.hypot(cw, ch) * 0.75;
+
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, rMax);
+      grad.addColorStop(0.0, '#FFFFFF');
+      grad.addColorStop(0.2, '#FFE27A');
+      grad.addColorStop(0.45, '#FF7A29');
+      grad.addColorStop(0.7, '#FF1464');
+      grad.addColorStop(1.0, 'rgba(0, 0, 0, 0)');
+
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, cw, ch);
+      ctx.restore();
+    }
+  }
+});
+
+// 17. Digital RGB Chromatic Glitch Split (Tách kênh màu 3D)
+trReg('ccRgbSplit', {
+  name: 'RGBスプリット', tags: ['glitch', 'pop', 'graphic'], w: 2.0, dur: 0.36,
+  draw(ctx, A, B, p, I) {
+    const { cw, ch } = I;
+    const split = Math.sin(p * Math.PI) * (cw * 0.035);
+
+    if (p < 0.5) {
+      ctx.drawImage(A, 0, 0);
+    } else {
+      ctx.drawImage(B, 0, 0);
+    }
+
+    if (split > 1.5) {
+      const src = p < 0.5 ? A : B;
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      ctx.globalAlpha = 0.55;
+      ctx.drawImage(src, -split, (Math.sin(p * 24) * ch * 0.008));
+      ctx.drawImage(src, split, -(Math.sin(p * 24) * ch * 0.008));
+
+      // Glitch displacement bar
+      if (Math.sin(p * 35) > 0.3) {
+        ctx.fillStyle = '#16F4D4';
+        ctx.globalAlpha = 0.25;
+        const gy = ch * (0.2 + 0.6 * p);
+        ctx.fillRect(0, gy, cw, ch * 0.04);
+      }
+      ctx.restore();
+    }
+  }
+});
+
+/* ----------------------------------------------------------------
+   ATMOSPHERE & STYLING TREATMENTS (Bộ lọc không khí Concat)
+   ---------------------------------------------------------------- */
+
+// 18. Cyberpunk Dual-Tone Glow (Tím neon & Xanh cyan điện tử)
+reg('treat', 'ccCyberpunk', {
+  name: 'サイバーパンク', tags: ['glitch', 'pop', 'graphic'], w: 2.4,
+  apply(env, it) {
+    it.color = '#00F0FF';
+    it.shadowColor = '#FF007F';
+    it.shadowBlur = it.size * 0.45;
+    it.outline = Math.max(2, it.size * 0.05);
+    it.outlineColor = '#100028';
+  }
+});
+
+// 19. Retro VHS Scanlines & Chromatic Bleed (Băng từ VHS thập niên 90)
+reg('treat', 'ccVhs', {
+  name: 'VHSレトロ', tags: ['pop', 'emotional', 'glitch'], w: 2.2,
+  apply(env, it) {
+    it.color = '#FFFFFF';
+    it.shadowColor = 'rgba(255, 30, 80, 0.85)';
+    it.shadowBlur = it.size * 0.3;
+    const oldPost = it.post;
+    it.post = (e, item, bb) => {
+      if (oldPost) oldPost(e, item, bb);
+      if (!bb) return;
+      const ctx2 = e.ctx;
+      ctx2.save();
+      ctx2.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      const step = Math.max(3, item.size * 0.08);
+      for (let y = bb.y0; y <= bb.y1; y += step) {
+        ctx2.fillRect(bb.x0 - 4, y, bb.w + 8, step * 0.35);
+      }
+      ctx2.restore();
+    };
+  }
+});
+
+/* ----------------------------------------------------------------
    AUTO ĐỘC BẢN: Guaranteed Non-Repeating Kinetic Diversity
    ---------------------------------------------------------------- */
 J.applyNonRepeatingDiversity = (project) => {
@@ -274,14 +429,18 @@ J.applyNonRepeatingDiversity = (project) => {
   ].filter(k => J.EXIT[k]);
 
   const treatPool = [
-    'ccKaraokeActive', 'ccHighlighter', 'ccNeonGlowTube', 'outline', 'shadow', 'rainbow', 'extrusion', 'halftone', 'none'
+    'ccKaraokeActive', 'ccHighlighter', 'ccNeonGlowTube', 'ccCyberpunk', 'ccVhs', 'outline', 'shadow', 'rainbow', 'extrusion', 'halftone', 'none'
   ].filter(k => J.TREAT[k]);
 
   const camPool = [
     'push', 'pull', 'pan', 'drift', 'sway', 'tilt'
   ].filter(k => J.CAMERA[k]);
 
-  const history = { enter: [], hold: [], exit: [], treat: [], cam: [] };
+  const transPool = [
+    'ccWhipPan', 'ccFilmBurn', 'ccRgbSplit', 'wipe', 'diagonalWipe', 'clockWipe', 'irisOpen', 'pushSlide'
+  ].filter(k => J.TRANS[k]);
+
+  const history = { enter: [], hold: [], exit: [], treat: [], cam: [], trans: [] };
 
   const pickAvoid = (pool, hist, maxHist = 3) => {
     if (!pool.length) return null;
@@ -309,6 +468,7 @@ J.applyNonRepeatingDiversity = (project) => {
     const chosenExit = pickAvoid(exitPool.length ? exitPool : J.EXIT_ORDER, history.exit, 3);
     const chosenTreat = pickAvoid(treatPool.length ? treatPool : J.TREAT_ORDER, history.treat, 2);
     const chosenCam = pickAvoid(camPool.length ? camPool : J.CAMERA_ORDER, history.cam, 2);
+    const chosenTrans = pickAvoid(transPool.length ? transPool : J.TRANS_ORDER, history.trans, 2);
 
     const cur = Object.assign({}, project.overrides[idx] || {});
     if (!cur.lock) {
@@ -317,6 +477,7 @@ J.applyNonRepeatingDiversity = (project) => {
       if (chosenExit) cur.exit = chosenExit;
       if (chosenTreat) cur.treat = chosenTreat;
       if (chosenCam) cur.cam = chosenCam;
+      if (chosenTrans) cur.trans = chosenTrans;
       project.overrides[idx] = cur;
       assignedCount++;
     }
