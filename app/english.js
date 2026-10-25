@@ -48,6 +48,9 @@
       stickerPeel: 'Apply sticker', crumple: 'Uncrumple',
       noteUnfold: 'Unfold letter', tornJoin: 'Join torn pieces',
       splitFlap: 'Split flap display', crtOn: 'CRT powers on',
+      ccPopBounce: 'CapCut Elastic Pop', ccTypeBlink: 'Typewriter with Cursor',
+      ccSmoothSlideUp: 'Smooth Slide Up', ccStompImpact: 'Stomp Hit Impact',
+      ccGlitchRGB: 'Cyber Glitch RGB',
       odometer: 'Rolling number drum', matrixRain: 'Data rain',
       brushReveal: 'Brush reveal', quarters: 'Converge from four sides',
       printRegister: 'Color plates align', echoCount: 'Count in',
@@ -66,7 +69,9 @@
       flashBox: 'Invert to the beat', glintSweep: 'Passing highlight',
       flipSwap: 'Occasional flip', shadowSway: 'Swaying shadow',
       typeRattle: 'Typewriter rattle', focusRack: 'Rack focus',
-      pluckString: 'Plucked string'
+      pluckString: 'Plucked string',
+      ccPulseHeart: 'Pulse Heartbeat', ccWaveSway: 'Floating Wave',
+      ccJitterBass: 'Bass Jitter Shake'
     },
     exit: {
       fall: 'Crumble and fall', drift: 'Drift away', sinkMask: 'Sink out',
@@ -94,7 +99,9 @@
       flutterOut: 'Flutter down', fanClose: 'Folding fan closes',
       rgbSplitOut: 'Split into RGB', shockOut: 'Shockwave',
       floodOut: 'Submerge', slashOut: 'Sliced in two',
-      scribbleOut: 'Scribble away', candleOut: 'Blow out'
+      scribbleOut: 'Scribble away', candleOut: 'Blow out',
+      ccZoomThrough: 'Zoom Through Camera', ccSmokeFade: 'Smoke Dissolve',
+      ccDropFall: 'Gravity Drop'
     },
     decor: {
       brackets: 'Corner marks', rings: 'Coordinate rings', dots: 'Dotted ring',
@@ -138,7 +145,9 @@
       monoGrid: 'Manuscript grid', outlineOffset: 'Offset outline',
       toneShadow: 'Halftone shadow', fadeChars: 'Fading letters',
       cutShift: 'Offset cut', focusPull: 'Focus shift',
-      spotChar: 'Highlighted character', ransom: 'Cutout letters'
+      spotChar: 'Highlighted character', ransom: 'Cutout letters',
+      ccKaraokeActive: 'Karaoke Active Sing-along', ccHighlighter: 'Highlighter Marker Bar',
+      ccNeonGlowTube: 'Neon Glow Tube'
     },
     bg: {
       none: 'Solid color', seigaiha: 'Seigaiha waves',
