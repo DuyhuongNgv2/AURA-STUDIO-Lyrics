@@ -39218,13 +39218,15 @@ function boot() {
   S.project = loadLocal();
   bind(); initVolume(); syncUI(); syncLoopBtn(); replan();
   restoreFonts(); restoreUserImage();
-  // first visit on a phone: スマホ mode
-  let mode = window.matchMedia && window.matchMedia('(max-width: 760px)').matches ? 'mobile' : 'easy';
-  try { mode = localStorage.getItem('jizura.mode') || mode; } catch (e) {}
+  // Always default to pro mode on desktop so all tabs, styles, effects and settings are immediately visible
+  let mode = window.matchMedia && window.matchMedia('(max-width: 760px)').matches ? 'mobile' : 'pro';
+  try {
+    const saved = localStorage.getItem('jizura.mode');
+    if (saved === 'mobile') mode = 'mobile';
+    else mode = 'pro';
+  } catch (e) {}
   setMode(mode); commit();
   bindTour();
-  let seen = false; try { seen = localStorage.getItem('jizura.tourDone') === '1'; } catch (e) {}
-  if (!seen && S.mode === 'easy' && !window.__adobe_cep__) setTimeout(tourStart, 600);   // first visit: show the tour once
   // open on a representative frame (end of the first cut's entrance)
   const c0 = S.plan.cuts.find(c => c.line >= 0);
   if (c0) seek(c0.start + Math.min(c0.dur * 0.6, c0.inDur + 0.25));
