@@ -1093,3 +1093,30 @@ EXPORT = {"'[間奏]'": "'[interlude]'",
  '音声をエンコード中': 'Mã hóa âm thanh',
  '完了': 'Hoàn thành'}
 
+
+BODY.update({
+    'title="各行に重複のないCapCut演出を自動割り当て">独創</button>': 'title="Tự động áp dụng hiệu ứng CapCut độc bản, không trùng lặp cho từng câu hát (Phím D)">Độc bản</button>',
+    '>独創</button>': '>Độc bản</button>',
+    'title="各行に重複のないCapCut演出を自動割り当て">独創で作る</button>': 'title="Tự động áp dụng hiệu ứng CapCut độc bản, không trùng lặp cho từng câu hát (Phím D)">Tạo độc bản</button>',
+    '>独創で作る</button>': '>Tạo độc bản</button>',
+    '<h2>背景画像・演出</h2>': '<h2>Hình ảnh nền & Hiệu ứng</h2>',
+    '画像なし（読み込むと背景に配置されます）': 'Chưa có ảnh (tải ảnh để đặt làm nền video)',
+    'title="JPG / PNG / WebP を背景画像として読み込みます">画像を読み込む': 'title="Tải ảnh JPG / PNG / WebP làm nền video">Tải ảnh lên',
+    '>画像を消す</button>': '>Xóa ảnh</button>',
+    '>動き': '>Chuyển động',
+    '>Ken Burns（ズーム＆パン）</option>': '>Ken Burns (Zoom & Trôi mượt)</option>',
+    '>ビートパルス（低音連動）</option>': '>Beat Pulse (Nảy theo nhịp Bass)</option>',
+    '>3Dチルト（立体反転）</option>': '>Lật xoay 3D (Nghiêng 3D)</option>',
+    '>フロート（浮遊パララックス）</option>': '>Trôi bồng bềnh (Floating Parallax)</option>',
+    '>回転（スロースピン）</option>': '>Xoay tròn (Slow Spin)</option>',
+    '暗さ（文字強調）': 'Độ tối mờ',
+})
+
+UI.update({
+    "'画像なし（読み込むと背景に配置されます）'": "'Chưa có ảnh (tải ảnh để đặt làm nền video)'",
+
+    '`独創：${count}行に重複のない演出を割り当てました`': '`Độc bản: Đã áp dụng hiệu ứng riêng biệt không trùng lặp cho ${count} câu hát!`',
+    "'画像ファイルが大きすぎます'": "'Tệp ảnh quá lớn (tối đa 15MB)'",
+    '`画像を読み込みました：${file.name}`': '`Đã tải ảnh: ${file.name}`',
+    "'画像を消しました'": "'Đã xóa ảnh nền'",
+})

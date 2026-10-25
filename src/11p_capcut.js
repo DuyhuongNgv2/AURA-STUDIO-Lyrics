@@ -75,7 +75,7 @@ reg('enter', 'ccStompImpact', {
     const dur = ctx.inDur, lt = env.lt - (it.delay || 0);
     const t = clamp(lt / Math.max(0.01, dur * 0.5));
     if (t < 1) {
-      const s = lerp(3.5, 1.0, E.outQuart(t));
+      const s = lerp(3.5, 1.0, E.outExpo(t));
       it.sx = (it.sx || 1) * s;
       it.sy = (it.sy || 1) * s;
       it.alpha = (it.alpha ?? 1) * clamp(t * 4);
@@ -245,5 +245,84 @@ reg('treat', 'ccNeonGlowTube', {
     it.outlineColor = '#FFFFFF';
   }
 });
+
+/* ----------------------------------------------------------------
+   AUTO ĐỘC BẢN: Guaranteed Non-Repeating Kinetic Diversity
+   ---------------------------------------------------------------- */
+J.applyNonRepeatingDiversity = (project) => {
+  const parsed = J.parseLyrics(project.lyrics || '');
+  const lines = parsed.lines || [];
+  if (!lines.length) return 0;
+
+  project.overrides = project.overrides || {};
+
+  // Curated lists with high visual distinction, prioritizing CapCut & kinetic typography
+  const enterPoolEnergetic = [
+    'ccPopBounce', 'ccStompImpact', 'ccGlitchRGB', 'assemble', 'slice', 'knWordSlam', 'flipIn', 'elastic', 'shatter', 'fly'
+  ].filter(k => J.ENTER[k]);
+
+  const enterPoolSmooth = [
+    'ccSmoothSlideUp', 'ccTypeBlink', 'blur', 'type', 'wipe', 'draw', 'roll', 'unfold', 'expand', 'focus', 'fade'
+  ].filter(k => J.ENTER[k]);
+
+  const holdPool = [
+    'ccPulseHeart', 'ccWaveSway', 'ccJitterBass', 'float', 'drift', 'quake', 'pendulum', 'hover', 'breath', 'orbit'
+  ].filter(k => J.HOLD[k]);
+
+  const exitPool = [
+    'ccZoomThrough', 'ccSmokeFade', 'ccDropFall', 'explode', 'fall', 'burn', 'scatter', 'drift', 'wipe', 'blur', 'snap'
+  ].filter(k => J.EXIT[k]);
+
+  const treatPool = [
+    'ccKaraokeActive', 'ccHighlighter', 'ccNeonGlowTube', 'outline', 'shadow', 'rainbow', 'extrusion', 'halftone', 'none'
+  ].filter(k => J.TREAT[k]);
+
+  const camPool = [
+    'push', 'pull', 'pan', 'drift', 'sway', 'tilt'
+  ].filter(k => J.CAMERA[k]);
+
+  const history = { enter: [], hold: [], exit: [], treat: [], cam: [] };
+
+  const pickAvoid = (pool, hist, maxHist = 3) => {
+    if (!pool.length) return null;
+    let available = pool.filter(k => !hist.includes(k));
+    if (!available.length) {
+      const prev = hist[hist.length - 1];
+      available = pool.filter(k => k !== prev);
+      if (!available.length) available = pool;
+    }
+    const chosen = available[Math.floor(Math.random() * available.length)];
+    hist.push(chosen);
+    if (hist.length > maxHist) hist.shift();
+    return chosen;
+  };
+
+  let assignedCount = 0;
+
+  lines.forEach((ln, idx) => {
+    if (ln.interlude) return;
+    const isImpact = ln.impact || idx % 3 === 2;
+    const enterPool = isImpact ? enterPoolEnergetic : enterPoolSmooth;
+
+    const chosenEnter = pickAvoid(enterPool.length ? enterPool : J.ENTER_ORDER, history.enter, 3);
+    const chosenHold = pickAvoid(holdPool.length ? holdPool : J.HOLD_ORDER, history.hold, 2);
+    const chosenExit = pickAvoid(exitPool.length ? exitPool : J.EXIT_ORDER, history.exit, 3);
+    const chosenTreat = pickAvoid(treatPool.length ? treatPool : J.TREAT_ORDER, history.treat, 2);
+    const chosenCam = pickAvoid(camPool.length ? camPool : J.CAMERA_ORDER, history.cam, 2);
+
+    const cur = Object.assign({}, project.overrides[idx] || {});
+    if (!cur.lock) {
+      if (chosenEnter) cur.enter = chosenEnter;
+      if (chosenHold) cur.hold = chosenHold;
+      if (chosenExit) cur.exit = chosenExit;
+      if (chosenTreat) cur.treat = chosenTreat;
+      if (chosenCam) cur.cam = chosenCam;
+      project.overrides[idx] = cur;
+      assignedCount++;
+    }
+  });
+
+  return assignedCount;
+};
 
 })();

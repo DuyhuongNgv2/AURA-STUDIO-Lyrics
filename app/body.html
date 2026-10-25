@@ -15,6 +15,7 @@
       <input id="songArtist" type="text" placeholder="アーティスト" aria-label="アーティスト">
     </div>
     <button id="btnOmakaseTop" class="primary omk-top" title="スタイル・雰囲気・演出・配色をまるごとランダムに">おまかせ</button>
+    <button id="btnDiversityTop" class="primary omk-top div-top" title="各行に重複のないCapCut演出を自動割り当て">独創</button>
     <button id="btnMenu" class="ghost menu-btn" aria-expanded="false" aria-controls="appMenu">メニュー</button>
     <div class="modes" role="group" aria-label="表示モード">
       <button id="modeMobile" class="mode-mobile" aria-pressed="false" title="スマホ向けの画面（おまかせを上に固定、行はたたんで表示）">スマホ</button>
@@ -78,6 +79,30 @@
         </div>
       </div>
 
+      <div class="sec" id="secImage">
+        <div class="sec-h"><h2>背景画像・演出</h2></div>
+        <div id="imageName" class="muted audio-name">画像なし（読み込むと背景に配置されます）</div>
+        <div class="row">
+          <label class="file" title="JPG / PNG / WebP を背景画像として読み込みます">画像を読み込む<input id="imageFile" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.gif"></label>
+          <button id="btnClearImage" class="ghost small">画像を消す</button>
+        </div>
+        <div class="fields pro-only">
+          <label class="field">動き
+            <select id="imageModeSel">
+              <option value="kenburns">Ken Burns（ズーム＆パン）</option>
+              <option value="beatpulse">ビートパルス（低音連動）</option>
+              <option value="flip3d">3Dチルト（立体反転）</option>
+              <option value="float">フロート（浮遊パララックス）</option>
+              <option value="spin">回転（スロースピン）</option>
+            </select>
+          </label>
+          <label class="field">暗さ（文字強調）
+            <input id="imageDim" type="range" min="0" max="90" value="45" step="5">
+            <span id="imageDimVal" class="mono muted">45%</span>
+          </label>
+        </div>
+      </div>
+
       <div class="sec">
         <div class="sec-h"><h2>行とカット</h2><span id="linesInfo" class="muted mono"></span></div>
         <ol id="lineList"></ol>
@@ -100,6 +125,7 @@
         <button id="btnShuffle" class="accent" title="設定はそのままで構成だけ再抽選（ロックした行は維持）">シャッフル</button>
         <select class="themeSel" aria-label="おまかせのテーマ" title="おまかせのテーマ（選ぶと、その方向の中でおまかせします。必要な部品のスイッチもオンになります）"><option value="">テーマなし</option><option value="lyricpv">文字PV</option><option value="kinetic">キネティック</option><option value="wa">和風</option><option value="horror">ホラー</option><option value="pop">ポップ</option><option value="ballad">バラード</option></select>
         <button id="btnOmakase" class="primary" title="スタイル・雰囲気・演出・配色をまるごとランダムに（キー R）">おまかせ</button>
+        <button id="btnDiversity" class="primary div-btn" title="各行に重複のないCapCut演出を自動割り当て">独創</button>
       </div>
       <div class="tl-bar">
         <span class="tl-hint muted">行の区切り（上の目盛り）はドラッグで動かせます。<span class="kbd">Shift</span> で拍に吸着しない</span>
@@ -128,6 +154,7 @@
       <div id="easyPanel" class="easy" hidden>
         <div class="easy-hero">
           <button id="btnOmakaseBig" class="omakase">おまかせで作る</button>
+          <button id="btnDiversityBig" class="omakase div-big" title="各行に重複のないCapCut演出を自動割り当て">独創で作る</button>
           <label class="theme-row">テーマ<select class="themeSel" aria-label="おまかせのテーマ"><option value="">テーマなし</option><option value="lyricpv">文字PV</option><option value="kinetic">キネティック</option><option value="wa">和風</option><option value="horror">ホラー</option><option value="pop">ポップ</option><option value="ballad">バラード</option></select><small class="muted">選ぶと、その方向の中でおまかせします</small></label>
           <p class="hint">押すたびに、スタイル・雰囲気・動き・配色・構成がまるごと変わります。キーボードの <span class="kbd">R</span> でも実行できます。</p>
           <div class="hist-row">

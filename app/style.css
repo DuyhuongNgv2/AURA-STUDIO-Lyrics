@@ -248,6 +248,32 @@ label.check small { display: block; font-size: 11px; color: var(--muted); }
 .hist-btns { display: inline-flex; gap: 4px; }
 button.icon-txt { font-size: 10px; min-width: 28px; }
 .transport #btnOmakase { letter-spacing: 0.08em; }
+.transport #btnDiversity {
+  letter-spacing: 0.06em;
+  background: linear-gradient(135deg, #16F4D4, #F5A50C);
+  color: #0b0b0f;
+  font-weight: 700;
+  border: 0;
+}
+.transport #btnDiversity:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 0 10px rgba(22, 244, 212, 0.4);
+}
+button.div-big {
+  background: linear-gradient(135deg, #16F4D4, #F5A50C);
+  color: #0b0b0f;
+  font-weight: 900;
+  border: 0;
+}
+button.div-big:hover {
+  filter: brightness(1.15);
+  box-shadow: -5px -3px 0 var(--cyan), 5px 3px 0 var(--amber);
+}
+.div-top {
+  background: linear-gradient(135deg, #16F4D4, #F5A50C);
+  color: #0b0b0f;
+  font-weight: 700;
+}
 
 .easy { padding: 16px 16px 28px; display: grid; gap: 18px; }
 .easy h3 { margin: 0 0 8px; }
@@ -388,7 +414,7 @@ button.small.primary { padding: 4px 12px; }
 #app.is-mobile .bar { position: sticky; top: 0; z-index: 40; gap: 8px; padding: 8px 10px; }
 #app.is-mobile .brand .tag, #app.is-mobile .brand .word, #app.is-mobile .tour-btn { display: none; }
 #app.is-mobile .brand .mark { font-size: 22px; }
-#app.is-mobile .omk-top, #app.is-mobile .menu-btn { display: inline-block; }
+#app.is-mobile .omk-top, #app.is-mobile .div-top, #app.is-mobile .menu-btn { display: inline-block; }
 #app.is-mobile .omk-top { order: 2; margin-left: auto; padding: 9px 16px; font-size: 15px; }
 #app.is-mobile .menu-btn { order: 3; padding: 9px 10px; }
 #app.is-mobile .modes { order: 4; flex: 1 1 100%; }

@@ -542,3 +542,30 @@ def localize_js(source, filename):
     if filename.endswith('11_export.js'):
         return replace_copy(source, EXPORT)
     return source
+
+BODY.update({
+    'title="各行に重複のないCapCut演出を自動割り当て">独創</button>': 'title="Automatically assign non-repeating CapCut effects across song lines (Key D)">Diversity</button>',
+    '>独創</button>': '>Diversity</button>',
+    'title="各行に重複のないCapCut演出を自動割り当て">独創で作る</button>': 'title="Automatically assign non-repeating CapCut effects across song lines (Key D)">Create with Diversity</button>',
+    '>独創で作る</button>': '>Create with Diversity</button>',
+    '<h2>背景画像・演出</h2>': '<h2>Background Image & Motion</h2>',
+    '画像なし（読み込むと背景に配置されます）': 'No image (loaded image will be placed as background)',
+    'title="JPG / PNG / WebP を背景画像として読み込みます">画像を読み込む': 'title="Load JPG / PNG / WebP as background image">Load Image',
+    '>画像を消す</button>': '>Clear Image</button>',
+    '>動き': '>Motion',
+    '>Ken Burns（ズーム＆パン）</option>': '>Ken Burns (Pan & Zoom)</option>',
+    '>ビートパルス（低音連動）</option>': '>Beat Pulse (Rhythm Bounce)</option>',
+    '>3Dチルト（立体反転）</option>': '>3D Tilt (Card Flip)</option>',
+    '>フロート（浮遊パララックス）</option>': '>Float (Floating Parallax)</option>',
+    '>回転（スロースピン）</option>': '>Spin (Slow Rotation)</option>',
+    '暗さ（文字強調）': 'Dim Overlay',
+})
+
+UI.update({
+    "'画像なし（読み込むと背景に配置されます）'": "'No image (loaded image will be placed as background)'",
+
+    '`独創：${count}行に重複のない演出を割り当てました`': '`Diversity: Assigned non-repeating effects to ${count} lines!`',
+    "'画像ファイルが大きすぎます'": "'Image file is too large (max 15MB)'",
+    '`画像を読み込みました：${file.name}`': '`Loaded image: ${file.name}`',
+    "'画像を消しました'": "'Cleared background image'",
+})

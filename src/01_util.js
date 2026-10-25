@@ -17,6 +17,7 @@ J.E = {
   outQuad: x => { x = J.clamp(x); return 1 - (1 - x) * (1 - x); },
   inCubic: x => { x = J.clamp(x); return x * x * x; },
   outCubic: x => { x = J.clamp(x); return 1 - Math.pow(1 - x, 3); },
+  outQuart: x => { x = J.clamp(x); return 1 - Math.pow(1 - x, 4); },
   inOutCubic: x => { x = J.clamp(x); return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; },
   outExpo: x => { x = J.clamp(x); return x >= 1 ? 1 : 1 - Math.pow(2, -10 * x); },
   inExpo: x => { x = J.clamp(x); return x <= 0 ? 0 : Math.pow(2, 10 * x - 10); },

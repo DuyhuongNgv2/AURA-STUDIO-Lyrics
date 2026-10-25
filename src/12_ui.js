@@ -128,6 +128,14 @@ function mergeProject(p) {
   o.themeId = p && typeof p.themeId === 'string' && J.THEMES && J.THEMES[p.themeId] ? p.themeId : null;
   o.fonts = {};
   for (const [role, k] of Object.entries((p && p.fonts) || {})) if (typeof k === 'string' && J.FONTS[k] && /^[\w-]+$/.test(role)) o.fonts[role] = k;
+  if (p && p.image && typeof p.image === 'object') {
+    o.image = {
+      data: typeof p.image.data === 'string' ? p.image.data : null,
+      name: typeof p.image.name === 'string' ? p.image.name.slice(0, 100) : '',
+      mode: typeof p.image.mode === 'string' ? p.image.mode : 'kenburns',
+      dim: typeof p.image.dim === 'number' ? J.clamp(p.image.dim, 0, 0.95) : 0.45
+    };
+  }
   return o;
 }
 /* v0.10: untagged lines of an LRC text now stay where they are written — move per-line settings of older projects along */
@@ -830,6 +838,7 @@ async function resetAll() {
   $('audioName').textContent = audioNameDefault;
   ED.undo = []; ED.redo = []; H.list = []; H.i = -1;
   TL.z = 1; TL.off = 0;
+  J.userImageElement = null; J.userImageData = null; J.userImageName = ''; if ($('imageFile')) $('imageFile').value = '';
   $('lyrics').value = ''; fontKey = '';
   syncUI(); replan(); commit(); updateEditBtns(); flushSave(); seek(0);
   toast('初期化しました');
@@ -1106,6 +1115,62 @@ function lockBtn(k, anchor) {                     // lock button for effects tha
   b.setAttribute('aria-pressed', String(on));
   b.title = on ? LOCK_TITLE_OFF : LOCK_TITLE_ON;
   return b;
+}
+
+/* ---------------- 独創 (Diversity) & 背景画像 ---------------- */
+let imageNameDefault = '';
+function syncImageUI() {
+  const imgNameEl = $('imageName');
+  if (imgNameEl) {
+    if (!imageNameDefault) imageNameDefault = imgNameEl.textContent;
+    if (J.userImageElement && J.userImageName) {
+      imgNameEl.textContent = J.userImageName;
+      imgNameEl.classList.remove('muted');
+    } else {
+      imgNameEl.textContent = imageNameDefault;
+      imgNameEl.classList.add('muted');
+    }
+  }
+  const modeSel = $('imageModeSel');
+  if (modeSel) modeSel.value = J.userImageMode || 'kenburns';
+  const dimInput = $('imageDim');
+  if (dimInput) {
+    const dVal = Math.round((J.userImageDim ?? 0.45) * 100);
+    dimInput.value = dVal;
+    const dimValEl = $('imageDimVal');
+    if (dimValEl) dimValEl.textContent = dVal + '%';
+  }
+}
+
+function restoreUserImage() {
+  if (S.project && S.project.image && S.project.image.data) {
+    const im = S.project.image;
+    const img = new Image();
+    img.onload = () => {
+      J.userImageElement = img;
+      J.userImageData = im.data;
+      J.userImageName = im.name || 'image';
+      J.userImageMode = im.mode || 'kenburns';
+      J.userImageDim = im.dim ?? 0.45;
+      syncImageUI();
+      replan();
+    };
+    img.src = im.data;
+  } else {
+    J.userImageElement = null;
+    J.userImageData = null;
+    J.userImageName = '';
+    syncImageUI();
+  }
+}
+
+function diversity() {
+  if (S.exporting || S.tap) return;
+  remember();
+  const count = J.applyNonRepeatingDiversity ? J.applyNonRepeatingDiversity(S.project) : 0;
+  syncUI(); replan(); commit();
+  toast(`独創：${count}行に重複のない演出を割り当てました`);
+  restartPreview();
 }
 
 /* ---------------- おまかせ ---------------- */
@@ -1586,7 +1651,7 @@ function syncUI() {
   document.querySelectorAll('.typeset-toggle').forEach(el => { el.checked = S.project.typeset === true; });
   $('lyricLang').value = J.LANG_LABEL[S.project.lang] ? S.project.lang : 'auto'; langNote();
   document.querySelectorAll('.themeSel').forEach(el => { el.value = J.THEMES[S.project.themeId] ? S.project.themeId : ''; });
-  renderFontRoles(); renderColors(); renderFx(); renderTech(); syncOut(); drawStyleGrid();
+  renderFontRoles(); renderColors(); renderFx(); renderTech(); syncOut(); drawStyleGrid(); syncImageUI();
 }
 
 /* ---------------- wiring ---------------- */
@@ -1607,6 +1672,58 @@ function bind() {
   $('snap').addEventListener('change', e => { S.project.timing.snap = e.target.checked; replan(); });
   $('btnResetTimes').addEventListener('click', () => { S.project.timing.lineTimes = {}; replan(); });
   $('audioFile').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; if (f) loadAudioFile(f); });
+  const imgFileInput = $('imageFile');
+  if (imgFileInput) {
+    imgFileInput.addEventListener('change', e => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (file.size > 15 * 1024 * 1024) { toast('画像ファイルが大きすぎます'); return; }
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const dataUrl = ev.target.result;
+        const img = new Image();
+        img.onload = () => {
+          J.userImageElement = img;
+          J.userImageData = dataUrl;
+          J.userImageName = file.name;
+          S.project.image = { data: dataUrl, name: file.name, mode: J.userImageMode || 'kenburns', dim: J.userImageDim ?? 0.45 };
+          syncImageUI(); commit(); replan();
+          toast(`画像を読み込みました：${file.name}`);
+        };
+        img.src = dataUrl;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  const btnClearImg = $('btnClearImage');
+  if (btnClearImg) {
+    btnClearImg.addEventListener('click', () => {
+      J.userImageElement = null; J.userImageData = null; J.userImageName = '';
+      delete S.project.image;
+      if ($('imageFile')) $('imageFile').value = '';
+      syncImageUI(); commit(); replan();
+      toast('画像を消しました');
+    });
+  }
+  const imgModeSel = $('imageModeSel');
+  if (imgModeSel) {
+    imgModeSel.addEventListener('change', e => {
+      J.userImageMode = e.target.value;
+      if (S.project.image) S.project.image.mode = e.target.value;
+      commit(); replan();
+    });
+  }
+  const imgDimInput = $('imageDim');
+  if (imgDimInput) {
+    imgDimInput.addEventListener('input', e => {
+      const val = parseInt(e.target.value, 10) / 100;
+      J.userImageDim = val;
+      if (S.project.image) S.project.image.dim = val;
+      const lbl = $('imageDimVal');
+      if (lbl) lbl.textContent = e.target.value + '%';
+      replan();
+    });
+  }
   $('btnTap').addEventListener('click', () => (S.tap ? stopTap() : startTap()));
   $('tapBtn').addEventListener('click', tapNow);
   $('tapRate').addEventListener('change', () => {
@@ -1752,12 +1869,15 @@ function bind() {
   $('modeEasy').addEventListener('click', () => setMode('easy'));
   $('modeMobile').addEventListener('click', () => setMode('mobile'));
   $('btnOmakaseTop').addEventListener('click', omakase);
+  if ($('btnDiversityTop')) $('btnDiversityTop').addEventListener('click', diversity);
   $('btnMenu').addEventListener('click', () => { const on = !$('app').classList.contains('menu-open'); $('app').classList.toggle('menu-open', on); $('btnMenu').setAttribute('aria-expanded', String(on)); mobileBar(); });
   document.querySelectorAll('.sec > .sec-h h2').forEach(h => h.addEventListener('click', () => { if (S.mode === 'mobile') h.closest('.sec').classList.toggle('fold'); }));
   if (window.ResizeObserver) new ResizeObserver(mobileBar).observe(document.querySelector('.bar'));
   $('modePro').addEventListener('click', () => setMode('pro'));
   $('btnOmakase').addEventListener('click', omakase);
+  if ($('btnDiversity')) $('btnDiversity').addEventListener('click', diversity);
   $('btnOmakaseBig').addEventListener('click', omakase);
+  if ($('btnDiversityBig')) $('btnDiversityBig').addEventListener('click', diversity);
   ['btnPrev', 'btnPrev2'].forEach(id => $(id).addEventListener('click', () => histGo(-1)));
   ['btnNext', 'btnNext2'].forEach(id => $(id).addEventListener('click', () => histGo(1)));
   $('eStyle').addEventListener('click', () => rerollPart('style'));
@@ -1803,7 +1923,7 @@ function bind() {
       S.project = np;
       // another project: undo and 前の案 / 次の案 belonged to the old one
       ED.undo = []; ED.redo = []; H.list = []; H.i = -1;
-      syncUI(); replan(); restoreFonts(); commit(); updateEditBtns(); flushSave();
+      syncUI(); replan(); restoreFonts(); restoreUserImage(); commit(); updateEditBtns(); flushSave();
     }
     catch (err) { showMsg('プロジェクトを読み込めませんでした'); setTimeout(() => showMsg(null), 2500); }
     e.target.value = '';
@@ -1822,6 +1942,7 @@ function bind() {
     else if (e.code === 'ArrowRight') seek(S.t + (e.shiftKey ? 1 : 1 / S.plan.fps));
     else if (e.code === 'ArrowLeft') seek(S.t - (e.shiftKey ? 1 : 1 / S.plan.fps));
     else if (e.code === 'KeyR' && !e.metaKey && !e.ctrlKey && !e.altKey && !S.exporting) { e.preventDefault(); omakase(); }
+    else if (e.code === 'KeyD' && !e.metaKey && !e.ctrlKey && !e.altKey && !S.exporting) { e.preventDefault(); diversity(); }
   });
   window.addEventListener('resize', () => { sizeViewport(); drawTimeline(); });
   if (window.ResizeObserver) new ResizeObserver(() => { sizeViewport(); drawTimeline(); }).observe($('viewport'));
@@ -1922,7 +2043,7 @@ async function restoreFonts() {
 function boot() {
   S.project = loadLocal();
   bind(); initVolume(); syncUI(); syncLoopBtn(); replan();
-  restoreFonts();
+  restoreFonts(); restoreUserImage();
   // first visit on a phone: スマホ mode
   let mode = window.matchMedia && window.matchMedia('(max-width: 760px)').matches ? 'mobile' : 'easy';
   try { mode = localStorage.getItem('jizura.mode') || mode; } catch (e) {}

@@ -271,6 +271,32 @@ label.check small { display: block; font-size: 11px; color: var(--muted); }
 .hist-btns { display: inline-flex; gap: 4px; }
 button.icon-txt { font-size: 10px; min-width: 28px; }
 .transport #btnOmakase { letter-spacing: 0.08em; }
+.transport #btnDiversity {
+  letter-spacing: 0.06em;
+  background: linear-gradient(135deg, #16F4D4, #F5A50C);
+  color: #0b0b0f;
+  font-weight: 700;
+  border: 0;
+}
+.transport #btnDiversity:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 0 10px rgba(22, 244, 212, 0.4);
+}
+button.div-big {
+  background: linear-gradient(135deg, #16F4D4, #F5A50C);
+  color: #0b0b0f;
+  font-weight: 900;
+  border: 0;
+}
+button.div-big:hover {
+  filter: brightness(1.15);
+  box-shadow: -5px -3px 0 var(--cyan), 5px 3px 0 var(--amber);
+}
+.div-top {
+  background: linear-gradient(135deg, #16F4D4, #F5A50C);
+  color: #0b0b0f;
+  font-weight: 700;
+}
 
 .easy { padding: 16px 16px 28px; display: grid; gap: 18px; }
 .easy h3 { margin: 0 0 8px; }
@@ -411,7 +437,7 @@ button.small.primary { padding: 4px 12px; }
 #app.is-mobile .bar { position: sticky; top: 0; z-index: 40; gap: 8px; padding: 8px 10px; }
 #app.is-mobile .brand .tag, #app.is-mobile .brand .word, #app.is-mobile .tour-btn { display: none; }
 #app.is-mobile .brand .mark { font-size: 22px; }
-#app.is-mobile .omk-top, #app.is-mobile .menu-btn { display: inline-block; }
+#app.is-mobile .omk-top, #app.is-mobile .div-top, #app.is-mobile .menu-btn { display: inline-block; }
 #app.is-mobile .omk-top { order: 2; margin-left: auto; padding: 9px 16px; font-size: 15px; }
 #app.is-mobile .menu-btn { order: 3; padding: 9px 10px; }
 #app.is-mobile .modes { order: 4; flex: 1 1 100%; }
@@ -493,6 +519,7 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
       <input id="songArtist" type="text" placeholder="Artist" aria-label="Artist">
     </div>
     <button id="btnOmakaseTop" class="primary omk-top" title="Randomize style, mood, effects and palette">Randomize</button>
+    <button id="btnDiversityTop" class="primary omk-top div-top" title="Automatically assign non-repeating CapCut effects across song lines (Key D)">Diversity</button>
     <button id="btnMenu" class="ghost menu-btn" aria-expanded="false" aria-controls="appMenu">Menu</button>
     <div class="modes" role="group" aria-label="Editor mode">
       <button id="modeMobile" class="mode-mobile" aria-pressed="false" title="Phone layout (Randomize pinned at the top, lines folded)">Phone</button>
@@ -557,6 +584,30 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
         </div>
       </div>
 
+      <div class="sec" id="secImage">
+        <div class="sec-h"><h2>Background Image & Motion</h2></div>
+        <div id="imageName" class="muted audio-name">No image (loaded image will be placed as background)</div>
+        <div class="row">
+          <label class="file" title="Load JPG / PNG / WebP as background image">Load Image<input id="imageFile" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.gif"></label>
+          <button id="btnClearImage" class="ghost small">Clear Image</button>
+        </div>
+        <div class="fields pro-only">
+          <label class="field">Motion
+            <select id="imageModeSel">
+              <option value="kenburns">Ken Burns (Pan & Zoom)</option>
+              <option value="beatpulse">Beat Pulse (Rhythm Bounce)</option>
+              <option value="flip3d">3D Tilt (Card Flip)</option>
+              <option value="float">Float (Floating Parallax)</option>
+              <option value="spin">Spin (Slow Rotation)</option>
+            </select>
+          </label>
+          <label class="field">Dim Overlay
+            <input id="imageDim" type="range" min="0" max="90" value="45" step="5">
+            <span id="imageDimVal" class="mono muted">45%</span>
+          </label>
+        </div>
+      </div>
+
       <div class="sec">
         <div class="sec-h"><h2>Lines and cuts</h2><span id="linesInfo" class="muted mono"></span></div>
         <ol id="lineList"></ol>
@@ -579,6 +630,7 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
         <button id="btnShuffle" class="accent" title="Shuffle the arrangement, keeping locked lines">Shuffle</button>
         <select class="themeSel" aria-label="Randomize theme" title="Randomize theme (when set, Randomize stays within that direction and turns on the part sets it needs)"><option value="">No theme</option><option value="lyricpv">Lyric video</option><option value="kinetic">Kinetic</option><option value="wa">Japanese</option><option value="horror">Horror</option><option value="pop">Pop</option><option value="ballad">Ballad</option></select>
         <button id="btnOmakase" class="primary" title="Randomize style, mood, effects and colors (R)">Randomize</button>
+        <button id="btnDiversity" class="primary div-btn" title="Automatically assign non-repeating CapCut effects across song lines (Key D)">Diversity</button>
       </div>
       <div class="tl-bar">
         <span class="tl-hint muted">Drag the line markers (top) to move line starts. Hold <span class="kbd">Shift</span> to ignore beats</span>
@@ -607,6 +659,7 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
       <div id="easyPanel" class="easy" hidden>
         <div class="easy-hero">
           <button id="btnOmakaseBig" class="omakase">Create a variation</button>
+          <button id="btnDiversityBig" class="omakase div-big" title="Automatically assign non-repeating CapCut effects across song lines (Key D)">Create with Diversity</button>
           <label class="theme-row">Theme<select class="themeSel" aria-label="Randomize theme"><option value="">No theme</option><option value="lyricpv">Lyric video</option><option value="kinetic">Kinetic</option><option value="wa">Japanese</option><option value="horror">Horror</option><option value="pop">Pop</option><option value="ballad">Ballad</option></select><small class="muted">Randomize stays within the chosen direction</small></label>
           <p class="hint">Each click changes the style, mood, motion, colors and arrangement. Press <span class="kbd">R</span> to do the same.</p>
           <div class="hist-row">
@@ -814,6 +867,7 @@ J.E = {
   outQuad: x => { x = J.clamp(x); return 1 - (1 - x) * (1 - x); },
   inCubic: x => { x = J.clamp(x); return x * x * x; },
   outCubic: x => { x = J.clamp(x); return 1 - Math.pow(1 - x, 3); },
+  outQuart: x => { x = J.clamp(x); return 1 - Math.pow(1 - x, 4); },
   inOutCubic: x => { x = J.clamp(x); return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; },
   outExpo: x => { x = J.clamp(x); return x >= 1 ? 1 : 1 - Math.pow(2, -10 * x); },
   inExpo: x => { x = J.clamp(x); return x <= 0 ? 0 : Math.pow(2, 10 * x - 10); },
@@ -4699,6 +4753,60 @@ J.cutAt = (plan, t) => {
   return t < c.end ? c : null;
 };
 
+J.userImageElement = null;
+J.userImageMode = 'kenburns';
+J.userImageDim = 0.45;
+
+J.drawUserImage = (ctx, W, H, t, plan, beatPulse) => {
+  const img = J.userImageElement;
+  if (!img || !img.complete || img.naturalWidth === 0) return;
+  ctx.save();
+  const mode = J.userImageMode || 'kenburns';
+  const dim = J.userImageDim ?? 0.45;
+  const iw = img.naturalWidth, ih = img.naturalHeight;
+  const scaleCover = Math.max(W / iw, H / ih);
+  const cx = W / 2, cy = H / 2;
+  ctx.translate(cx, cy);
+
+  let s = scaleCover;
+  let dx = 0, dy = 0, rot = 0;
+
+  if (mode === 'kenburns') {
+    const dur = Math.max(10, (plan && plan.duration) || 30);
+    const p = (t % dur) / dur;
+    s *= 1.05 + 0.12 * Math.sin(p * Math.PI);
+    dx = Math.sin(p * 2 * Math.PI) * (W * 0.03);
+    dy = Math.cos(p * 2 * Math.PI) * (H * 0.02);
+  } else if (mode === 'beatpulse') {
+    const pulse = beatPulse ? beatPulse * 0.09 : 0.02 * Math.sin(t * 3);
+    s *= 1.02 + pulse;
+  } else if (mode === 'flip3d') {
+    const tilt = Math.sin(t * 0.8) * 0.12;
+    ctx.transform(Math.cos(tilt), 0, Math.sin(tilt) * 0.15, 1, 0, 0);
+    s *= 1.08;
+  } else if (mode === 'float') {
+    dx = Math.sin(t * 1.2) * (W * 0.02);
+    dy = Math.cos(t * 0.9) * (H * 0.025);
+    rot = Math.sin(t * 0.6) * 1.5;
+    ctx.rotate(rot * (Math.PI / 180));
+    s *= 1.06;
+  } else if (mode === 'spin') {
+    rot = (t * 2) % 360;
+    ctx.rotate(rot * (Math.PI / 180));
+    s *= 1.25;
+  }
+
+  const drawW = iw * s, drawH = ih * s;
+  ctx.drawImage(img, -drawW / 2 + dx, -drawH / 2 + dy, drawW, drawH);
+
+  if (dim > 0.01) {
+    ctx.fillStyle = "rgba(0, 0, 0, " + dim + ")";
+    ctx.fillRect(-W * 2, -H * 2, W * 4, H * 4);
+  }
+  ctx.restore();
+};
+
+
 class Renderer {
   constructor() {
     this.scratch = mk(2, 2); this.small = mk(2, 2); this.tiny = mk(2, 2);
@@ -4793,6 +4901,9 @@ class Renderer {
     const step = Math.floor(tq / clock + 1e-6);
     const beatInfo = plan.beats && plan.beats.length ? beatAt(plan.beats, tq) : null;
     const energy = plan.energy ? plan.energy[Math.min(plan.energy.length - 1, Math.max(0, Math.floor(t * plan.energyRate)))] : null;
+    if (J.userImageElement && !opt.transparent && !key) {
+      J.drawUserImage(ctx, W, H, t, plan, beatPulse);
+    }
     // ---------- background graphic (per line) ----------
     // 透過PNG 前景／後景 (opt.layer): 'back' = background graphic + the decorations behind the lyrics, 'front' = the rest
     const layer = opt.transparent ? opt.layer || null : null;
@@ -7026,7 +7137,7 @@ reg('enter', 'ccStompImpact', {
     const dur = ctx.inDur, lt = env.lt - (it.delay || 0);
     const t = clamp(lt / Math.max(0.01, dur * 0.5));
     if (t < 1) {
-      const s = lerp(3.5, 1.0, E.outQuart(t));
+      const s = lerp(3.5, 1.0, E.outExpo(t));
       it.sx = (it.sx || 1) * s;
       it.sy = (it.sy || 1) * s;
       it.alpha = (it.alpha ?? 1) * clamp(t * 4);
@@ -7196,6 +7307,85 @@ reg('treat', 'ccNeonGlowTube', {
     it.outlineColor = '#FFFFFF';
   }
 });
+
+/* ----------------------------------------------------------------
+   AUTO ĐỘC BẢN: Guaranteed Non-Repeating Kinetic Diversity
+   ---------------------------------------------------------------- */
+J.applyNonRepeatingDiversity = (project) => {
+  const parsed = J.parseLyrics(project.lyrics || '');
+  const lines = parsed.lines || [];
+  if (!lines.length) return 0;
+
+  project.overrides = project.overrides || {};
+
+  // Curated lists with high visual distinction, prioritizing CapCut & kinetic typography
+  const enterPoolEnergetic = [
+    'ccPopBounce', 'ccStompImpact', 'ccGlitchRGB', 'assemble', 'slice', 'knWordSlam', 'flipIn', 'elastic', 'shatter', 'fly'
+  ].filter(k => J.ENTER[k]);
+
+  const enterPoolSmooth = [
+    'ccSmoothSlideUp', 'ccTypeBlink', 'blur', 'type', 'wipe', 'draw', 'roll', 'unfold', 'expand', 'focus', 'fade'
+  ].filter(k => J.ENTER[k]);
+
+  const holdPool = [
+    'ccPulseHeart', 'ccWaveSway', 'ccJitterBass', 'float', 'drift', 'quake', 'pendulum', 'hover', 'breath', 'orbit'
+  ].filter(k => J.HOLD[k]);
+
+  const exitPool = [
+    'ccZoomThrough', 'ccSmokeFade', 'ccDropFall', 'explode', 'fall', 'burn', 'scatter', 'drift', 'wipe', 'blur', 'snap'
+  ].filter(k => J.EXIT[k]);
+
+  const treatPool = [
+    'ccKaraokeActive', 'ccHighlighter', 'ccNeonGlowTube', 'outline', 'shadow', 'rainbow', 'extrusion', 'halftone', 'none'
+  ].filter(k => J.TREAT[k]);
+
+  const camPool = [
+    'push', 'pull', 'pan', 'drift', 'sway', 'tilt'
+  ].filter(k => J.CAMERA[k]);
+
+  const history = { enter: [], hold: [], exit: [], treat: [], cam: [] };
+
+  const pickAvoid = (pool, hist, maxHist = 3) => {
+    if (!pool.length) return null;
+    let available = pool.filter(k => !hist.includes(k));
+    if (!available.length) {
+      const prev = hist[hist.length - 1];
+      available = pool.filter(k => k !== prev);
+      if (!available.length) available = pool;
+    }
+    const chosen = available[Math.floor(Math.random() * available.length)];
+    hist.push(chosen);
+    if (hist.length > maxHist) hist.shift();
+    return chosen;
+  };
+
+  let assignedCount = 0;
+
+  lines.forEach((ln, idx) => {
+    if (ln.interlude) return;
+    const isImpact = ln.impact || idx % 3 === 2;
+    const enterPool = isImpact ? enterPoolEnergetic : enterPoolSmooth;
+
+    const chosenEnter = pickAvoid(enterPool.length ? enterPool : J.ENTER_ORDER, history.enter, 3);
+    const chosenHold = pickAvoid(holdPool.length ? holdPool : J.HOLD_ORDER, history.hold, 2);
+    const chosenExit = pickAvoid(exitPool.length ? exitPool : J.EXIT_ORDER, history.exit, 3);
+    const chosenTreat = pickAvoid(treatPool.length ? treatPool : J.TREAT_ORDER, history.treat, 2);
+    const chosenCam = pickAvoid(camPool.length ? camPool : J.CAMERA_ORDER, history.cam, 2);
+
+    const cur = Object.assign({}, project.overrides[idx] || {});
+    if (!cur.lock) {
+      if (chosenEnter) cur.enter = chosenEnter;
+      if (chosenHold) cur.hold = chosenHold;
+      if (chosenExit) cur.exit = chosenExit;
+      if (chosenTreat) cur.treat = chosenTreat;
+      if (chosenCam) cur.cam = chosenCam;
+      project.overrides[idx] = cur;
+      assignedCount++;
+    }
+  });
+
+  return assignedCount;
+};
 
 })();
 
@@ -36515,6 +36705,14 @@ function mergeProject(p) {
   o.themeId = p && typeof p.themeId === 'string' && J.THEMES && J.THEMES[p.themeId] ? p.themeId : null;
   o.fonts = {};
   for (const [role, k] of Object.entries((p && p.fonts) || {})) if (typeof k === 'string' && J.FONTS[k] && /^[\w-]+$/.test(role)) o.fonts[role] = k;
+  if (p && p.image && typeof p.image === 'object') {
+    o.image = {
+      data: typeof p.image.data === 'string' ? p.image.data : null,
+      name: typeof p.image.name === 'string' ? p.image.name.slice(0, 100) : '',
+      mode: typeof p.image.mode === 'string' ? p.image.mode : 'kenburns',
+      dim: typeof p.image.dim === 'number' ? J.clamp(p.image.dim, 0, 0.95) : 0.45
+    };
+  }
   return o;
 }
 /* v0.10: untagged lines of an LRC text now stay where they are written — move per-line settings of older projects along */
@@ -37217,6 +37415,7 @@ async function resetAll() {
   $('audioName').textContent = audioNameDefault;
   ED.undo = []; ED.redo = []; H.list = []; H.i = -1;
   TL.z = 1; TL.off = 0;
+  J.userImageElement = null; J.userImageData = null; J.userImageName = ''; if ($('imageFile')) $('imageFile').value = '';
   $('lyrics').value = ''; fontKey = '';
   syncUI(); replan(); commit(); updateEditBtns(); flushSave(); seek(0);
   toast('Reset done');
@@ -37493,6 +37692,62 @@ function lockBtn(k, anchor) {                     // lock button for effects tha
   b.setAttribute('aria-pressed', String(on));
   b.title = on ? LOCK_TITLE_OFF : LOCK_TITLE_ON;
   return b;
+}
+
+/* ---------------- 独創 (Diversity) & Background画像 ---------------- */
+let imageNameDefault = '';
+function syncImageUI() {
+  const imgNameEl = $('imageName');
+  if (imgNameEl) {
+    if (!imageNameDefault) imageNameDefault = imgNameEl.textContent;
+    if (J.userImageElement && J.userImageName) {
+      imgNameEl.textContent = J.userImageName;
+      imgNameEl.classList.remove('muted');
+    } else {
+      imgNameEl.textContent = imageNameDefault;
+      imgNameEl.classList.add('muted');
+    }
+  }
+  const modeSel = $('imageModeSel');
+  if (modeSel) modeSel.value = J.userImageMode || 'kenburns';
+  const dimInput = $('imageDim');
+  if (dimInput) {
+    const dVal = Math.round((J.userImageDim ?? 0.45) * 100);
+    dimInput.value = dVal;
+    const dimValEl = $('imageDimVal');
+    if (dimValEl) dimValEl.textContent = dVal + '%';
+  }
+}
+
+function restoreUserImage() {
+  if (S.project && S.project.image && S.project.image.data) {
+    const im = S.project.image;
+    const img = new Image();
+    img.onload = () => {
+      J.userImageElement = img;
+      J.userImageData = im.data;
+      J.userImageName = im.name || 'image';
+      J.userImageMode = im.mode || 'kenburns';
+      J.userImageDim = im.dim ?? 0.45;
+      syncImageUI();
+      replan();
+    };
+    img.src = im.data;
+  } else {
+    J.userImageElement = null;
+    J.userImageData = null;
+    J.userImageName = '';
+    syncImageUI();
+  }
+}
+
+function diversity() {
+  if (S.exporting || S.tap) return;
+  remember();
+  const count = J.applyNonRepeatingDiversity ? J.applyNonRepeatingDiversity(S.project) : 0;
+  syncUI(); replan(); commit();
+  toast(`Diversity: Assigned non-repeating effects to ${count} lines!`);
+  restartPreview();
 }
 
 /* ---------------- Randomize ---------------- */
@@ -37973,7 +38228,7 @@ function syncUI() {
   document.querySelectorAll('.typeset-toggle').forEach(el => { el.checked = S.project.typeset === true; });
   $('lyricLang').value = J.LANG_LABEL[S.project.lang] ? S.project.lang : 'auto'; langNote();
   document.querySelectorAll('.themeSel').forEach(el => { el.value = J.THEMES[S.project.themeId] ? S.project.themeId : ''; });
-  renderFontRoles(); renderColors(); renderFx(); renderTech(); syncOut(); drawStyleGrid();
+  renderFontRoles(); renderColors(); renderFx(); renderTech(); syncOut(); drawStyleGrid(); syncImageUI();
 }
 
 /* ---------------- wiring ---------------- */
@@ -37994,6 +38249,58 @@ function bind() {
   $('snap').addEventListener('change', e => { S.project.timing.snap = e.target.checked; replan(); });
   $('btnResetTimes').addEventListener('click', () => { S.project.timing.lineTimes = {}; replan(); });
   $('audioFile').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; if (f) loadAudioFile(f); });
+  const imgFileInput = $('imageFile');
+  if (imgFileInput) {
+    imgFileInput.addEventListener('change', e => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (file.size > 15 * 1024 * 1024) { toast('Image file is too large (max 15MB)'); return; }
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const dataUrl = ev.target.result;
+        const img = new Image();
+        img.onload = () => {
+          J.userImageElement = img;
+          J.userImageData = dataUrl;
+          J.userImageName = file.name;
+          S.project.image = { data: dataUrl, name: file.name, mode: J.userImageMode || 'kenburns', dim: J.userImageDim ?? 0.45 };
+          syncImageUI(); commit(); replan();
+          toast(`Loaded image: ${file.name}`);
+        };
+        img.src = dataUrl;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  const btnClearImg = $('btnClearImage');
+  if (btnClearImg) {
+    btnClearImg.addEventListener('click', () => {
+      J.userImageElement = null; J.userImageData = null; J.userImageName = '';
+      delete S.project.image;
+      if ($('imageFile')) $('imageFile').value = '';
+      syncImageUI(); commit(); replan();
+      toast('Cleared background image');
+    });
+  }
+  const imgModeSel = $('imageModeSel');
+  if (imgModeSel) {
+    imgModeSel.addEventListener('change', e => {
+      J.userImageMode = e.target.value;
+      if (S.project.image) S.project.image.mode = e.target.value;
+      commit(); replan();
+    });
+  }
+  const imgDimInput = $('imageDim');
+  if (imgDimInput) {
+    imgDimInput.addEventListener('input', e => {
+      const val = parseInt(e.target.value, 10) / 100;
+      J.userImageDim = val;
+      if (S.project.image) S.project.image.dim = val;
+      const lbl = $('imageDimVal');
+      if (lbl) lbl.textContent = e.target.value + '%';
+      replan();
+    });
+  }
   $('btnTap').addEventListener('click', () => (S.tap ? stopTap() : startTap()));
   $('tapBtn').addEventListener('click', tapNow);
   $('tapRate').addEventListener('change', () => {
@@ -38139,12 +38446,15 @@ function bind() {
   $('modeEasy').addEventListener('click', () => setMode('easy'));
   $('modeMobile').addEventListener('click', () => setMode('mobile'));
   $('btnOmakaseTop').addEventListener('click', omakase);
+  if ($('btnDiversityTop')) $('btnDiversityTop').addEventListener('click', diversity);
   $('btnMenu').addEventListener('click', () => { const on = !$('app').classList.contains('menu-open'); $('app').classList.toggle('menu-open', on); $('btnMenu').setAttribute('aria-expanded', String(on)); mobileBar(); });
   document.querySelectorAll('.sec > .sec-h h2').forEach(h => h.addEventListener('click', () => { if (S.mode === 'mobile') h.closest('.sec').classList.toggle('fold'); }));
   if (window.ResizeObserver) new ResizeObserver(mobileBar).observe(document.querySelector('.bar'));
   $('modePro').addEventListener('click', () => setMode('pro'));
   $('btnOmakase').addEventListener('click', omakase);
+  if ($('btnDiversity')) $('btnDiversity').addEventListener('click', diversity);
   $('btnOmakaseBig').addEventListener('click', omakase);
+  if ($('btnDiversityBig')) $('btnDiversityBig').addEventListener('click', diversity);
   ['btnPrev', 'btnPrev2'].forEach(id => $(id).addEventListener('click', () => histGo(-1)));
   ['btnNext', 'btnNext2'].forEach(id => $(id).addEventListener('click', () => histGo(1)));
   $('eStyle').addEventListener('click', () => rerollPart('style'));
@@ -38190,7 +38500,7 @@ function bind() {
       S.project = np;
       // another project: undo and 前の案 / 次の案 belonged to the old one
       ED.undo = []; ED.redo = []; H.list = []; H.i = -1;
-      syncUI(); replan(); restoreFonts(); commit(); updateEditBtns(); flushSave();
+      syncUI(); replan(); restoreFonts(); restoreUserImage(); commit(); updateEditBtns(); flushSave();
     }
     catch (err) { showMsg('Could not open the project'); setTimeout(() => showMsg(null), 2500); }
     e.target.value = '';
@@ -38209,6 +38519,7 @@ function bind() {
     else if (e.code === 'ArrowRight') seek(S.t + (e.shiftKey ? 1 : 1 / S.plan.fps));
     else if (e.code === 'ArrowLeft') seek(S.t - (e.shiftKey ? 1 : 1 / S.plan.fps));
     else if (e.code === 'KeyR' && !e.metaKey && !e.ctrlKey && !e.altKey && !S.exporting) { e.preventDefault(); omakase(); }
+    else if (e.code === 'KeyD' && !e.metaKey && !e.ctrlKey && !e.altKey && !S.exporting) { e.preventDefault(); diversity(); }
   });
   window.addEventListener('resize', () => { sizeViewport(); drawTimeline(); });
   if (window.ResizeObserver) new ResizeObserver(() => { sizeViewport(); drawTimeline(); }).observe($('viewport'));
@@ -38309,7 +38620,7 @@ async function restoreFonts() {
 function boot() {
   S.project = loadLocal();
   bind(); initVolume(); syncUI(); syncLoopBtn(); replan();
-  restoreFonts();
+  restoreFonts(); restoreUserImage();
   // first visit on a phone: スマホ mode
   let mode = window.matchMedia && window.matchMedia('(max-width: 760px)').matches ? 'mobile' : 'easy';
   try { mode = localStorage.getItem('jizura.mode') || mode; } catch (e) {}

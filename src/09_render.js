@@ -15,6 +15,60 @@ J.cutAt = (plan, t) => {
   return t < c.end ? c : null;
 };
 
+J.userImageElement = null;
+J.userImageMode = 'kenburns';
+J.userImageDim = 0.45;
+
+J.drawUserImage = (ctx, W, H, t, plan, beatPulse) => {
+  const img = J.userImageElement;
+  if (!img || !img.complete || img.naturalWidth === 0) return;
+  ctx.save();
+  const mode = J.userImageMode || 'kenburns';
+  const dim = J.userImageDim ?? 0.45;
+  const iw = img.naturalWidth, ih = img.naturalHeight;
+  const scaleCover = Math.max(W / iw, H / ih);
+  const cx = W / 2, cy = H / 2;
+  ctx.translate(cx, cy);
+
+  let s = scaleCover;
+  let dx = 0, dy = 0, rot = 0;
+
+  if (mode === 'kenburns') {
+    const dur = Math.max(10, (plan && plan.duration) || 30);
+    const p = (t % dur) / dur;
+    s *= 1.05 + 0.12 * Math.sin(p * Math.PI);
+    dx = Math.sin(p * 2 * Math.PI) * (W * 0.03);
+    dy = Math.cos(p * 2 * Math.PI) * (H * 0.02);
+  } else if (mode === 'beatpulse') {
+    const pulse = beatPulse ? beatPulse * 0.09 : 0.02 * Math.sin(t * 3);
+    s *= 1.02 + pulse;
+  } else if (mode === 'flip3d') {
+    const tilt = Math.sin(t * 0.8) * 0.12;
+    ctx.transform(Math.cos(tilt), 0, Math.sin(tilt) * 0.15, 1, 0, 0);
+    s *= 1.08;
+  } else if (mode === 'float') {
+    dx = Math.sin(t * 1.2) * (W * 0.02);
+    dy = Math.cos(t * 0.9) * (H * 0.025);
+    rot = Math.sin(t * 0.6) * 1.5;
+    ctx.rotate(rot * (Math.PI / 180));
+    s *= 1.06;
+  } else if (mode === 'spin') {
+    rot = (t * 2) % 360;
+    ctx.rotate(rot * (Math.PI / 180));
+    s *= 1.25;
+  }
+
+  const drawW = iw * s, drawH = ih * s;
+  ctx.drawImage(img, -drawW / 2 + dx, -drawH / 2 + dy, drawW, drawH);
+
+  if (dim > 0.01) {
+    ctx.fillStyle = "rgba(0, 0, 0, " + dim + ")";
+    ctx.fillRect(-W * 2, -H * 2, W * 4, H * 4);
+  }
+  ctx.restore();
+};
+
+
 class Renderer {
   constructor() {
     this.scratch = mk(2, 2); this.small = mk(2, 2); this.tiny = mk(2, 2);
@@ -109,6 +163,9 @@ class Renderer {
     const step = Math.floor(tq / clock + 1e-6);
     const beatInfo = plan.beats && plan.beats.length ? beatAt(plan.beats, tq) : null;
     const energy = plan.energy ? plan.energy[Math.min(plan.energy.length - 1, Math.max(0, Math.floor(t * plan.energyRate)))] : null;
+    if (J.userImageElement && !opt.transparent && !key) {
+      J.drawUserImage(ctx, W, H, t, plan, beatPulse);
+    }
     // ---------- background graphic (per line) ----------
     // 透過PNG 前景／後景 (opt.layer): 'back' = background graphic + the decorations behind the lyrics, 'front' = the rest
     const layer = opt.transparent ? opt.layer || null : null;
