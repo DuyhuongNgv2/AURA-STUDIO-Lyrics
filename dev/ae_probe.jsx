@@ -1,7 +1,7 @@
-/*  JIZURA probe \u2014 run once in After Effects: File > Scripts > Run Script File...
-    Records the real parameter ranges of the effects / shape / text properties JIZURA uses and how After Effects
+/*  AURA probe \u2014 run once in After Effects: File > Scripts > Run Script File...
+    Records the real parameter ranges of the effects / shape / text properties AURA uses and how After Effects
     invalidates script references, so the panel can be checked against the real application.
-    Writes JIZURA_probe.txt to the desktop. It creates a temporary comp and removes it again (one undo step).  */
+    Writes AURA_probe.txt to the desktop. It creates a temporary comp and removes it again (one undo step).  */
 (function () {
     var EFFECTS = ["ADBE Linear Wipe", "ADBE Radial Wipe", "ADBE Iris Wipe", "ADBE Venetian Blinds", "ADBE Block Dissolve", "CC Grid Wipe", "ADBE Gaussian Blur 2", "ADBE Box Blur2", "ADBE Motion Blur", "ADBE Radial Blur", "CC Radial Blur", "ADBE Tint", "ADBE Fill", "ADBE Invert", "ADBE Tritone", "ADBE Color Balance (HLS)", "ADBE Brightness & Contrast 2", "ADBE Posterize", "ADBE Threshold2", "ADBE Mosaic", "ADBE Find Edges", "ADBE Noise", "ADBE Fractal Noise", "ADBE Ramp", "ADBE 4ColorGradient", "ADBE Glo2", "ADBE Drop Shadow", "ADBE Geometry2", "ADBE Wave Warp", "ADBE Turbulent Displace", "ADBE Bulge", "ADBE Twirl", "ADBE Ripple", "ADBE Spherize", "ADBE Optics Compensation", "ADBE Polar Coordinates", "CC Kaleida", "ADBE Mirror", "ADBE Tile", "ADBE Offset", "ADBE Echo", "ADBE Posterize Time", "ADBE Lens Flare", "CC Light Rays", "ADBE Roughen Edges", "ADBE Simple Choker"];
     var TEXTPROPS = ["ADBE Text Position 3D", "ADBE Text Anchor Point 3D", "ADBE Text Scale 3D", "ADBE Text Skew", "ADBE Text Skew Axis", "ADBE Text Rotation", "ADBE Text Opacity", "ADBE Text Fill Color", "ADBE Text Stroke Color", "ADBE Text Fill Opacity", "ADBE Text Stroke Opacity", "ADBE Text Stroke Width", "ADBE Text Tracking Amount", "ADBE Text Line Spacing", "ADBE Text Character Offset", "ADBE Text Blur", "ADBE Text Line Anchor", "ADBE Text Fill Brightness", "ADBE Text Fill Hue", "ADBE Text Fill Saturation"];
@@ -35,8 +35,8 @@
     function test(name, fn) { var r; try { r = fn(); } catch (e) { r = 'THREW ' + e.toString(); } out.push('#TEST ' + name + ' => ' + r); }
     function alive(o, f) { try { var x = f ? f(o) : o.name; return 'valid'; } catch (e) { return 'INVALID (' + e.toString() + ')'; } }
 
-    app.beginUndoGroup('JIZURA probe');
-    var comp = app.project.items.addComp('JIZURA probe', 400, 400, 1, 2, 24), i;
+    app.beginUndoGroup('AURA probe');
+    var comp = app.project.items.addComp('AURA probe', 400, 400, 1, 2, 24), i;
     out.push('#AE ' + app.version + ' ' + $.os + ' engine ' + app.project.expressionEngine);
     try {
         // ---- effects
@@ -120,7 +120,7 @@
     try { comp.remove(); } catch (eR) {}
     app.endUndoGroup();
     out.push('#DONE ' + ((new Date().getTime() - t0) / 1000) + 's');
-    var f = new File(Folder.desktop.fsName + '/JIZURA_probe.txt'); f.encoding = 'UTF-8';
-    if (f.open('w')) { f.write(out.join('\n')); f.close(); alert('JIZURA probe: \u30C7\u30B9\u30AF\u30C8\u30C3\u30D7\u306B JIZURA_probe.txt \u3092\u4FDD\u5B58\u3057\u307E\u3057\u305F\uFF08' + out.length + ' \u884C\uFF09\u3002'); }
-    else alert('JIZURA probe: \u30D5\u30A1\u30A4\u30EB\u3092\u4FDD\u5B58\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u74B0\u5883\u8A2D\u5B9A \u2192 \u30B9\u30AF\u30EA\u30D7\u30C8\u3068\u30A8\u30AF\u30B9\u30D7\u30EC\u30C3\u30B7\u30E7\u30F3 \u2192\u300C\u30B9\u30AF\u30EA\u30D7\u30C8\u306B\u3088\u308B\u30D5\u30A1\u30A4\u30EB\u3078\u306E\u66F8\u304D\u8FBC\u307F\u3068\u30CD\u30C3\u30C8\u30EF\u30FC\u30AF\u3078\u306E\u30A2\u30AF\u30BB\u30B9\u3092\u8A31\u53EF\u300D\u3092\u30AA\u30F3\u306B\u3057\u3066\u304F\u3060\u3055\u3044\u3002');
+    var f = new File(Folder.desktop.fsName + '/AURA_probe.txt'); f.encoding = 'UTF-8';
+    if (f.open('w')) { f.write(out.join('\n')); f.close(); alert('AURA probe: \u30C7\u30B9\u30AF\u30C8\u30C3\u30D7\u306B AURA_probe.txt \u3092\u4FDD\u5B58\u3057\u307E\u3057\u305F\uFF08' + out.length + ' \u884C\uFF09\u3002'); }
+    else alert('AURA probe: \u30D5\u30A1\u30A4\u30EB\u3092\u4FDD\u5B58\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F\u3002\u74B0\u5883\u8A2D\u5B9A \u2192 \u30B9\u30AF\u30EA\u30D7\u30C8\u3068\u30A8\u30AF\u30B9\u30D7\u30EC\u30C3\u30B7\u30E7\u30F3 \u2192\u300C\u30B9\u30AF\u30EA\u30D7\u30C8\u306B\u3088\u308B\u30D5\u30A1\u30A4\u30EB\u3078\u306E\u66F8\u304D\u8FBC\u307F\u3068\u30CD\u30C3\u30C8\u30EF\u30FC\u30AF\u3078\u306E\u30A2\u30AF\u30BB\u30B9\u3092\u8A31\u53EF\u300D\u3092\u30AA\u30F3\u306B\u3057\u3066\u304F\u3060\u3055\u3044\u3002');
 })();

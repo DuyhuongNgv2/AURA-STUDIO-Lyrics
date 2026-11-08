@@ -76,6 +76,19 @@ J.noise1 = (x, seed = 0) => {
   return J.lerp(J.rs(seed, i), J.rs(seed, i + 1), u);
 };
 
+/* beat pulse 0..1: 1 right on a beat, decaying after it (v0.14.0).
+   `every` > 1 pulses only on every Nth beat (index 0 is the grid start, not necessarily a real downbeat).
+   Without beats (thumbnail, no audio) a gentle sine keeps the effect alive instead of freezing. */
+J.beatPulse = (env, o = {}) => {
+  const decay = o.decay != null ? o.decay : 9, every = o.every > 1 ? o.every : 1;
+  if (env && env.beat && env.beat.len > 0.15) {
+    if (every > 1 && ((env.beat.index % every) + every) % every !== 0) return 0;
+    return Math.exp(-Math.max(0, env.beat.since) * decay);
+  }
+  const t = env ? (env.ltb ?? env.lt ?? 0) : 0;
+  return 0.5 + 0.5 * Math.sin(t * 5);
+};
+
 /* ---- colour ---- */
 J.hex = h => {
   h = String(h || '#000').replace('#', '');

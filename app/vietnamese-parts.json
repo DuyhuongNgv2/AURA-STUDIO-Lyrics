@@ -310,7 +310,12 @@
     "tyDotGrow": "Chấm thành chữ",
     "tyBracketOpen": "Mở ngoặc",
     "tyRetype": "Gõ lại",
-    "tyRubyDrop": "Rơi từ chú âm"
+    "tyRubyDrop": "Rơi từ chú âm",
+    "ccPopBounce": "Bật nảy lò xo (CapCut)",
+    "ccTypeBlink": "Máy đánh chữ có con trỏ (CapCut)",
+    "ccSmoothSlideUp": "Trượt mượt từ dưới lên",
+    "ccStompImpact": "Đập nện rung chuyển",
+    "ccGlitchRGB": "Nhiễu điện tử RGB"
   },
   "hold": {
     "still": "Đứng yên",
@@ -364,7 +369,10 @@
     "tyKeyPulse": "Ký tự nhấn đập nhịp",
     "tyReadCursor": "Con trỏ đọc",
     "tyOutlineBlink": "Viền chớp",
-    "tyTrackStep": "Khoảng cách từng nấc"
+    "tyTrackStep": "Khoảng cách từng nấc",
+    "ccPulseHeart": "Đập nhịp tim",
+    "ccWaveSway": "Sóng nước bồng bềnh",
+    "ccJitterBass": "Rung theo tiếng Bass"
   },
   "exit": {
     "cut": "Cắt thẳng",
@@ -475,7 +483,10 @@
     "tyToIndex": "Biến thành số",
     "tyKeyLast": "Ký tự nhấn ở lại",
     "tyUnderSink": "Chìm vào gạch chân",
-    "tyFoldVert": "Gấp thành dọc"
+    "tyFoldVert": "Gấp thành dọc",
+    "ccZoomThrough": "Phóng xuyên màn hình",
+    "ccSmokeFade": "Tan biến như khói",
+    "ccDropFall": "Rơi tự do trọng lực"
   },
   "decor": {
     "brackets": "Dấu góc",
@@ -671,7 +682,12 @@
     "tyHollowKey": "Ký tự nhấn rỗng",
     "tyHeadRules": "Kẻ đầu và chân trang",
     "tyHeadBig": "Chữ đầu lớn",
-    "tyIndexSup": "Số chỉ ký tự"
+    "tyIndexSup": "Số chỉ ký tự",
+    "ccKaraokeActive": "Chữ Karaoke đổi màu",
+    "ccHighlighter": "Tô bút dạ quang",
+    "ccNeonGlowTube": "Đèn Neon phát sáng",
+    "ccCyberpunk": "Cyberpunk (Neon Cyan/Tím)",
+    "ccVhs": "VHS Retro (Băng từ & Scanline)"
   },
   "bg": {
     "none": "Màu nền đơn",
@@ -877,6 +893,17 @@
     "flashCross": "Cắt chớp",
     "pixelate": "Chuyển điểm ảnh",
     "tyRuleWipe": "Quét dòng kẻ",
-    "tyGridCells": "Lấp ô lưới"
+    "tyGridCells": "Lấp ô lưới",
+    "ccWhipPan": "Whip Pan (Vút mờ)",
+    "ccFilmBurn": "Cháy phim & Lóe sáng",
+    "ccRgbSplit": "RGB Split (Tách màu 3D)",
+    "glBurn": "Cháy loang",
+    "glDissolve": "Tan theo nhiễu",
+    "glWater": "Giọt nước lan",
+    "glWarp": "Xoắn chéo",
+    "glMorph": "Biến hình",
+    "glGlitch": "Nhiễu ký ức",
+    "glZoom": "Phóng mờ xuyên tâm",
+    "glDream": "Phóng xoay mơ màng"
   }
 }

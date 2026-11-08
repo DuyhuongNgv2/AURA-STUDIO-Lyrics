@@ -478,7 +478,7 @@ jzReg('layout', 'stampSheet', {
         lc2_box(g, 'selvage', sx - m, sy - m * 1.8, sw + m * 2, sh + m * 2.8, C.fill, C.edge ? { stroke: C.line, sw: 1.2 * k } : null);
         jzSetExpr(jzXf(S, 'ADBE Opacity'), SA + 'value*sa');
         lc2_paint(S);
-        var hdr = lc2_T(ctx, 'JIZURA POST  ·  ' + val + ' × ' + (cols * rows - 3) + '  ·  No.' + jzLineNo(ctx), { font: jzMonoF(ctx), size: Math.min(ls * 0.8, m * 0.7), track: 0.2, align: 'left', x: sx, y: sy - m * 0.9, color: C.text });
+        var hdr = lc2_T(ctx, 'AURA POST  ·  ' + val + ' × ' + (cols * rows - 3) + '  ·  No.' + jzLineNo(ctx), { font: jzMonoF(ctx), size: Math.min(ls * 0.8, m * 0.7), track: 0.2, align: 'left', x: sx, y: sy - m * 0.9, color: C.text });
         jzSetExpr(jzXf(hdr, 'ADBE Opacity'), SA + 'value*sa*0.7');
         // the small stamps (pop in diagonally)
         var spc = rows > cols ? 2 : 3, spr = rows > cols ? 3 : 2;
@@ -1505,7 +1505,7 @@ jzReg('layout', 'clapper', {
         jzSetExpr(jzXf(R, 'ADBE Opacity'), E + 'value*a');
         lc2_paint(R);
         var pad = bw * 0.025, rowH = r2 - r1, labs = [{ t: 'PROD.', x: CX + x0 + pad, y: CY + y0 + pad + ls * 0.4 }], v1 = [], v2 = [];
-        var k1 = [['SCENE', jzLineNo(ctx)], ['TAKE', String(take)], ['ROLL', roll]], k2 = [['DATE', jzFmtTime(c.start)], ['DIR.', 'JIZURA'], ['CAM.', 'A']];
+        var k1 = [['SCENE', jzLineNo(ctx)], ['TAKE', String(take)], ['ROLL', roll]], k2 = [['DATE', jzFmtTime(c.start)], ['DIR.', 'AURA'], ['CAM.', 'A']];
         for (i = 0; i < 3; i++) {
             labs.push({ t: k1[i][0], x: CX + x0 + bw * i / 3 + pad, y: CY + r1 + ls * 0.6 }); v1.push({ t: k1[i][1], x: CX + x0 + bw * i / 3 + pad, y: CY + r1 + rowH * 0.62 });
             labs.push({ t: k2[i][0], x: CX + x0 + bw * i / 3 + pad, y: CY + r2 + ls * 0.6 }); v2.push({ t: k2[i][1], x: CX + x0 + bw * i / 3 + pad + ls * 3.2, y: CY + r2 + (y0 + bh - r2) * 0.55 });

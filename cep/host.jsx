@@ -1,6 +1,6 @@
 /*  JIZURA 字面 — host script of the After Effects CEP panel (ExtendScript, ES3).
     The panel (index.html) talks to After Effects through evalScript('JZCEP.xxx(...)'); every call returns a JSON string.
-    The build engine itself (jizura_core.jsx, the same code as JIZURA_AE.jsx without its ScriptUI) is loaded once by init().  */
+    The build engine itself (aura_core.jsx, the same code as JIZURA_AE.jsx without its ScriptUI) is loaded once by init().  */
 var JZCEP = (function () {
     var ROOT = null, lastComp = null, lastPlan = null;
     try { ROOT = File($.fileName).parent.parent.fsName; } catch (e) {}
@@ -30,8 +30,8 @@ var JZCEP = (function () {
 
     function core() {
         if (!$.global.JZ_CORE) {
-            var f = File(ROOT + '/jsx/jizura_core.jsx');
-            if (!f.exists) throw new Error('jizura_core.jsx not found: ' + f.fsName);
+            var f = File(ROOT + '/jsx/aura_core.jsx');
+            if (!f.exists) throw new Error('aura_core.jsx not found: ' + f.fsName);
             $.evalFile(f);
         }
         return $.global.JZ_CORE;
@@ -63,7 +63,7 @@ var JZCEP = (function () {
         try { C = core(); } catch (e0) { return fail('engine: ' + e0.toString()); }
         try { plan = C.parse(s); } catch (e1) { return fail('JSON: ' + e1.toString()); }
         if (!plan || !plan.cuts || !plan.style) return fail('JIZURA の構成データではありません');
-        if (!C.start) return fail('engine: jizura_core.jsx is too old — reinstall the panel');
+        if (!C.start) return fail('engine: aura_core.jsx is too old — reinstall the panel');
         var au = audioId ? findItem(audioId) : null, err = null, off = +plan.audioOffset || 0;
         app.beginUndoGroup('JIZURA');
         try { job = C.start(plan, { roles: roles(C), audioItem: au, audioStart: -off, light: !!light }); }

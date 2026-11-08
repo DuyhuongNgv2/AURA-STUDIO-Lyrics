@@ -554,7 +554,7 @@ jzReg('layout', 'magazine', {
             var deck = lc1_deck(ctx) || lc1_meta(ctx), ds = jzClamp(pw * 0.034, 11 * k, 30 * k), dper = Math.max(4, Math.floor(aw / (ds * 1.05)));
             var dl = lc1_lines(jzSplitLines(deck, dper)).slice(0, 3);
             T = lc1_T(ctx, dl.join('\r'), { font: jzSerifF(ctx), size: ds, lead: 1.55, align: 'left', x: ax, y: ry + ds * 1.2 + (dl.length - 1) * ds * 0.78, color: C.text, name: 'deck' }); lc1_op(ctx, T, FA + '*0.75', 1, HM);
-            T = lc1_T(ctx, lc1_pad3(folio) + '   ' + lc1_cut(jzRomajiOf(ctx) || 'JIZURA', 18), { font: mono, size: ls * 0.85, track: 0.1, align: 'left', x: Ax + mx * 0.5, y: Ay + ph - my * 0.45, color: C.text, name: 'folio A' }); lc1_op(ctx, T, FA + '*0.8', 1, HM);
+            T = lc1_T(ctx, lc1_pad3(folio) + '   ' + lc1_cut(jzRomajiOf(ctx) || 'AURA', 18), { font: mono, size: ls * 0.85, track: 0.1, align: 'left', x: Ax + mx * 0.5, y: Ay + ph - my * 0.45, color: C.text, name: 'folio A' }); lc1_op(ctx, T, FA + '*0.8', 1, HM);
         }
         // ---- exit: page B folds over page A (blank back of the page)
         var PF = lc1_S(ctx, 'page B (folding)', gx, gy);
@@ -1074,7 +1074,7 @@ jzReg('layout', 'swissGrid', {
             }
         }
         if (jzP(ctx, 'label', true)) {
-            var LB = lc1_T(ctx, 'JIZURA  ／  No.' + jzLineNo(ctx) + '  ／  ' + jzFmtTime(c.start), { font: mono, size: ls * 0.8, track: 0.25, x: m * 0.62, y: (gy0 + gy1) / 2, rot: -90, color: sc.sub, name: 'label' });
+            var LB = lc1_T(ctx, 'AURA  ／  No.' + jzLineNo(ctx) + '  ／  ' + jzFmtTime(c.start), { font: mono, size: ls * 0.8, track: 0.25, x: m * 0.62, y: (gy0 + gy1) / 2, rot: -90, color: sc.sub, name: 'label' });
             lc1_fade(ctx, LB, 0.3, 0.4);
         }
         return bb;

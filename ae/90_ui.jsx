@@ -6,7 +6,7 @@ function jzPut(key, v) { try { app.settings.saveSetting(JZ_SECTION, key, encodeU
 var JZ_SAMPLE = '夜明けの色を/覚えてる\nほどけた声が遠くで鳴った\nねえ、まだ間に合うかな\n*透明*なままじゃ終われない!';
 
 function jzUI(thisObj) {
-    var win = (thisObj instanceof Panel) ? thisObj : new Window('palette', 'JIZURA', undefined, { resizeable: true });
+    var win = (thisObj instanceof Panel) ? thisObj : new Window('palette', 'AURA Motion Lyrics', undefined, { resizeable: true });
     win.orientation = 'column'; win.alignChildren = ['fill', 'top']; win.spacing = 6; win.margins = 10;
     var head = win.add('group'); head.alignChildren = ['left', 'center'];
     var ttl = head.add('statictext', undefined, 'JIZURA 字面  lyric motion  v' + JZ_PANEL_VERSION + '（' + jzPartsCount() + ' 部品）'); try { ttl.graphics.font = ScriptUI.newFont(ttl.graphics.font.name, 'BOLD', 14); } catch (e) {}
@@ -122,11 +122,11 @@ function jzUI(thisObj) {
 
     // ---------------- tab 2: from JSON
     var t2 = tp.add('tab', undefined, 'JSONから'); t2.orientation = 'column'; t2.alignChildren = ['fill', 'top']; t2.margins = 8;
-    t2.add('statictext', undefined, 'ブラウザ版 JIZURA の「AE用に書き出し」で作った .json を読み込み、', undefined, { multiline: true });
+    t2.add('statictext', undefined, 'ブラウザ版 AURA の「AE用に書き出し」で作った .json を読み込み、', undefined, { multiline: true });
     t2.add('statictext', undefined, '同じタイミング・レイアウト・演出で編集可能なコンポを組みます。', undefined, { multiline: true });
     var cAudio2 = t2.add('checkbox', undefined, '選択中の音声レイヤーも入れる'); cAudio2.value = true;
     var bJson = t2.add('button', undefined, 'JSONを選んで生成…');
-    t2.add('statictext', undefined, '思ったとおりにできないときは、下のボタンで診断レポート（JIZURA_report.txt）を保存して送ってください。', undefined, { multiline: true });
+    t2.add('statictext', undefined, '思ったとおりにできないときは、下のボタンで診断レポート（AURA_report.txt）を保存して送ってください。', undefined, { multiline: true });
     var bDiag = t2.add('button', undefined, '診断レポートを保存（最後に作ったコンポ）');
 
     // ---------------- tab 3: fonts
@@ -154,7 +154,7 @@ function jzUI(thisObj) {
     var RUN = null;
     function setRunning(on) { bBuild.enabled = bOmk.enabled = bJson.enabled = !on; bStop.enabled = on; if (!on) pbar.value = 0; }
     function runBuild(plan, bo, undoName, done) {
-        if (RUN) { alert('JIZURA：いま作成中です。終わるまで待つか「中止」を押してください'); return; }
+        if (RUN) { alert('AURA：いま作成中です。終わるまで待つか「中止」を押してください'); return; }
         var job = null;
         app.beginUndoGroup(undoName);
         try { job = jzBuildStart(plan, bo); }
@@ -202,19 +202,19 @@ function jzUI(thisObj) {
     var fontNoted = false, lastComp = null, lastPlan = null;
     function report(comp, t0, label) {
         var s = (label ? label + '  ' : '') + (comp ? comp.name : '') + ' — ' + ((new Date().getTime() - t0) / 1000).toFixed(1) + 's';
-        if (JZLOG.length) { s += ' / 注意 ' + JZLOG.length + '件'; alert('JIZURA：生成しましたが、一部に注意があります：\n\n' + JZLOG.slice(0, 14).join('\n')); }
+        if (JZLOG.length) { s += ' / 注意 ' + JZLOG.length + '件'; alert('AURA：生成しましたが、一部に注意があります：\n\n' + JZLOG.slice(0, 14).join('\n')); }
         var mf = comp ? jzMissingFonts() : [];
         if (mf.length) {
             s += ' / 書体の代用 ' + mf.length; status.helpTip = 'この PC に無い書体: ' + mf.join(', ');
             if (!fontNoted) {
                 fontNoted = true;
-                alert('JIZURA：次の書体がこの PC に無いため、近い書体で作りました。\n\n' + mf.join('\n') +
+                alert('AURA：次の書体がこの PC に無いため、近い書体で作りました。\n\n' + mf.join('\n') +
                     '\n\nどれも Google Fonts（fonts.google.com）から無料で入れられます。入れて After Effects を再起動し、作り直すと、ブラウザ版と同じ書体になります。');
             }
         }
         if (comp && JZ_FONT_NOAPI && !fontNoted) {
             fontNoted = true;
-            alert('JIZURA：この After Effects では書体が入っているかを確認できないため（AE 2024 より前）、「フォント」タブで指定した書体で作りました。\n\nブラウザ版と同じ書体にするには、使われている書体（Google Fonts）を入れて「フォント」タブで指定するか、AE 2024 以降で作ってください。');
+            alert('AURA：この After Effects では書体が入っているかを確認できないため（AE 2024 より前）、「フォント」タブで指定した書体で作りました。\n\nブラウザ版と同じ書体にするには、使われている書体（Google Fonts）を入れて「フォント」タブで指定するか、AE 2024 以降で作ってください。');
         }
         status.text = s;
     }
@@ -267,7 +267,7 @@ function jzUI(thisObj) {
         var keyI = ddKey.selection ? ddKey.selection.index : 0;
         if (keyI > 0) { plan.keyBg = keyI === 1 ? 'green' : 'black'; plan.style = jzKeyStyle(plan.style); }
         status.text = '生成中… (' + plan.cuts.length + ' cuts)';
-        runBuild(plan, { roles: roles(), audioItem: au ? au.item : null, audioStart: au ? au.start : 0, light: cLight.value }, 'JIZURA build', function (comp, job) {
+        runBuild(plan, { roles: roles(), audioItem: au ? au.item : null, audioStart: au ? au.start : 0, light: cLight.value }, 'AURA build', function (comp, job) {
             if (comp) { lastComp = comp; lastPlan = plan; }
             report(comp, t0, jobLabel(label, job));
         });
@@ -288,24 +288,24 @@ function jzUI(thisObj) {
     };
 
     bJson.onClick = function () {
-        var f = File.openDialog('JIZURA AE JSON', 'JSON:*.json', false);
+        var f = File.openDialog('AURA AE JSON', 'JSON:*.json', false);
         if (!f) return;
         var t0 = new Date().getTime(), plan;
         try { f.encoding = 'UTF-8'; f.open('r'); var s = f.read(); f.close(); plan = jzParseJSON(s); }
         catch (e) { alert('JSONを読めませんでした: ' + e.toString()); return; }
-        if (!plan || !plan.cuts || !plan.style) { alert('JIZURA の AE用JSON ではないようです'); return; }
+        if (!plan || !plan.cuts || !plan.style) { alert('AURA の AE用JSON ではないようです'); return; }
         var note = plan.aeNote ? String(plan.aeNote) : '';
         if (plan.version !== 2 && !note) note = '';
         var au = audioSel(cAudio2.value);
         status.text = '生成中… (' + plan.cuts.length + ' cuts)';
         // a line-range JSON starts part-way into the song: slide the song layer left by the same amount
         var off = +plan.audioOffset || 0;
-        runBuild(plan, { roles: roles(), audioItem: au ? au.item : null, audioStart: au ? au.start - off : 0, light: cLight.value }, 'JIZURA build from JSON', function (comp, job) {
+        runBuild(plan, { roles: roles(), audioItem: au ? au.item : null, audioStart: au ? au.start - off : 0, light: cLight.value }, 'AURA build from JSON', function (comp, job) {
             if (comp) { lastComp = comp; lastPlan = plan; }
             if (JZ_FALLBACKS > 0) {
                 note = (note ? note + ' / ' : '') + 'このパネルに無い表現 ' + JZ_FALLBACKS + ' 箇所を、近い表現で作りました';
-                alert('JIZURA：この JSON には、このパネルが作れない表現が ' + JZ_FALLBACKS + ' 箇所あり、近い表現に置き換えました。\n\n' + JZ_FALLBACK_KEYS.slice(0, 12).join(', ') +
-                    '\n\nブラウザ版より古いパネルを使っている可能性があります。最新の JIZURA_AE.jsx（v' + JZ_PANEL_VERSION + '・860 部品）に差し替えて、After Effects を再起動してください。');
+                alert('AURA：この JSON には、このパネルが作れない表現が ' + JZ_FALLBACKS + ' 箇所あり、近い表現に置き換えました。\n\n' + JZ_FALLBACK_KEYS.slice(0, 12).join(', ') +
+                    '\n\nブラウザ版より古いパネルを使っている可能性があります。最新の AURA_AE.jsx（v' + JZ_PANEL_VERSION + '・860 部品）に差し替えて、After Effects を再起動してください。');
             }
             report(comp, t0, jobLabel(note ? '置換あり' : '', job));
             if (note) status.helpTip = note;
@@ -318,7 +318,7 @@ function jzUI(thisObj) {
         status.text = '診断中…（数十秒かかることがあります）';
         var r = jzDiagnose(lastComp, lastPlan, 120), path = jzSaveReport(r.text);
         status.text = '診断：エクスプレッションのエラー ' + r.errors + ' / ' + r.expressions + (r.partial ? '（途中まで）' : '');
-        alert('JIZURA 診断：エクスプレッション ' + r.expressions + ' 個のうち、エラー ' + r.errors + ' 個' + (r.partial ? '（時間の上限で途中まで）' : '') + '\n\n' +
+        alert('AURA 診断：エクスプレッション ' + r.expressions + ' 個のうち、エラー ' + r.errors + ' 個' + (r.partial ? '（時間の上限で途中まで）' : '') + '\n\n' +
             (path ? 'レポートを保存しました：\n' + path : 'レポートを保存できませんでした（環境設定 → スクリプトとエクスプレッション →「スクリプトによるファイルへの書き込みとネットワークへのアクセスを許可」をオンにしてください）。\n\n' + r.text.substr(0, 1500)));
     };
 

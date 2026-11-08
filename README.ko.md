@@ -1,8 +1,8 @@
-# JIZURA — 가사 모션 비디오 메이커
+# AURA Motion Lyrics — 가사 모션 비디오 메이커
 
-가사를 입력하면 브라우저에서 리릭 모션 영상을 자동으로 구성하고 MP4로 내보낼 수 있습니다. JIZURA는 레이아웃, 등장, 유지, 퇴장, 장식, 글자 효과, 배경, 카메라, 화면 효과, 전환을 조합하며, 시드를 바꾸거나 **자동으로 만들기**를 누르면 다른 구성을 만들 수 있습니다.
+가사를 입력하면 브라우저에서 리릭 모션 영상을 자동으로 구성하고 MP4로 내보낼 수 있습니다. AURA는 레이아웃, 등장, 유지, 퇴장, 장식, 글자 효과, 배경, 카메라, 화면 효과, 전환을 조합하며, 시드를 바꾸거나 **자동으로 만들기**를 누르면 다른 구성을 만들 수 있습니다.
 
-**[한국어판 열기](https://852wa.github.io/JIZURA/ko/)** · [Tiếng Việt](https://852wa.github.io/JIZURA/vi/) · [日本語版](https://852wa.github.io/JIZURA/) · [English](https://852wa.github.io/JIZURA/en/) · [일본어 가이드](README.md)
+**[한국어판 열기](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/ko/)** · [Tiếng Việt](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/vi/) · [日本語版](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/) · [English](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/en/) · [일본어 가이드](README.md)
 
 한국어·영어·일본어 브라우저판은 같은 프로젝트 형식과 브라우저 저장 데이터를 사용합니다. 편집기 상단의 언어 링크로 UI 언어를 바꿔도 가사와 설정은 그대로 유지됩니다.
 
@@ -10,7 +10,7 @@
 <summary><h2>빠른 시작</h2></summary>
 
 1. 왼쪽 가사 입력란에 한 줄당 한 프레이즈씩 가사를 붙여 넣습니다.
-2. 필요하면 음원을 불러옵니다. JIZURA가 박자를 감지해 컷을 맞출 수 있으며, **탭으로 동기화**에서 각 줄이 시작될 때 Space를 눌러 직접 타이밍을 지정할 수도 있습니다.
+2. 필요하면 음원을 불러옵니다. AURA가 박자를 감지해 컷을 맞출 수 있으며, **탭으로 동기화**에서 각 줄이 시작될 때 Space를 눌러 직접 타이밍을 지정할 수도 있습니다.
 3. **자동으로 만들기**(또는 R)를 눌러 스타일, 분위기, 움직임, 배색, 구성을 랜덤으로 만듭니다. **이전 / 다음**으로 버전을 오가거나 **이 부분만 변경**으로 일부만 다시 만들 수 있습니다.
 4. 화면비, 해상도, 프레임레이트를 선택하고 MP4로 내보냅니다. 고급 모드에서는 PNG 시퀀스, 투명 PNG, 합성용 배경, 개별 기법 설정도 사용할 수 있습니다.
 
@@ -39,7 +39,7 @@
 
 가사와 음원은 브라우저 안에서 처리되며 서버로 전송되지 않습니다. 필요한 Google Fonts만 외부에서 불러옵니다.
 
-이 도구로 만든 동영상과 이미지의 권리는 제작자에게 있으며, 사용한 가사와 음원의 권리는 각각의 권리자에게 있습니다. JIZURA 자체는 MIT License로 공개되어 있습니다. 자세한 내용은 [LICENSE](LICENSE)와 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)를 확인해 주세요.
+이 도구로 만든 동영상과 이미지의 권리는 제작자에게 있으며, 사용한 가사와 음원의 권리는 각각의 권리자에게 있습니다. AURA 자체는 MIT License로 공개되어 있습니다. 자세한 내용은 [LICENSE](LICENSE)와 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)를 확인해 주세요.
 
 </details>
 

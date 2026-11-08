@@ -1,7 +1,7 @@
 {
-  "name": "jizura-dev-tools",
+  "name": "aura-dev-tools",
   "private": true,
-  "description": "Test tools for JIZURA (AE panel mock needs acorn). Install with: cd dev && npm install",
+  "description": "Test tools for AURA (AE panel mock needs acorn). Install with: cd dev && npm install",
   "devDependencies": {
     "acorn": "^8.14.0"
   }

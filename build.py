@@ -1,6 +1,6 @@
 """Build the single-file browser editions from src/, app/ and vendor/: Japanese, English, 繁體中文, 简体中文, 한국어, Bahasa Indonesia, Tiếng Việt.
 usage: python3 build.py            -> index.html, en/, zh-hant/, zh-hans/, ko/, id/, vi/ index.html (GitHub Pages)
-       python3 build.py --dev      -> also dev/www/jizura.js + dev/www/test.html for the test tools"""
+       python3 build.py --dev      -> also dev/www/aura.js + dev/www/test.html for the test tools"""
 import glob, os, sys, json, base64
 from app.english import localize_body, localize_js
 from app import i18n
@@ -23,7 +23,7 @@ def build(lang):
     english = lang == 'en'
     local = lang in i18n.MODULES
     m = i18n.module(lang) if local else None
-    title = 'AURA — Kinetic Lyrics & Motion Video Studio' if english else m.TITLE if local else 'AURA — Kinetic Lyrics'
+    title = 'AURA Motion Lyrics — Kinetic Lyrics & Motion Video Studio' if english else m.TITLE if local else 'AURA — Kinetic Lyrics'
     description = ('Create kinetic typography lyric videos in your browser and export MP4.' if english else m.DESCRIPTION if local else 'Trình tạo video lyric chuyển động chữ mượt mà')
     folder = dict((c, f) for c, f, _, _ in i18n.EDITIONS)[lang]
     canonical = i18n.BASE + (folder + '/' if folder else '')
@@ -103,6 +103,6 @@ open('sitemap.xml', 'w', encoding='utf-8').write('<?xml version="1.0" encoding="
 print('sitemap.xml', len(i18n.EDITIONS), 'urls')
 if '--dev' in sys.argv:
     os.makedirs('dev/www', exist_ok=True)
-    open('dev/www/jizura.js', 'w', encoding='utf-8').write(js)
+    open('dev/www/aura.js', 'w', encoding='utf-8').write(js)
     open('dev/www/test.html', 'w', encoding='utf-8').write(read('dev/test.html'))
     print('dev/www ready: cd dev/www && python3 -m http.server 8765')

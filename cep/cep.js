@@ -69,7 +69,7 @@ async function buildInAE() {
     await new Promise(r => setTimeout(r, 30));              // let the status paint before AE starts
     let r;
     if (fs && os && pathM) {
-      const p = pathM.join(os.tmpdir(), 'jizura_plan_' + Date.now() + '.json');
+      const p = pathM.join(os.tmpdir(), 'aura_plan_' + Date.now() + '.json');
       fs.writeFileSync(p, txt, 'utf8');
       r = parse(await ev('JZCEP.startFromFile(' + JSON.stringify(p) + ',' + aid + ',' + light + ')'));
     } else {
@@ -96,7 +96,7 @@ async function buildInAE() {
       if (r.missingFonts && r.missingFonts.length) m += ` / この PC に無い書体（${r.missingFonts.join('・')}）は近い書体で作りました。Google Fonts から入れて AE を再起動すると、同じ書体になります`;
       if (r.fontCheck === false) m += ' / この AE（2024 より前）では書体の有無を確認できないため、スクリプト版パネルの「フォント」タブの書体（未設定なら游ゴシック・游明朝）で作りました';
       status(m); toast(r.cancelled ? '作成を中止しました' : 'After Effects にコンポを作成しました');
-      if (r.notes && r.notes.length) console.warn('JIZURA AE notes', r.notes);
+      if (r.notes && r.notes.length) console.warn('AURA AE notes', r.notes);
     } else { status('作成できませんでした: ' + r.error, true); toast('作成できませんでした'); }
   } catch (e) { status('作成できませんでした: ' + (e && e.message ? e.message : e), true); }
   finally { building = false; setBusy(false); progress(null); }
@@ -178,15 +178,15 @@ function inject() {
     const box = document.createElement('div'); box.className = 'ae-box';
     box.innerHTML = '<h3>After Effects</h3><div class="outbtns"></div><label class="row ae-audio-row" hidden><input id="aeAudioIn" type="checkbox" class="ae-audio-in" checked><span>曲（<span class="ae-audio-name"></span>）をコンポに入れる</span></label><label class="row ae-light-row" title="色ズレの複製・紙の質感・グロー・粒子・一部の画面効果を省いて、After Effects での再生を軽くします（長い曲におすすめ）"><input type="checkbox" class="ae-light"><span>軽量（AE での再生を軽く）</span></label><div class="ae-prog" hidden><i></i></div><p class="note ae-status">—</p><h3>動画・画像</h3>';
     box.querySelector('.outbtns').append(btn('aeBuild', 'AEでコンポを生成', 'primary ae-build', buildInAE), btn('aeCancel', '中止', 'small ae-cancel', cancelBuild), btn('aeDiag', '診断レポートを保存', 'small', diagnose));
-    box.querySelector('#aeDiag').title = '最後に作ったコンポを調べて JIZURA_report.txt を保存します（うまく作れないときに送ってください）';
+    box.querySelector('#aeDiag').title = '最後に作ったコンポを調べて AURA_report.txt を保存します（うまく作れないときに送ってください）';
     pane.prepend(box);
     const m = $('btnMP4'); m && m.classList.remove('primary');
   }
   // keep the two "include the song" checkboxes in step
   document.querySelectorAll('.ae-cancel').forEach(el => { el.hidden = true; el.title = '作成を止めます（そこまでのカットでコンポを仕上げます）'; });
   // keep the two 軽量 checkboxes in step (remembered in this browser)
-  let lightOn = false; try { lightOn = localStorage.getItem('jizura.aeLight') === '1'; } catch (e) {}
-  document.querySelectorAll('.ae-light').forEach(cb => { cb.checked = lightOn; cb.addEventListener('change', () => { document.querySelectorAll('.ae-light').forEach(o => { o.checked = cb.checked; }); try { localStorage.setItem('jizura.aeLight', cb.checked ? '1' : '0'); } catch (e) {} }); });
+  let lightOn = false; try { lightOn = (localStorage.getItem('aura.aeLight') ?? localStorage.getItem('jizura.aeLight')) === '1'; } catch (e) {}
+  document.querySelectorAll('.ae-light').forEach(cb => { cb.checked = lightOn; cb.addEventListener('change', () => { document.querySelectorAll('.ae-light').forEach(o => { o.checked = cb.checked; }); try { localStorage.setItem('aura.aeLight', cb.checked ? '1' : '0'); } catch (e) {} }); });
   document.querySelectorAll('.ae-audio-in').forEach(cb => cb.addEventListener('change', () => { document.querySelectorAll('.ae-audio-in').forEach(o => { o.checked = cb.checked; }); }));
   const style = document.createElement('style');
   style.textContent = '.ae-row{margin-top:8px;gap:6px}.ae-box{margin-bottom:12px}.ae-box h3{margin:0 0 8px}.ae-status{margin-top:8px}.ae-status.bad{color:#ff8a80;border-left-color:#ff8a80}.ae-prog{height:4px;background:rgba(255,255,255,.12);border-radius:2px;margin-top:8px;overflow:hidden}.ae-prog i{display:block;height:100%;width:0;background:var(--accent,#7cf);transition:width .3s}';

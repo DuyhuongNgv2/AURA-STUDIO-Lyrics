@@ -140,7 +140,7 @@ BODY = {
     # extra keys: attach the particle directly to the syntax symbol; full-width parentheses in the open-source notes
     '<code>/</code> でカットの切れ目を指定': '<code>/</code>로 컷 경계를 지정',
     '<code>#</code> で始まる行 … コメント（無視）': '<code>#</code>로 시작하는 줄 … 주석(무시)',
-    '（MIT License）': ' (MIT License)', '配布の各書体（SIL Open Font License 1.1）': '배포 서체 (SIL Open Font License 1.1)',
+    '(MIT License)': ' (MIT License)', '配布の各書体(SIL Open Font License 1.1)': '배포 서체 (SIL Open Font License 1.1)',
     'かんたん': '간단', '詳細': '상세', '開く': '열기', '保存': '저장',
     'AE用に書き出し': 'AE용 내보내기', '利用について': '이용 안내',
     '記法': '문법', 'プレビュー': '미리보기', '再生': '재생', 'ループ': '반복',
@@ -378,6 +378,6 @@ MOODS = {'glitch': '글리치', 'calm': '잔잔함', 'pop': '팝', 'graphic': '�
 
 SAMPLE = '새벽의 색을/기억해\n멀어진 목소리가 아득히 울렸어\n아직 늦지 않았을까\n*투명*한 채로는 끝낼 수 없어!'
 
-TITLE = 'JIZURA — 가사 모션 영상 메이커'
+TITLE = 'AURA Motion Lyrics — 가사 모션 영상 메이커'
 
 DESCRIPTION = '브라우저에서 가사를 움직이는 가사 영상으로 만들고 MP4로 내보내세요.'

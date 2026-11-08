@@ -9,12 +9,13 @@ for(const g of J.GROUP_KEYS) for(const id of J.order(g)) {
  assert.ok(parts[g][id],`Missing translation ${g}.${id}`);
  assert.equal(J.registry(g)[id].name,parts[g][id]); labels++;
 }
-assert.equal(labels,860);
+assert.equal(labels,887);
 for(const text of ['Tiếng Việt đậm đà','Đường về quê hương','Anh yêu em','Tôi vẫn nhớ','Ước mơ và nắng', 'Tiếng Việt'.normalize('NFD')]) assert.equal(J.detectLang(text),'vi',text);
 for(const [text,lang] of [['Hello world','en'],['夜明けの色を','ja'],['사랑 노래','ko']]) assert.equal(J.detectLang(text),lang);
 assert.equal(J.resolveLang({lang:'vi',lyrics:'khong dau'}),'vi');
 J.setLang('vi'); assert.equal(J.segLocale(),'vi');
-for(const id of Object.keys(J.FONTS)) {const face=J.faceOf(id); assert.ok(J.LOCAL_FONT_FAMILIES.has(face.family.replaceAll('"','')),id); assert.ok(!face.gf,id);}
+const embeddedFonts=new Set(JSON.parse(fs.readFileSync(path.join(root,'fonts/manifest.json'),'utf8')).map(f=>f.family));
+for(const id of Object.keys(J.FONTS)) {const face=J.faceOf(id); const fam=face.family.replaceAll('"',''); assert.ok(J.LOCAL_FONT_FAMILIES.has(fam),id); assert.ok(!face.gf||!embeddedFonts.has(fam),id);}
 assert.ok(J.varFontCSS('gothic_bold',100,0.5).includes('"Noto Sans"'));
 assert.ok(J.varFontCSS('mincho',100,0.5).includes('"Noto Serif"'));
 const fixture='Đường về quê hương\nTiếng Việt đậm đà, ước mơ sáng ngời!';

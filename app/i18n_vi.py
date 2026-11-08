@@ -1,6 +1,6 @@
 """Vietnamese UI copy; format names, font names and project IDs are retained."""
 
-TITLE = 'AURA — Trình tạo video lời bài hát chữ nhảy (Kinetic Typography)'
+TITLE = 'AURA Motion Lyrics — Trình tạo video lời bài hát chữ nhảy (Kinetic Typography)'
 
 DESCRIPTION = 'Tạo video lời bài hát chữ nhảy (kinetic typography lyric video) mượt mà trong trình duyệt, hỗ trợ tiếng Việt có dấu 100%, rồi xuất MP4.'
 
@@ -56,9 +56,9 @@ BODY = {'kinetic typography studio': 'trình tạo video chữ nhảy',
  '<label>速さ <select id="tapRate" aria-label="タップ中の再生速度">': '<label>Tốc độ <select id="tapRate" aria-label="Tốc độ phát '
                                                            'khi nhấn">',
  '<input type="checkbox" id="tapCount"> カウントダウン</label>': '<input type="checkbox" id="tapCount"> Đếm ngược</label>',
- 'title="LRC ファイル（タイムスタンプ付きの歌詞）を読み込み、今の歌詞と置き換えます（「元に戻す」で戻せます）">LRC を読み込む': 'title="Mở tệp LRC (lời có dấu thời gian) '
+ 'title="字幕・LRC ファイル（タイムスタンプ付きの歌詞）を読み込み、今の歌詞と置き換えます（「元に戻す」で戻せます）">字幕・LRC を読み込む': 'title="Mở tệp phụ đề/LRC (lời có dấu thời gian) '
                                                                            'để thay lời hiện tại (Hoàn tác để lấy '
-                                                                           'lại)">Mở LRC',
+                                                                           'lại)">Mở phụ đề/LRC',
  'aria-label="おまかせのテーマ" title="おまかせのテーマ（選ぶと、その方向の中でおまかせします。必要な部品のスイッチもオンになります）"': 'aria-label="Chủ đề ngẫu nhiên" '
                                                                                   'title="Chủ đề ngẫu nhiên (khi chọn, '
                                                                                   'Ngẫu nhiên chỉ tạo trong hướng đó '
@@ -405,9 +405,9 @@ BODY = {'kinetic typography studio': 'trình tạo video chữ nhảy',
                                                                                    'giữa chừng, bấm ◎ trong danh các '
                                                                                    'câu.',
  '<button id="tapBack" class="ghost">1つ戻る</button>': '<button id="tapBack" class="ghost">Hoàn tác</button>',
- '行の区切り（上の目盛り）はドラッグで動かせます。<span class="kbd">Shift</span> で拍に吸着しない': 'Kéo thanh neo ở trên để dời điểm bắt đầu câu. Giữ '
+ '行の区切り（上の目盛り）はドラッグで動かせます。<span class="kbd">Shift</span> で拍に吸着しない。波形を見ながら合わせられます': 'Kéo thanh neo ở trên để dời điểm bắt đầu câu. Giữ '
                                                                     '<span class="kbd">Shift</span> để kéo tự do không '
-                                                                    'bám nhịp',
+                                                                    'bám nhịp. Nhìn sóng âm mà căn cho khớp',
  'title="歌詞・タイミングの変更を元に戻す（Ctrl+Z）" disabled>元に戻す</button>': 'title="Hoàn tác thay đổi lời và thời gian (Ctrl+Z)" '
                                                             'disabled>Hoàn tác</button>',
  'title="縮小" aria-label="タイムラインを縮小"': 'title="Thu nhỏ" aria-label="Thu nhỏ dòng thời gian"',
@@ -505,6 +505,7 @@ BODY = {'kinetic typography studio': 'trình tạo video chữ nhảy',
  '… フラッシュと揺れを入れる': '…thêm đèn flash và rung',
  '… 注釈レイアウトの小さな文字': '…văn bản nhỏ trong bố cục',
  '… LRC のタイムスタンプをそのまま使用': '…sử dụng dấu thời gian LRC như hiện tại',
+ '<li><code>SRT / VTT / SSA・ASS</code> … 字幕ファイルも読み込めます（開始時刻と <code>\\k</code> の単語時刻を取り込みます）</li>': '<li><code>SRT / VTT / SSA・ASS</code> … cũng mở được tệp phụ đề (lấy thời điểm bắt đầu và giờ từng từ từ <code>\\k</code>)</li>',
  'で始まる行 … コメント（無視）': 'Đánh dấu ghi chú (bỏ qua)',
  '行末の': 'Ở cuối dòng:',
  '透明': 'nhấn mạnh',
@@ -516,7 +517,10 @@ BODY = {'kinetic typography studio': 'trình tạo video chữ nhảy',
  '曲を読み込む': 'Chọn tệp',
  '曲を再生しながら各行の頭でタップ': 'Nhấn vào đầu mỗi dòng trong khi bài hát đang phát',
  'タップで同期': 'Đặt điểm chuyển cảnh',
- '開始(秒)': 'Bắt đầu (giây)',
+ 'Whisperで自動同期': 'Whisper tự căn lời',
+ '音声を聴いて各行の開始を合わせる（ブラウザ内で実行）': 'Nghe audio để căn thời điểm bắt đầu từng dòng (chạy trong trình duyệt)',
+ '未実行 — 本物の音声と歌詞が必要です': 'Chưa chạy — cần audio thật + lời đã nhập.',
+ '開始(秒)': 'Bắt đầu (giây)', '初拍のズレ(秒)': 'Lệch phách đầu (giây)',
  '行の長さ': 'Thời lượng',
  '拍にスナップ': 'Bám theo nhịp',
  '手動タイミングを消す': 'Xóa thời gian thủ công',
@@ -701,7 +705,7 @@ BODY = {'kinetic typography studio': 'trình tạo video chữ nhảy',
  '縦': 'Chiều dọc',
  '背景': 'Nền',
  '追加': 'Mới',
- '和': 'JP',
+ '和': 'Nhật',
  '演出': 'Hiệu ứng',
  '手法': 'Kỹ thuật',
  'コマ打ち': 'Thời điểm thay đổi hiệu ứng',
@@ -718,16 +722,43 @@ BODY = {'kinetic typography studio': 'trình tạo video chữ nhảy',
  '<option value="ko">한국어</option>': '<option value="ko">Tiếng Hàn</option>'}
 
 UI = {'`前後の行と順番が入れ替わらないよう ${w.toFixed(2)} 秒にしました`': '`Đã đặt ${w.toFixed(2)} giây để giữ thứ tự các dòng`',
+ '未実行 — 本物の音声と歌詞が必要です': 'Chưa chạy — cần audio thật + lời đã nhập.',
+ '歌詞がありません — 歌詞を入力してから実行してください': 'Chưa có lời bài hát — nhập lời trước đã.',
+ '音声がありません — 曲を読み込んでから実行してください': 'Chưa có audio thật — tải bài hát lên trước đã.',
+ 'ライブラリを読み込んでいます…': 'Đang tải thư viện Whisper…',
+ 'ライブラリを読み込めませんでした — ': 'Không tải được thư viện Whisper — ',
+ 'CDNに接続できませんでした（ネットワークを確認してください）': 'không kết nối được tới CDN (kiểm tra mạng)',
+ 'ライブラリの形式が正しくありません': 'file thư viện không đúng định dạng',
+ 'モデルを読み込んでいます（初回は約40MB、次回からは保存済みを使います）…': 'Đang tải model Whisper tiny (lần đầu ~40MB, lần sau dùng bản đã lưu)…',
+ 'モデルを読み込んでいます — ': 'Đang tải model Whisper tiny — ',
+ '%（初回は約40MB、次回からは保存済みを使います）': '% (lần đầu ~40MB, lần sau dùng bản đã lưu)',
+ 'モデルを読み込めませんでした — ネットワークを確認して、もう一度お試しください': 'Không tải được model Whisper tiny — cần mạng lần đầu để tải model (~40MB).',
+ '音声を聴いて、1語ずつ認識しています — ブラウザ内で実行中です。長い曲は数分かかることがあります…': 'Đang nghe audio và nhận dạng từng từ — chạy local trong trình duyệt, có thể mất vài phút với bài dài…',
+ 'Whisperでエラーが発生しました: ': 'Whisper chạy lỗi: ',
+ 'Whisperでエラーが発生しました — 今のタイミングをそのまま残します': 'Whisper chạy lỗi — giữ nguyên thời gian lời hiện tại.',
+ '単語を歌詞と照合しています…': 'Đang khớp từng từ Whisper nhận ra với lời của bạn…',
+ 'Whisperはこの音声から単語を認識できませんでした — 今のタイミングをそのまま残します': 'Whisper không nhận ra từ nào trong audio này — giữ nguyên thời gian lời hiện tại.',
+ '`行のタイミングを合わせました — ${okLines}/${lines.length}行、${res.matchedWords}/${res.totalWords}語が一致しました。手で修正もできます。`': '`Đã căn ${okLines}/${lines.length} dòng, ${res.matchedWords}/${res.totalWords} từ khớp. Kiểm tra và sửa tay nếu cần.`',
+ "` — 未一致: ${res.unmatched.slice(0, 3).join(' / ')}`": "` — chưa khớp: ${res.unmatched.slice(0, 3).join(' / ')}`",
  "'このカットの開始時刻（手動）。空にすると自動に戻ります'": "'Thời điểm bắt đầu cảnh này (thủ công). Xóa trống để về tự động'",
  "'このカットの開始時刻（自動）。数値を入れると固定します'": "'Thời điểm bắt đầu cảnh này (tự động). Nhập số để cố định'",
  '`${i + 1}行目 カット${k + 1}の開始時刻`': '`Dòng ${i + 1}, bắt đầu cảnh ${k + 1}`',
  '`LRC を読み込みました（時刻付き ${n} 行・「元に戻す」で戻せます）`': '`Đã mở LRC (${n} dòng có thời gian · Hoàn tác để lấy lại)`',
+ '`LRC を読み込みました（時刻付き ${n} 行・単語 ${nWords} 語・「元に戻す」で戻せます）`': '`Đã mở LRC (${n} dòng có thời gian · ${nWords} từ có giờ · Hoàn tác để lấy lại)`',
+ '単語ごとの時刻': 'Giờ từng từ',
+ '単語の時刻': 'Giờ từng từ',
+ 'この行の単語時刻を消す': 'Xóa giờ từng từ của dòng này',
+ 'この行の単語時刻を消しました': 'Đã xóa giờ từng từ của dòng này',
+ '`前後の単語と順番が入れ替わらないよう ${w.toFixed(2)} 秒にしました`': '`Đã đặt ${w.toFixed(2)} giây để giữ thứ tự các từ`',
  "'この行にはこれ以上カットがありません'": "'Dòng này không còn cảnh nào nữa'",
- "'LRC ファイルが大きすぎます'": "'Tệp LRC quá lớn'",
- "'LRC を読み込めませんでした'": "'Không đọc được tệp LRC'",
- "'今の歌詞を LRC の内容に置き換えます（行ごとの時刻・指定・書き出す範囲も消えます。「元に戻す」で戻せます）。よろしいですか？'": "'Thay lời hiện tại bằng nội dung LRC? (Thời "
+ "'ファイルが大きすぎます'": "'Tệp quá lớn'",
+ "'ファイルを読み込めませんでした'": "'Không đọc được tệp'",
+ "'ファイルが空です'": "'Tệp trống'",
+ "'字幕が見つかりませんでした（時刻付きのキューがありません）'": "'Không tìm thấy phụ đề nào (không có cue nào có thời gian)'",
+ "'今の歌詞を読み込んだ内容に置き換えます（行ごとの時刻・指定・書き出す範囲も消えます。「元に戻す」で戻せます）。よろしいですか？'": "'Thay lời hiện tại bằng nội dung vừa mở? (Thời "
                                                                        'gian từng dòng, thiết lập từng dòng và phạm vi '
                                                                        "xuất cũng bị xóa. Hoàn tác để lấy lại.)'",
+ "`${fmt.toUpperCase()} を読み込みました（${subs.cues.length} 行${nWords ? `・単語 ${nWords} 語` : ''}${subs.skipped ? `・${subs.skipped} キューをスキップ` : ''}・「元に戻す」で戻せます）`": "`${fmt.toUpperCase()} đã mở (${subs.cues.length} dòng${nWords ? ` · ${nWords} từ có giờ` : ''}${subs.skipped ? ` · bỏ ${subs.skipped} cue` : ''} · Hoàn tác để lấy lại)`",
  '`おまかせ（${themeName(th)}）：`': '`Ngẫu nhiên (${themeName(th)}): `',
  'おまかせ': 'Ngẫu nhiên',
  'シャッフル': 'Sắp xếp ngẫu nhiên',
@@ -926,7 +957,7 @@ UI = {'`前後の行と順番が入れ替わらないよう ${w.toFixed(2)} 秒�
                                                                                                         "'Chọn tệp mp3 "
                                                                                                         'hoặc tệp '
                                                                                                         'tương tự: '
-                                                                                                        'JIZURA nhận '
+                                                                                                        'AURA nhận '
                                                                                                         'diện nhịp và '
                                                                                                         'căn chỉnh '
                                                                                                         'chuyển cảnh. '
@@ -991,6 +1022,12 @@ UI = {'`前後の行と順番が入れ替わらないよう ${w.toFixed(2)} 秒�
  '小さな文字': 'Văn bản nhỏ',
  '背景の切替': 'Thay đổi nền',
  '動きの強さ': 'Cường độ chuyển động',
+ '拍に合わせて動く': 'Nhảy theo phách nhạc',
+ '拍の強さ': 'Độ mạnh theo phách',
+ '拍の間隔': 'Khoảng phách',
+ '毎拍': 'Mỗi phách',
+ '2拍ごと': 'Mỗi 2 phách',
+ '4拍ごと': 'Mỗi 4 phách',
  'カットの細かさ': 'Mật độ cắt',
  '装飾の量': 'Số lượng đồ trang trí',
  '文字の加工': 'Hiệu ứng văn bản',
@@ -1066,9 +1103,9 @@ UI = {'`前後の行と順番が入れ替わらないよう ${w.toFixed(2)} 秒�
  '読み込めませんでした: ': 'Không thể tải:',
  '約': 'khoảng',
  '（PC）': '(đã cài đặt)',
- '字面': 'JIZURA',
+ '字面': 'AURA',
  '追加': 'Mới',
- '和': 'JP'}
+ '和': 'Nhật'}
 
 EXPORT = {"'[間奏]'": "'[interlude]'",
  "'ZIP が大きくなりすぎます（65,535 ファイル・4GB まで）。書き出す範囲を狭めるか、解像度を下げてください'": "'ZIP sẽ quá lớn (tối đa 65.535 tệp / 4 GB). Hãy chọn "

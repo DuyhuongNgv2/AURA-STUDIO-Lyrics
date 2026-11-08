@@ -26,10 +26,10 @@ function jzBuildStart(plan, opt) {
     var st = plan.style, fx = plan.fx || {}, roles = opt.roles || JZ_ROLE_DEFAULT;
     var ghostAmt = (fx.chroma == null ? 0.7 : fx.chroma) * (st.ghost == null ? 1 : st.ghost);
     var title = String(plan.title || 'lyric').substr(0, 20);
-    var comp = app.project.items.addComp('JIZURA ' + title, W, H, 1, D, fps);
+    var comp = app.project.items.addComp('AURA ' + title, W, H, 1, D, fps);
     // edges uncovered by glitch shifts show the scheme background (the browser redraws over the old frame) instead of black
     try { comp.bgColor = plan.keyBg ? [0, 0, 0] : jzHex(st.schemes[0].bg); } catch (eb) {}
-    var folder = app.project.items.addFolder('JIZURA ' + title + ' cuts');
+    var folder = app.project.items.addFolder('AURA ' + title + ' cuts');
     var u = H / 1080;
     var schemes = st.schemes, cuts = plan.cuts || [];
     var FXV = { motion: fx.motion == null ? 0.7 : fx.motion, glitch: fx.glitch == null ? 0.5 : fx.glitch, decor: fx.decor == null ? 0.5 : fx.decor, texture: fx.texture == null ? 0.6 : fx.texture, chroma: fx.chroma == null ? 0.7 : fx.chroma };

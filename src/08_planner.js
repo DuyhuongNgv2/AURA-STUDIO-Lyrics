@@ -29,9 +29,9 @@ J.defaultProject = () => ({
   centerFree: false,              // 中央を空ける: lay the cuts out in side bands (left / right or top / bottom) around a character
   seed: 20260922,
   aspect: '16:9', res: 1080, fps: 24,
-  fx: { motion: 0.7, glitch: 0.55, chroma: 0.7, decor: 0.5, density: 0.55, texture: 0.6, flash: true, onTwos: true, koma: 12, hud: 'auto', bgSwitch: 0.35, hideNo: false, hideTime: false },
+  fx: { motion: 0.7, glitch: 0.55, chroma: 0.7, decor: 0.5, density: 0.55, texture: 0.6, flash: true, beatSync: false, beatAmt: 0.7, beatEvery: 1, onTwos: true, koma: 12, hud: 'auto', bgSwitch: 0.35, hideNo: false, hideTime: false },
   enabled: Object.fromEntries(J.GROUP_KEYS.map(g => [g, Object.fromEntries(J.order(g).map(k => [k, true]))])),
-  timing: { bpm: 0, offset: 0.4, snap: true, tail: 0.9, lineTimes: {}, lineScale: 1 },
+  timing: { bpm: 0, offset: 0.4, beatOffset: 0, snap: true, tail: 0.9, lineTimes: {}, lineScale: 1 },
   overrides: {},
   locks: { tech: {}, params: {} },   // groups and values Randomize / Shuffle must not change (UI side only)
   colors: { enabled: false },
@@ -75,6 +75,19 @@ J.parseLyrics = (raw) => {
     if (bar >= 0) { note = s.slice(bar + 1).trim() || null; s = s.slice(0, bar).trim(); }
     let impact = false;
     if (/[!！]$/.test(s) && s.length > 1 && /!$/.test(s)) { impact = true; s = s.slice(0, -1).trim(); }
+    // Enhanced LRC: <mm:ss.xx> before a word — the word runs to the next tag (lyric-align / Whisper output).
+    // The tags are stripped from the text; the words keep their times (end = the next word's start).
+    let rawWords = null;
+    if (s.includes('<')) {
+      const orig = s, tags = [];
+      const re = /<(\d+):(\d+(?:[.:]\d+)?)>/g;
+      let m2;
+      while ((m2 = re.exec(orig))) tags.push({ t: +m2[1] * 60 + parseFloat(m2[2].replace(':', '.')), idx: m2.index, len: m2[0].length });
+      if (tags.length) {
+        rawWords = tags.map((tg, k) => ({ start: tg.t, text: orig.slice(tg.idx + tg.len, k + 1 < tags.length ? tags[k + 1].idx : orig.length) }));
+        s = orig.replace(/<\d+:\d+(?:[.:]\d+)?>/g, '');
+      }
+    }
     const emph = [];
     s = s.replace(/\*([^*]+)\*/g, (_, w) => { emph.push(w); return w; });
     let manual = null;
@@ -84,9 +97,26 @@ J.parseLyrics = (raw) => {
       s = manual.join(latin ? ' ' : '');
     }
     if (!s) continue;
-    const base = { text: s, note, impact, emph, manual, gapBefore: pendingGap, src: ri };
+    let words = null;
+    if (rawWords && rawWords.length) {
+      words = [];
+      rawWords.forEach((rw, k) => {
+        const end = k + 1 < rawWords.length ? rawWords[k + 1].start : null;
+        // one tag may cover a short phrase: split it into words (CJK phrases into characters) and
+        // spread the phrase's time evenly over them — a single-word tag keeps its exact time
+        let pieces = [];
+        rw.text.replace(/\*/g, '').split(/[\s\/]+/).map(x => x.trim()).filter(Boolean).forEach(piece => {
+          if (/[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff\uac00-\ud7af]/.test(piece) && !/[A-Za-z]/.test(piece)) pieces.push(...[...piece]);
+          else pieces.push(piece);
+        });
+        const n = pieces.length, span = end != null && n > 0 ? (end - rw.start) / n : null;
+        pieces.forEach((pc, ci) => words.push({ start: span != null ? rw.start + ci * span : rw.start, end: span != null ? rw.start + (ci + 1) * span : null, text: pc }));
+      });
+      if (!words.length) words = null;
+    }
+    const base = { text: s, note, impact, emph, manual, gapBefore: pendingGap, src: ri, words };
     pendingGap = false;
-    if (times.length) times.forEach(t => lines.push(Object.assign({}, base, { lrc: t })));
+    if (times.length) times.forEach(t => lines.push(Object.assign({}, base, { lrc: t, words: words && (times.length === 1 || Math.abs(t - words[0].start) < 0.02) ? words : null })));
     else lines.push(Object.assign({}, base, { lrc: null }));
   }
   // LRC: order by time. A line without a tag (an interlude, a line added by hand) stays right after the line it
@@ -203,16 +233,86 @@ J.phraseChunks = (words) => {
   return out.length ? out : words;
 };
 
+/* ---------------- word tokens (karaoke): one display word + its normalised form + char offsets ----------
+   The tokenisation mirrors the Whisper matcher (src/12_ui.js: whisperNorm / whisperWords) so a word timed by
+   Whisper, by an Enhanced LRC file or by hand always lands on the same word on screen:
+   · Latin / Vietnamese: maximal runs of letters and digits (don't → don + t, gập-ghềnh → gập + ghềnh,
+     café → café with norm cafe); diacritics are stripped for the norm only, never for the display text
+   · Japanese / Chinese / Korean: one character per token (no word spacing in those scripts)
+   Offsets are in code points, the same units J.layoutText counts its glyphs in. */
+J.wordNorm = (s, lang) => {
+  const t = String(s || '');
+  if (lang === 'ja' || lang === 'zh' || lang === 'zh-Hant' || lang === 'zh-Hans' || lang === 'ko') return t.normalize('NFC').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+  return t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+};
+J.wordTokens = (text, lang) => {
+  const s = String(text || '').normalize('NFC'), arr = [...s], out = [];
+  const cjk = lang === 'ja' || lang === 'zh' || lang === 'zh-Hant' || lang === 'zh-Hans' || lang === 'ko';
+  if (cjk) {
+    arr.forEach((ch, i) => { if (/[\p{L}\p{N}]/u.test(ch)) out.push({ text: ch, norm: ch.toLowerCase(), start: i, end: i + 1 }); });
+    return out;
+  }
+  let cur = null;
+  const flush = () => { if (cur) { out.push(cur); cur = null; } };
+  arr.forEach((ch, i) => {
+    const n = ch.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
+    if (/^[a-z0-9]$/.test(n)) {
+      if (!cur) cur = { text: '', norm: '', start: i, end: i + 1 };
+      cur.text += ch; cur.norm += n; cur.end = i + 1;
+    } else flush();
+  });
+  flush();
+  return out;
+};
+/* a line's word times, cut down to the words a cut (or a whole line) actually shows.
+   Matches by normalised text, in order, so a cut showing the middle of a line still finds its words;
+   a word without its own time lights together with the word before it (a leading one with the first). */
+J.sliceWordTimes = (wt, text, lang) => {
+  if (!wt || !wt.length) return null;
+  const toks = J.wordTokens(text, lang);
+  if (!toks.length) return null;
+  const out = new Array(toks.length).fill(null);
+  if (wt.every(w => w.norm == null) && wt.length === toks.length) {
+    for (let i = 0; i < toks.length; i++) out[i] = { start: wt[i].start, end: wt[i].end, c0: toks[i].start, c1: toks[i].end };
+  } else {
+    let j = 0;
+    for (let i = 0; i < toks.length; i++) {
+      while (j < wt.length && wt[j].norm !== toks[i].norm) j++;
+      if (j >= wt.length) break;
+      out[i] = { start: wt[j].start, end: wt[j].end, c0: toks[i].start, c1: toks[i].end };
+      j++;
+    }
+  }
+  if (!out.some(Boolean)) return null;
+  let prev = null;
+  for (let i = 0; i < out.length; i++) {
+    if (out[i]) { prev = out[i]; continue; }
+    if (prev) out[i] = { start: prev.end, end: prev.end, c0: toks[i].start, c1: toks[i].end };
+  }
+  const first = out.find(Boolean);
+  for (let i = 0; i < out.length && !out[i]; i++) out[i] = { start: first.start, end: first.start, c0: toks[i].start, c1: toks[i].end };
+  return out;
+};
+
 /* ---------------- timing ---------------- */
 J.computeTiming = (project, parsed, audio) => {
   const T = project.timing || {};
   const lines = parsed.lines;
   const beat = T.bpm > 0 ? 60 / T.bpm : 0;
-  // fixed times: a hand-set time (typed, tapped, dragged) wins over the LRC tag; the rest is estimated
+  // word times: a hand-set / Whisper / imported list wins over the tags written in the lyrics
+  const effWords = lines.map((l, i) => {
+    const st = T.wordTimes && Array.isArray(T.wordTimes[i]) && T.wordTimes[i].length ? T.wordTimes[i] : null;
+    return st || (l.words && l.words.length ? l.words : null);
+  });
+  // fixed times: a hand-set time (typed, tapped, dragged) wins over the LRC tag; a line whose words are
+  // timed but which has no line time starts with its first word; the rest is estimated
   const fixed = lines.map((l, i) => {
     const man = T.lineTimes && T.lineTimes[i] != null ? +T.lineTimes[i] : null;
     if (man != null && isFinite(man)) return Math.max(0, man);
-    return l.lrc != null && isFinite(l.lrc) ? l.lrc : null;
+    if (l.lrc != null && isFinite(l.lrc)) return l.lrc;
+    const w = effWords[i];
+    if (w && w[0] != null && isFinite(+w[0].start)) return Math.max(0, +w[0].start);
+    return null;
   });
   // a fixed time may not go back past an earlier one (the saved value itself is left alone)
   let lastFix = -Infinity;
@@ -252,9 +352,29 @@ J.computeTiming = (project, parsed, audio) => {
     if (beat && !(L.interlude && L.secs > 0)) d = Math.max(2, Math.round(d / beat)) * beat;
     return s + d;
   });
+  // word times, validated: inside this line, in order, each word at least 0.05 s long
+  const wordTimes = lines.map((l, i) => {
+    const w = effWords[i];
+    if (!w) return null;
+    const s0 = starts[i], e0 = ends[i], out = [];
+    let prevEnd = s0;
+    for (let k = 0; k < w.length; k++) {
+      const ww = w[k];
+      let a = +ww.start;
+      if (!isFinite(a)) continue;
+      let b = ww.end != null && isFinite(+ww.end) ? +ww.end : (k + 1 < w.length && isFinite(+w[k + 1].start) ? +w[k + 1].start : e0);
+      a = J.clamp(a, s0, e0);
+      if (a < prevEnd) a = prevEnd;
+      if (a >= e0) break;
+      b = J.clamp(b, a + 0.05, e0);
+      out.push({ start: +a.toFixed(3), end: +b.toFixed(3), text: ww.text != null ? String(ww.text) : null });
+      prevEnd = b;
+    }
+    return out.length ? out : null;
+  });
   let duration = (ends.length ? ends[ends.length - 1] : 3) + (T.tail ?? 0.9);
   if (audio && audio.duration && T.useAudioLength !== false) duration = Math.max(audio.duration, ends.length ? ends[ends.length - 1] + 0.2 : 1);
-  return { starts, ends, duration };
+  return { starts, ends, duration, wordTimes };
 };
 
 /* ---------------- planning ---------------- */
@@ -291,7 +411,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'JIZURA', appVersion: '@VERSION@', title, artist, W, H, fps: project.fps || 24,
+    version: 1, generator: 'AURA', appVersion: '@VERSION@', title, artist, W, H, fps: project.fps || 24,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -303,6 +423,9 @@ J.plan = (project, audio) => {
   if (J.setLang) J.setLang(plan.lang);                     // chunking + measuring below use this language
   if (J.setTypeset) J.setTypeset(plan.typeset);
   const beats = plan.beats;
+  // v0.14.0: beat-aware picks only when there is actually a beat grid —
+  // with no beats the toggle must be a no-op (same plan as OFF)
+  const fxBeat = fx.beatSync && beats.length ? fx : Object.assign({}, fx, { beatSync: false });
   const snap = (t) => {
     if (!beats.length || !(project.timing && project.timing.snap)) return t;
     let lo = 0, hi = beats.length - 1;
@@ -325,18 +448,18 @@ J.plan = (project, audio) => {
   }
 
   // 統一感: sections, repeated lines, キメ lines and the per-section palettes (see makeUnify below)
-  const U = plan.unify ? makeUnify(parsed.lines, { st, en, fx, history, lang: plan.lang, seed: project.seed }) : null;
+  const U = plan.unify ? makeUnify(parsed.lines, { st, en, fx: fxBeat, history, lang: plan.lang, seed: project.seed }) : null;
   parsed.lines.forEach((ln, li) => {
     const s = tm.starts[li], e = tm.ends[li];
     const ov = (project.overrides || {})[li] || {};
     const lineSeed = ov.lock && ov.lockedSeed != null ? ov.lockedSeed : J.h(project.seed, li + 1, ov.seed | 0);
     const rng = J.rng(lineSeed);
     if (ln.interlude) {                                    // [間奏]: background, decorations and screen effects only
-      plan.lines.push({ index: li, src: ln.src, lrc: ln.lrc, text: '', interlude: true, secs: ln.secs, start: s, end: e, visEnd: e, note: null, impact: false, emph: [], chunks: [], seed: lineSeed });
+      plan.lines.push({ index: li, src: ln.src, lrc: ln.lrc, text: '', interlude: true, secs: ln.secs, start: s, end: e, visEnd: e, note: null, impact: false, emph: [], chunks: [], wordTimes: null, seed: lineSeed });
       const bg = ov.bg && J.BG[ov.bg] ? ov.bg : pickBg(rng, st, en, fx, bgHistory); bgHistory.push(bg);
       const dur = e - s, showTitle = dur >= 6 && !!(title || artist);
       plan.cuts.push(makeCut({ text: '', lineText: '', line: li, start: s, end: e, layout: 'interlude', enter: 'blur', exit: 'blur', hold: 'still', inDur: 0.4, outDur: 0.4,
-        params: { variant: 'quiet', showTitle, titleText: showTitle ? [title, artist].filter(Boolean).join('  /  ') : '' }, decor: Array.isArray(ov.decor) ? ov.decor.filter(id => J.DECOR[id]).map(id => decorParams(rng, id)) : pickDecor(rng, st, en, Object.assign({}, fx, { decor: Math.max(0.6, fx.decor) }), 'interlude', history),
+        params: { variant: 'quiet', showTitle, titleText: showTitle ? [title, artist].filter(Boolean).join('  /  ') : '' }, decor: Array.isArray(ov.decor) ? ov.decor.filter(id => J.DECOR[id]).map(id => decorParams(rng, id)) : pickDecor(rng, st, en, Object.assign({}, fxBeat, { decor: Math.max(0.6, fx.decor) }), 'interlude', history),
         scheme: schemeIdx, seed: J.h(lineSeed, 405), bg, bgP: J.BG[bg] && J.BG[bg].plan ? J.BG[bg].plan(rng, st) : {}, cam: 'push', camP: {} }));
       if (en.fx == null || en.fx.chroma !== false) addEvent(s, 'chroma', 1 + fx.chroma, 0.25);
       for (let t = s + 1.2; t < e - 0.8; t += J.clamp(dur / 4, 1.6, 3.2)) {          // a few effect accents so a long interlude keeps moving
@@ -348,7 +471,9 @@ J.plan = (project, audio) => {
     const n = [...ln.text.replace(/\s+/g, '')].length;
     const visEnd = Math.min(e, s + Math.max(3.6, n * 0.5 + 1.2));
     const D = visEnd - s;
-    plan.lines.push({ index: li, src: ln.src, lrc: ln.lrc, text: ln.text, start: s, end: e, visEnd, note: ln.note, impact: ln.impact, emph: ln.emph, chunks: null, seed: lineSeed });
+    const wt = tm.wordTimes[li];
+    const lineWordTimes = wt ? wt.map(w => ({ start: w.start, end: w.end, text: w.text, norm: w.text != null ? J.wordNorm(w.text, plan.lang) : null })) : null;
+    plan.lines.push({ index: li, src: ln.src, lrc: ln.lrc, text: ln.text, start: s, end: e, visEnd, note: ln.note, impact: ln.impact, emph: ln.emph, chunks: null, wordTimes: lineWordTimes, seed: lineSeed });
     const chunks = ln.manual || (['en','vi'].includes(plan.lang) ? J.phraseChunks(J.chunkText(ln.text)) : J.chunkText(ln.text));
     plan.lines[li].chunks = chunks;
     const L = J.lerp(1.3, 0.5, fx.density);
@@ -409,7 +534,7 @@ J.plan = (project, audio) => {
       if (UU) layout = UU.layout(li, layout, { nn, dur, emph, kime, rng, portrait: LH > LW, recap: u.recap });
       let enter = ov.enter && J.ENTER[ov.enter] ? ov.enter : pickEnter(rng, st, en, layout, dur, history, emph, nn);
       let exit = ov.exit && J.EXIT[ov.exit] ? ov.exit : pickExit(rng, st, en, layout, dur, k === units.length - 1, history);
-      let hold = ov.hold && J.HOLD[ov.hold] ? ov.hold : pickHold(rng, en, fx, history);
+      let hold = ov.hold && J.HOLD[ov.hold] ? ov.hold : pickHold(rng, en, fxBeat, history);
       let weightGrow = false;
       if (UU) {
         enter = UU.enter(li, enter, { layout, dur, emph, kime, rng, nn });
@@ -435,13 +560,13 @@ J.plan = (project, audio) => {
       if (!U && nSchemes > 1 && k > 0 && rng.chance(0.12 * fx.bgSwitch)) sch = (schemeIdx + 1) % nSchemes;
       let LD = J.LAYOUTS[layout];
       let params = LD.plan(rng, { text: txt, n: nn, W: LW, H: LH, dur }, st);
-      let decor = Array.isArray(ov.decor) ? ov.decor.filter(id => J.DECOR[id]).map(id => decorParams(rng, id)) : pickDecor(rng, st, en, fx, layout, history);
+      let decor = Array.isArray(ov.decor) ? ov.decor.filter(id => J.DECOR[id]).map(id => decorParams(rng, id)) : pickDecor(rng, st, en, fxBeat, layout, history);
       let treat = ov.treat && J.TREAT[ov.treat] ? ov.treat : pickTreat(rng, st, en, fx, LD, emph, history);
       if (UU) { decor = UU.decor(li, decor, { layout, kime, rng }); treat = UU.treat(li, treat, { kime, rng, LD }); }
       let treatP = J.TREAT[treat].plan ? J.TREAT[treat].plan(rng, st) : {};
       if (!ov.bg && k > 0 && !U && rng.chance(0.18 * fx.bgSwitch + 0.04)) { lineBg = pickBg(rng, st, en, fx, bgHistory); lineBgP = J.BG[lineBg].plan ? J.BG[lineBg].plan(rng, st) : {}; }
       let bg = LD.busy && !(J.BG[lineBg] && J.BG[lineBg].subtle) ? 'none' : lineBg;
-      let cam = ov.cam && J.CAMERA[ov.cam] ? ov.cam : pickCam(rng, st, en, fx, LD, emph, history);
+      let cam = ov.cam && J.CAMERA[ov.cam] ? ov.cam : pickCam(rng, st, en, fxBeat, LD, emph, history);
       if (UU) cam = UU.cam(li, cam, { kime, emph, rng });
       let camP = J.CAMERA[cam].plan ? J.CAMERA[cam].plan(rng, st) : {};
       let cutSeed = J.h(lineSeed, k, 17);
@@ -579,6 +704,23 @@ J.plan = (project, audio) => {
         if (pick) { const D2 = J.FXE[pick]; const d = (D2.dur || 4) * F; addEvent(cs - (D2.pre ? D2.pre * F : 0), pick, (D2.amp || 1) * (0.7 + 0.5 * g + (emph ? 0.3 : 0)), d); fxHistory.push(pick); }
       }
       if (dur > 1.1) { const pick = pickFx(rng, st, en, fx, emph, fxHistory, 'mid'); if (pick) { const D2 = J.FXE[pick]; addEvent(cs + rng.range(0.4, 0.75) * dur, pick, (D2.amp || 1) * (0.5 + 0.4 * g), (D2.dur || 3) * F); } }
+      // v0.14.0 beat-synced motion: extra flash / zoom / chroma accents on the beat grid inside this cut.
+      // Plan-time only (absolute t, rotating types, no clock, no rng) so Preview and export agree.
+      if (fx.beatSync && (fx.beatAmt ?? 0.7) > 0.02 && plan.beats && plan.beats.length) {
+        const bEvery = fx.beatEvery || 1, bAmt = fx.beatAmt ?? 0.7, bTypes = ['flash', 'zoom', 'chroma'];
+        let bn = 0;
+        for (let bi = 0; bi < plan.beats.length; bi++) {
+          const bt = plan.beats[bi];
+          if (bt < cs || bt >= ce) continue;
+          if (bi % bEvery !== 0) continue;
+          if (Math.abs(bt - cs) < 0.02) continue;   // the cut start already has its own events
+          const bt2 = bTypes[bn++ % bTypes.length];
+          if (!fxOn(bt2)) continue;
+          if (bt2 === 'flash') addEvent(bt, 'flash', bAmt, 3 * F);
+          else if (bt2 === 'zoom') addEvent(bt, 'zoom', 0.8 * bAmt, 0.22);
+          else addEvent(bt, 'chroma', 1.2 * bAmt, 0.25);
+        }
+      }
       if (LS && Array.isArray(LS.events)) { plan.events.splice(evMark); for (const e of LS.events) plan.events.push({ t: cs + e.dt, type: e.type, amp: e.amp, dur: e.dur }); }
       // 文字整列: at most one screen effect per cut besides the colour split (the キメ line keeps its accents)
       if (plan.typeset && !cut.kime && !LS) {
@@ -592,7 +734,7 @@ J.plan = (project, audio) => {
     const nextStart = li < parsed.lines.length - 1 ? tm.starts[li + 1] : null;
     if (nextStart != null && nextStart - visEnd > 1.3 && !parsed.lines[li + 1].interlude) {
       const r2 = J.rng(J.h(lineSeed, 404));
-      plan.cuts.push(makeCut({ text: title || '', lineText: '', line: li, start: visEnd, end: nextStart, layout: 'interlude', enter: 'blur', exit: 'blur', hold: 'still', inDur: 0.3, outDur: 0.3, params: J.LAYOUTS.interlude.plan(r2), decor: pickDecor(r2, st, en, Object.assign({}, fx, { decor: 1 }), 'interlude'), scheme: schemeIdx, seed: J.h(lineSeed, 405) }));
+      plan.cuts.push(makeCut({ text: title || '', lineText: '', line: li, start: visEnd, end: nextStart, layout: 'interlude', enter: 'blur', exit: 'blur', hold: 'still', inDur: 0.3, outDur: 0.3, params: J.LAYOUTS.interlude.plan(r2), decor: pickDecor(r2, st, en, Object.assign({}, fxBeat, { decor: 1 }), 'interlude'), scheme: schemeIdx, seed: J.h(lineSeed, 405) }));
     }
   });
   plan.cuts.sort((a, b) => a.start - b.start);
@@ -602,6 +744,16 @@ J.plan = (project, audio) => {
     if (c.layout === 'interlude') { c.params = Object.assign({}, c.params, { showTitle: false }); return; }   // no lyric: the whole frame
     c.zone = zoneOf(c.line);
   });
+  // word-level karaoke: each cut keeps the times of the words it shows (char offsets in the cut text),
+  // plus the same for the whole line (some layouts draw the full line instead of the cut's part)
+  const sliceCut = c => {
+    if (!c || c.line == null || c.line < 0 || c.layout === 'interlude') return;   // no lyric on screen: nothing to sweep
+    const L = plan.lines[c.line];
+    if (!L || !L.wordTimes) return;
+    c.wordTimes = J.sliceWordTimes(L.wordTimes, c.text, plan.lang);
+    if (c.lineText && c.lineText !== c.text) c.lineWordTimes = J.sliceWordTimes(L.wordTimes, c.lineText, plan.lang);
+  };
+  plan.cuts.forEach(c => { sliceCut(c); if (c.companion) sliceCut(c.companion); });
   plan.events.sort((a, b) => a.t - b.t);
   plan.energy = audio && audio.energy ? audio.energy : null;
   plan.energyRate = audio && audio.energyRate ? audio.energyRate : 0;
@@ -877,12 +1029,18 @@ function pickExit(rng, st, en, layout, dur, lastOfLine, history) {
   return cands.length ? rng.wpick(cands) : 'cut';
 }
 const HOLD_W = { still: 1, jitter: 1.2, drift: 1, breathe: 0.7, wave: 0.4, glitchtick: 0.9 };
+/* v0.14.0: parts that read the beat (env.beat / plan.beats) — favoured when fx.beatSync is on.
+   Every key here was verified in the source to read env.beat (or plan.beats) with a fallback. */
+const BEAT_HOLD = new Set(['ccPulseHeart', 'knWordPulse', 'knBeatLean', 'tyKeyPulse', 'tyTrackStep', 'pulse', 'heartbeat']);
+const BEAT_CAM = new Set(['beatPunch', 'earthquake', 'snapPan', 'jelly']);
+const BEAT_DECOR = new Set(['beatRing', 'sonarArcs', 'spectrumRing', 'lineBurst']);
 function pickHold(rng, en, fx, history) {
   const cands = J.HOLD_ORDER.filter(k => en.hold[k] !== false && J.HOLD[k]).map(k => {
     const D = J.HOLD[k];
     let w = HOLD_W[k] != null ? HOLD_W[k] : (D.w ?? 0.8);
     if (k === 'jitter' || (D.tags && D.tags.includes('glitch'))) w *= 0.4 + fx.motion;
     if (k === 'glitchtick') w *= fx.glitch;
+    if (fx.beatSync && BEAT_HOLD.has(k)) w *= 2.2;
     return [k, w * novelty(history, 'hold', k)];
   });
   return cands.length ? rng.wpick(cands) : 'still';
@@ -895,7 +1053,7 @@ function pickDecor(rng, st, en, fx, layout, history = []) {
   const recent = new Set(history.slice(-2).flatMap(h => h.decor || []));
   const LD = J.LAYOUTS[layout] || {};
   const cands = J.DECOR_ORDER.filter(k => en.decor[k] && J.DECOR[k] && !(LD.busy && J.DECOR[k].layer === 'back' && !J.DECOR[k].subtle))
-    .map(k => [k, wkey(st.decor, k, J.DECOR[k].w != null ? J.DECOR[k].w * 0.5 : 0.35) * (recent.has(k) ? 0.35 : 1)]);
+    .map(k => [k, wkey(st.decor, k, J.DECOR[k].w != null ? J.DECOR[k].w * 0.5 : 0.35) * (recent.has(k) ? 0.35 : 1) * (fx.beatSync && BEAT_DECOR.has(k) ? 2.2 : 1)]);
   const out = [];
   for (let i = 0; i < count && cands.length; i++) {
     const k = rng.wpick(cands);
@@ -924,6 +1082,7 @@ function pickCam(rng, st, en, fx, LD, emph, history) {
     const D = J.CAMERA[k];
     let w = wkey(st.bias && st.bias.cam, k, D.w ?? 1) * novelty(history, 'cam', k);
     if (D.strong) w *= 0.25 + 0.9 * (fx.motion ?? 0.7) + (emph ? 0.6 : 0);
+    if (fx.beatSync && BEAT_CAM.has(k)) w *= 2.2;
     if (LD.cam === false && k !== 'push') w *= 0.05;
     return [k, w];
   });
@@ -1026,7 +1185,7 @@ J.previewPlan = (project, group, key) => {
   }
   cuts.forEach((c, i) => { c.index = i; });
   return {
-    version: 1, lang: J.resolveLang(project), generator: 'JIZURA-preview', title: '', artist: '', W, H, fps: 24,
+    version: 1, lang: J.resolveLang(project), generator: 'AURA-preview', title: '', artist: '', W, H, fps: 24,
     duration: cuts[cuts.length - 1].end, styleKey: project.style, style: st, fx,
     lines: [], cuts, events, beats: [], hud: false, keyBg: null,
   };

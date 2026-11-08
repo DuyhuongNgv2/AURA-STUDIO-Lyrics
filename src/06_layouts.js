@@ -7,6 +7,67 @@
 'use strict';
 const E = J.E;
 
+/* ---------- karaoke: light each word as it is sung ----------
+   A cut whose words have times (Whisper, Enhanced LRC, hand-set) draws its text dim, then sweeps the lit
+   colour across the words as their times pass. Only the full-text draw sweeps: per-character / chunk draws
+   (kinetic, romaji…) and decorative copies keep rendering exactly as before. */
+J.karaokeAt = (env, it) => {
+  const cut = env.cut;
+  if (!cut || cut.line == null || cut.line < 0 || !it.text) return null;
+  const raw = String(it.text), flat = raw.replace(/\n/g, '');
+  // a layout may wrap the text (J.splitLines turns the break space into '\n'
+  // and trims the chunk), so compare ignoring whitespace; the word offsets
+  // (c0/c1) live in the source text's coordinates, not the laid-out ones
+  const squash = s => String(s).replace(/\s+/g, '');
+  let wt = null, src = null;
+  if (flat === cut.text || (raw.includes('\n') && squash(flat) === squash(cut.text))) { wt = cut.wordTimes; src = cut.text; }
+  else if (cut.lineText && (flat === cut.lineText || (raw.includes('\n') && squash(flat) === squash(cut.lineText)))) { wt = cut.lineWordTimes; src = cut.lineText; }
+  if (!wt || !wt.length) return null;
+  // layoutText numbers glyphs skipping '\n', and a wrap drops the space it
+  // replaced: map each laid-out glyph index back to its source-text index
+  let idxMap = null;
+  if (raw.includes('\n')) {
+    idxMap = [];
+    let j = 0;
+    for (const ch of raw) {
+      if (ch === '\n') { if (src[j] === ' ' || src[j] === '　') j++; continue; }
+      while ((src[j] === ' ' || src[j] === '　') && ch !== ' ' && ch !== '　') j++;
+      idxMap.push(j); j++;
+    }
+  }
+  const oi = i => (idxMap && idxMap[i] != null ? idxMap[i] : i);
+  const t = env.t != null ? env.t : cut.start + (env.lt || 0);
+  const sc = env.sc || {};
+  const litColor = sc.accent || '#fff', dimAlpha = 0.35;
+  const wordOf = i => { i = oi(i); for (let k = 0; k < wt.length; k++) if (i >= wt[k].c0 && i < wt[k].c1) return wt[k]; return null; };
+  const prevWord = i => { i = oi(i); let p = null; for (let k = 0; k < wt.length; k++) { if (wt[k].c1 <= i) p = wt[k]; else break; } return p; };
+  const fracOf = w => {
+    if (!w) return 0;
+    if (t < w.start) return 0;
+    if (t >= w.end) return 1;
+    return (t - w.start) / Math.max(0.01, w.end - w.start);
+  };
+  const litFrac = i => {
+    const w = wordOf(i);
+    if (w) return fracOf(w);
+    return fracOf(prevWord(i));          // punctuation / spaces light with the word before them
+  };
+  const litWord = i => {
+    const w = wordOf(i);
+    if (w) return t >= w.start;
+    const p = prevWord(i);
+    return p ? t >= p.start : false;
+  };
+  let anyLit = false, allLit = true;
+  for (let k = 0; k < wt.length; k++) {
+    if (t >= wt[k].start) anyLit = true;
+    if (t < wt[k].end) allLit = false;
+  }
+  // a clip, a band split or vertical text cannot be swept with a straight overlay: flip whole words instead
+  const mode = (it.clip || it.clipY || it.clipFn || it.bands || it.vbands || it.vertical) ? 'flip' : 'sweep';
+  return { mode, litColor, dimAlpha, litFrac, litWord, anyLit, allLit };
+};
+
 /* ---------- main-item pipeline: enter / hold / exit + draw ---------- */
 J.mainDraw = (env, it) => {
   const cut = env.cut;
@@ -33,7 +94,36 @@ J.mainDraw = (env, it) => {
   if (pOut > 0 && ex !== J.EXIT.cut) ex.apply(env, it, pOut, ctx);
   it.charFn = J.combineChar(it.charFns);
   it.pieceFn = J.combinePiece(it.pieceFns);
-  return J.drawFx(env, it);
+  const kara = J.karaokeAt(env, it);
+  if (!kara) return J.drawFx(env, it);
+  // every word lit already: one pass, all accent (no dim underlay to double-draw through)
+  if (kara.allLit) return J.drawFx(env, Object.assign({}, it, { color: kara.litColor, gradient: null, pattern: null }));
+  if (kara.mode === 'flip') {
+    // bands / clips / vertical text: one pass, each word flips colour whole (keeps the effect intact)
+    const baseFn = it.charFn;
+    return J.drawFx(env, Object.assign({}, it, { gradient: null, pattern: null, charFn: (i, g, N) => {
+      const b = baseFn ? baseFn(i, g, N) : null;
+      if (b && b.hide) return b;
+      if (kara.litWord(i)) return Object.assign({}, b, { color: kara.litColor });
+      return Object.assign({}, b, { a: (b && b.a != null ? b.a : 1) * kara.dimAlpha });
+    }}));
+  }
+  // two passes: the whole text dim, then the lit sweep drawn straight on top (no echo / streak / bands twice)
+  const dimIt = Object.assign({}, it, { alpha: (it.alpha ?? 1) * kara.dimAlpha, gradient: null });
+  const bb = J.drawFx(env, dimIt);
+  if (kara.anyLit) {
+    const baseFn = it.charFn;
+    J.drawItem(env, Object.assign({}, it, { color: kara.litColor, gradient: null, pattern: null, charFn: (i, g, N) => {
+      const b = baseFn ? baseFn(i, g, N) : null;
+      if (b && b.hide) return b;
+      const f = kara.litFrac(i);
+      if (f <= 0) return Object.assign({}, b, { hide: true });
+      if (f >= 1) return b;
+      if (b && (b.clipX || b.clipY)) return f >= 0.5 ? b : Object.assign({}, b, { hide: true });
+      return Object.assign({}, b, { clipX: [-0.7, -0.7 + 1.4 * f] });
+    }}));
+  }
+  return bb;
 };
 
 /* draw an item honouring bands / clip / streak / echo / wipe-bar / cursor / treatment hooks */

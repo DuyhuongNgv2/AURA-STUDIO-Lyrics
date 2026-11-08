@@ -2,7 +2,7 @@
 Replacements run longest-key-first over the already-replaced text, so values avoid containing shorter Japanese keys
 (e.g. 和 / 高 / 保存 / 背景 / 文字 / 行 / 秒 map to themselves)."""
 
-TITLE = 'JIZURA — 歌词动态视频制作工具'
+TITLE = 'AURA Motion Lyrics — 歌词动态视频制作工具'
 DESCRIPTION = '在浏览器中把歌词做成动态歌词视频，并导出 MP4。'
 
 SAMPLE = '我还记得/黎明的颜色\n远处响起渐渐散去的声音\n现在还来得及吗？\n不想就这样*透明*地结束!'
@@ -193,7 +193,7 @@ BODY = {
     'コマ打ち': '抽帧', 'フラッシュ': '闪光', 'シード': '种子', '新しいシード': '新种子',
     '標準': '标准', '最高': '最高', '高': '高', '中止': '取消',
     # longer phrases so the short tokens above read naturally in Chinese
-    '<div class="next">次: ': '<div class="next">下一行：', '<span class="muted">〜</span>': '<span class="muted">～</span>',
+    '<div class="next">次: ': '<div class="next">下一行：', '<span class="muted">~</span>': '<span class="muted">～</span>',
     '行ループ': '行循环', 'カットループ': '镜头循环',
     '全体を繰り返し': '循环播放整首', 'この行を繰り返し': '循环播放这一行',
     'このカットを繰り返し': '循环播放这个镜头', '繰り返しなし': '不循环',

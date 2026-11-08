@@ -60,7 +60,7 @@ J.register = (group, key, def, pack) => {
   if (!G) throw new Error('unknown group ' + group);
   if (!def || !def.name) throw new Error(`${group}.${key}: name is required`);
   const reg = J[G[0]], order = J[G[1]];
-  if (reg[key] && reg[key].pack !== pack) console.warn(`JIZURA: ${group}.${key} is being replaced`);
+  if (reg[key] && reg[key].pack !== pack) console.warn(`AURA: ${group}.${key} is being replaced`);
   def.pack = pack || def.pack || 'core';
   reg[key] = def;
   if (!def.special && !order.includes(key)) order.push(key);

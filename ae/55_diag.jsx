@@ -77,7 +77,7 @@ function jzSaveReport(text) {
     try { dirs.push(Folder.temp); } catch (e2) {}
     for (i = 0; i < dirs.length; i++) {
         try {
-            f = new File(dirs[i].fsName + '/JIZURA_report.txt'); f.encoding = 'UTF-8'; f.lineFeed = 'Windows';
+            f = new File(dirs[i].fsName + '/AURA_report.txt'); f.encoding = 'UTF-8'; f.lineFeed = 'Windows';
             if (f.open('w')) { f.write(text); f.close(); return f.fsName; }
         } catch (e3) {}
     }

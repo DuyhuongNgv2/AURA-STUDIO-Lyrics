@@ -1,8 +1,10 @@
-# AURA LYRICS STUDIO — Trình Tạo Video Kinetic Typography Chuyên Nghiệp
+# AURA Motion Lyrics — Trình Tạo Video Kinetic Typography Chuyên Nghiệp
 
 **Các phiên bản ngôn ngữ:** [Mở ứng dụng (Tiếng Việt)](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/) · [English](en/) · [日本語](ja/) · [Bahasa Indonesia](id/) · [繁體中文](zh-hant/) · [简体中文](zh-hans/) · [한국어](ko/)
 
-Panel After Effects: [ScriptUI](JIZURA_AE.jsx) · [CEP](JIZURA_CEP.zip)
+> Dựa trên [JIZURA](https://github.com/852wa/JIZURA) của 852wa (giấy phép MIT) — đã đổi tên và Việt hóa thành AURA Motion Lyrics.
+
+Panel After Effects: [ScriptUI](AURA_AE.jsx) · [CEP](AURA_CEP.zip)
 
 **AURA LYRICS** là studio tạo video lyric chuyển động chữ (*Kinetic Typography / Kinetic Motion PV*) tự động chạy trực tiếp 100% trên trình duyệt web, không cần cài đặt phần mềm nặng, xuất file MP4 chất lượng cao lên đến 4K 60fps. Dự án sở hữu kho tàng **hơn 879 hiệu ứng chuyển động, 27 phong cách mỹ thuật, tích hợp trọn bộ hiệu ứng CapCut & Concat điện ảnh, kho Stock nền mẫu có sẵn, tải ảnh nền đa chuyển động** và nút thông minh **"Độc bản"** tự động biến hóa hiệu ứng không trùng lặp cho từng câu hát.
 
@@ -30,8 +32,8 @@ Panel After Effects: [ScriptUI](JIZURA_AE.jsx) · [CEP](JIZURA_CEP.zip)
 | Tệp tin / Thư mục | Chức năng |
 |---|---|
 | `index.html` | Bản ứng dụng chạy trên trình duyệt (đã đóng gói đơn tệp hoàn chỉnh, mở bằng Chrome/Edge/Cốc Cốc) |
-| `JIZURA_AE.jsx` | Panel điều khiển dành cho Adobe After Effects (ScriptUI) |
-| `JIZURA_CEP.zip` | Panel mở rộng đầy đủ giao diện dành cho Adobe After Effects (CEP Panel) |
+| `AURA_AE.jsx` | Panel điều khiển dành cho Adobe After Effects (ScriptUI) |
+| `AURA_CEP.zip` | Panel mở rộng đầy đủ giao diện dành cho Adobe After Effects (CEP Panel) |
 | `src/` | Mã nguồn động cơ cốt lõi (Bộ tính toán bố cục, bộ render canvas, các pack chuyển động, âm thanh, UI) |
 | `src/11p_capcut.js` | Gói hiệu ứng chuyển động CapCut & chuyển cảnh Concat độc quyền |
 | `app/` | Giao diện, bản dịch tiếng Việt, CSS phong cách mỹ thuật và hệ thống đa ngôn ngữ |
@@ -185,10 +187,10 @@ Bao gồm danh mục **879 chi tiết** được phân loại thành 10 nhóm:
 ## 🔌 Tích hợp với Adobe After Effects
 
 Ứng dụng đi kèm 2 công cụ kết nối trực tiếp với After Effects:
-1. **ScriptUI Panel (`JIZURA_AE.jsx`):**
+1. **ScriptUI Panel (`AURA_AE.jsx`):**
    * Đặt tệp vào thư mục `Scripts/ScriptUI Panels` trong thư mục cài đặt After Effects.
    * Cho phép dựng toàn bộ bài hát thành các Composition chứa Text Layer, Shape Layer, Keyframe và Expression native để bạn chỉnh sửa thủ công không giới hạn.
-2. **CEP Extension Panel (`JIZURA_CEP.zip`):**
+2. **CEP Extension Panel (`AURA_CEP.zip`):**
    * Đưa nguyên vẹn giao diện trực quan của AURA vào làm một bảng điều khiển bên trong After Effects (Window → Extensions).
    * Bấm **"Xuất cho AE"** trên trình duyệt để tải tệp `.json`, sau đó nạp vào After Effects là có ngay Project AE hoàn chỉnh.
 

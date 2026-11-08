@@ -14,6 +14,6 @@ files = sorted(core + chosen)          # keep global load order (packs load befo
 js = '\n'.join(open(f, encoding='utf-8').read() for f in files)
 os.makedirs('dev/www', exist_ok=True)
 open(f'dev/www/t_{name}.js', 'w', encoding='utf-8').write(js)
-page = open('dev/test.html', encoding='utf-8').read().replace('src="jizura.js"', f'src="t_{name}.js"')
+page = open('dev/test.html', encoding='utf-8').read().replace('src="aura.js"', f'src="t_{name}.js"')
 open(f'dev/www/t_{name}.html', 'w', encoding='utf-8').write(page)
 print('built', f'dev/www/t_{name}.html', 'files:', len(files), 'packs:', [os.path.basename(c) for c in chosen])

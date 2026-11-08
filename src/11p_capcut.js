@@ -112,9 +112,10 @@ reg('enter', 'ccGlitchRGB', {
 reg('hold', 'ccPulseHeart', {
   name: 'ハートビート', tags: ['emotional', 'pop', 'calm'], w: 2.0,
   apply(env, it) {
-    const speed = 4.5;
-    const beat = Math.sin(env.lt * speed);
-    const pulse = beat > 0 ? Math.pow(beat, 4) * 0.12 : 0;
+    // v0.14.0: pulse on the real beat when there is one; the old sine fallback when there is not
+    let pulse;
+    if (env.beat && env.beat.len > 0.15) pulse = J.beatPulse(env, { decay: 9 }) * 0.12;
+    else { const beat = Math.sin(env.lt * 4.5); pulse = beat > 0 ? Math.pow(beat, 4) * 0.12 : 0; }
     it.sx = (it.sx || 1) * (1 + pulse);
     it.sy = (it.sy || 1) * (1 + pulse);
   }

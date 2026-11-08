@@ -1,4 +1,4 @@
-// Minimal After Effects object-model mock to exercise JIZURA_AE.jsx in Node.
+// Minimal After Effects object-model mock to exercise AURA_AE.jsx in Node.
 // It records every property access / value / expression so we can catch
 // runtime errors (typos, undefined helpers) and validate expression syntax.
 const fs = require('fs'), vm = require('vm'), acorn = require('acorn');

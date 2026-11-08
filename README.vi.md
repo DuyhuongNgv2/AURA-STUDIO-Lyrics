@@ -1,4 +1,4 @@
-# AURA — Kinetic Lyrics & Typography Studio
+# AURA Motion Lyrics — Kinetic Lyrics & Typography Studio
 
 > **Trình tạo video lời bài hát chữ nhảy (Kinetic Typography) chạy trực tiếp trên trình duyệt web, hỗ trợ 100% font tiếng Việt không vỡ dấu.**
 

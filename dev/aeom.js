@@ -1,7 +1,7 @@
-/* After Effects object-model emulation for testing JIZURA_AE.jsx outside AE.
+/* After Effects object-model emulation for testing AURA_AE.jsx outside AE.
    - Node: syntax-checks expressions with acorn, validates values / effect params, counts usage.
    - Browser: the same model is rendered by aerender.js (dev preview).
-   Only the parts of the AE scripting DOM that JIZURA uses are modelled, but they are modelled
+   Only the parts of the AE scripting DOM that AURA uses are modelled, but they are modelled
    faithfully enough to be rendered (defaults, layer timing, parenting, keyframes, expressions). */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(require('acorn'));
@@ -266,7 +266,7 @@ class Prop {
     mn = EFFECT_ALIASES[mn] || mn;
     const allowed = INDEXED[this.matchName];
     if (allowed && allowed.indexOf(mn) < 0) {
-      if (this.matchName === 'ADBE Effect Parade') throw new Error(`effect not in the JIZURA whitelist: ${mn}`);
+      if (this.matchName === 'ADBE Effect Parade') throw new Error(`effect not in the AURA whitelist: ${mn}`);
       this.env.stats.unknown.add(mn);
     }
     const c = new Prop(mn, this, this.env, this.matchName === 'ADBE Effect Parade' ? 'effect' : undefined);
@@ -350,7 +350,7 @@ class Prop {
   }
   get expression() { return this._expr; }
   get expressionError() { return ''; }
-  get dimensionsSeparated() { return false; } set dimensionsSeparated(v) { if (v) this.problem('dimensionsSeparated is not supported by JIZURA'); }
+  get dimensionsSeparated() { return false; } set dimensionsSeparated(v) { if (v) this.problem('dimensionsSeparated is not supported by AURA'); }
   remove() { const p = this.parentProperty; if (p) { p._mut = (p._mut | 0) + 1; p.children.splice(p.children.indexOf(this), 1); } this._dead = true; }
   moveTo(i) { const p = this.parentProperty; p._mut = (p._mut | 0) + 1; p.children.splice(p.children.indexOf(this), 1); p.children.splice(i - 1, 0, this); }
   duplicate() { const c = cloneProp(this, this.parentProperty); const p = this.parentProperty; p._mut = (p._mut | 0) + 1; p.children.splice(p.children.indexOf(this) + 1, 0, c); return wrap(c); }
@@ -452,7 +452,7 @@ class Layer extends Prop {
   moveAfter(o) { const a = this.comp._layers; const i = a.indexOf(this); if (i >= 0) a.splice(i, 1); a.splice(a.indexOf(o) + 1, 0, this); }
   remove() { const a = this.comp._layers; const i = a.indexOf(this); if (i >= 0) a.splice(i, 1); }
   get hasVideo() { return this.kindName !== 'Null' && !(this.source && this.source.audioOnly); } get hasAudio() { return !!(this.source && this.source.hasAudio); }
-  applyPreset() { throw new Error('applyPreset is not available in JIZURA'); }
+  applyPreset() { throw new Error('applyPreset is not available in AURA'); }
   openInViewer() {}
 }
 // 2D affine helpers for parenting (static / first-key values; expressions are not evaluated here)
@@ -500,8 +500,8 @@ class Comp {
         const L = new Layer(self, 'Solid', { name: n, source: src }); if (dur) L._out = Math.min(self.duration, dur); return add(L);
       },
       add(item) { if (!item) throw new Error('add(undefined)'); const L = new Layer(self, 'AV', { name: item.name, source: item }); return add(L); },
-      addCamera() { throw new Error('cameras are not used by JIZURA (2D only)'); },
-      addLight() { throw new Error('lights are not used by JIZURA'); },
+      addCamera() { throw new Error('cameras are not used by AURA (2D only)'); },
+      addLight() { throw new Error('lights are not used by AURA'); },
       addBoxText() { throw new Error('use point text (addText)'); },
       byName(n) { return self._layers.find(l => l.name === n) || null; },
       get length() { return self._layers.length; },

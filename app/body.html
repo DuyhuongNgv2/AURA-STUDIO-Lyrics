@@ -13,8 +13,7 @@
       <span class="logo" aria-hidden="true">Λ</span>
       <div class="brand-text">
         <span class="mark" aria-hidden="true">AURA</span>
-        <span class="word">LYRICS</span>
-        <span class="sub-badge">STUDIO <b>PRO</b></span>
+        <span class="word">MOTION LYRICS</span>
       </div>
       <span class="ver">v@VERSION@</span>
     </div>
@@ -30,7 +29,7 @@
       <button id="modeMobile" class="mode-mobile" aria-pressed="false" title="スマホ向けの画面（おまかせを上に固定、行はたたんで表示）">スマホ</button>
       <button id="modeEasy" aria-pressed="false" title="おまかせボタン中心のシンプルな画面">かんたん</button>
       <button id="modePro" aria-pressed="true" title="すべての設定を表示">詳細</button>
-      <button id="btnTour" class="ghost tour-btn" title="かんたんモードの使い方を案内します" aria-label="使い方の案内">？</button>
+      <button id="btnTour" class="ghost tour-btn" title="かんたんモードの使い方を案内します" aria-label="使い方の案内">?</button>
     </div>
     <div class="acts">
       <label class="file" title="保存したプロジェクト(.json)を開く">開く<input id="fileProject" type="file" accept=".json,application/json"></label>
@@ -53,14 +52,14 @@
           <button id="tapStop" class="ghost">終了する</button>
       </div>
       <div class="sec">
-        <div class="sec-h"><h2>歌詞</h2><span class="sec-btns"><label class="file ghost small" title="LRC ファイル（タイムスタンプ付きの歌詞）を読み込み、今の歌詞と置き換えます（「元に戻す」で戻せます）">LRC を読み込む<input id="fileLrc" type="file" accept=".lrc,.txt,text/plain"></label><button id="btnClearLyrics" class="ghost small" title="歌詞と、行ごとのタイミング・指定・書き出す範囲を消します（「元に戻す」か Ctrl+Z で戻せます）">歌詞を消す</button><button id="btnSyntax" class="ghost small" aria-expanded="false">記法</button></span></div>
+        <div class="sec-h"><h2>歌詞</h2><span class="sec-btns"><label class="file ghost small" title="字幕・LRC ファイル（タイムスタンプ付きの歌詞）を読み込み、今の歌詞と置き換えます（「元に戻す」で戻せます）">字幕・LRC を読み込む<input id="fileLrc" type="file" accept=".lrc,.txt,.srt,.vtt,.ass,.ssa,text/plain"></label><button id="btnClearLyrics" class="ghost small" title="歌詞と、行ごとのタイミング・指定・書き出す範囲を消します（「元に戻す」か Ctrl+Z で戻せます）">歌詞を消す</button><button id="btnSyntax" class="ghost small" aria-expanded="false">記法</button></span></div>
         <textarea id="lyrics" rows="9" spellcheck="false" aria-label="歌詞（1行 = 1フレーズ）"></textarea>
         <div class="lyric-tags">
-          <button type="button" class="tag" data-tag="Verse" title="Thêm tiêu đề [Verse]">＋ Verse</button>
-          <button type="button" class="tag" data-tag="Chorus" title="Thêm tiêu đề [Chorus]">＋ Chorus</button>
-          <button type="button" class="tag" data-tag="Bridge" title="Thêm tiêu đề [Bridge]">＋ Bridge</button>
-          <button type="button" class="tag" data-tag="Cut" title="Chèn dấu cắt câu /">＋ Cắt ( / )</button>
-          <button type="button" class="tag" data-tag="Impact" title="Chèn dấu nhấn mạnh *từ*">＋ Nhấn ( * )</button>
+          <button type="button" class="tag" data-tag="Verse" title="Thêm tiêu đề [Verse]">+ Verse</button>
+          <button type="button" class="tag" data-tag="Chorus" title="Thêm tiêu đề [Chorus]">+ Chorus</button>
+          <button type="button" class="tag" data-tag="Bridge" title="Thêm tiêu đề [Bridge]">+ Bridge</button>
+          <button type="button" class="tag" data-tag="Cut" title="Chèn dấu cắt câu /">+ Cắt ( / )</button>
+          <button type="button" class="tag" data-tag="Impact" title="Chèn dấu nhấn mạnh *từ*">+ Nhấn ( * )</button>
           <span id="lyricCount" class="lyric-counter muted mono"></span>
         </div>
         <label class="lang-row">歌詞の言語<select id="lyricLang"><option value="auto">自動判定</option><option value="ja">日本語</option><option value="zh-Hant">繁體中文</option><option value="zh-Hans">简体中文</option><option value="ko">한국어</option><option value="en">English</option><option value="vi">Tiếng Việt</option></select><span id="langNote" class="muted"></span></label>
@@ -72,6 +71,7 @@
             <li>行末の <code>!</code> … フラッシュと揺れを入れる</li>
             <li><code>歌詞|ruby or note</code> … 注釈レイアウトの小さな文字</li>
             <li><code>[01:23.45]歌詞</code> … LRC のタイムスタンプをそのまま使用</li>
+            <li><code>SRT / VTT / SSA・ASS</code> … 字幕ファイルも読み込めます（開始時刻と <code>\k</code> の単語時刻を取り込みます）</li>
             <li><code>[間奏 8]</code> … 8秒の間奏（歌詞は出さず、背景と装飾だけ）。秒数を省くと4秒、タップ同期やマーカーで長さを合わせられます</li>
             <li><code>#</code> で始まる行 … コメント（無視）</li>
           </ul>
@@ -84,11 +84,14 @@
         <div class="row">
           <label class="file" title="mp3 / wav / m4a など">曲を読み込む<input id="audioFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac"></label>
           <button id="btnTap" title="曲を再生しながら各行の頭でタップ">タップで同期</button>
+          <button id="btnWhisper" title="音声を聴いて各行の開始を合わせる（ブラウザ内で実行）">Whisperで自動同期</button>
         </div>
+        <div id="whisperStatus" class="muted audio-name">未実行 — 本物の音声と歌詞が必要です</div>
         <div class="fields pro-only">
           <label class="field">BPM<input id="bpm" type="number" min="0" max="300" step="0.1" placeholder="自動"></label>
           <label class="field">開始(秒)<input id="offset" type="number" min="0" step="0.05"></label>
           <label class="field">行の長さ<input id="lineScale" type="number" min="0.4" max="3" step="0.05"></label>
+          <label class="field">初拍のズレ(秒)<input id="beatOffset" type="number" min="-2" max="2" step="0.01"></label>
         </div>
         <div class="row pro-only">
           <label class="row" style="gap:6px"><input id="snap" type="checkbox"> 拍にスナップ</label>
@@ -155,11 +158,11 @@
         <button id="btnDiversity" class="primary div-btn" title="各行に重複のないCapCut演出を自動割り当て">独創</button>
       </div>
       <div class="tl-bar">
-        <span class="tl-hint muted">行の区切り（上の目盛り）はドラッグで動かせます。<span class="kbd">Shift</span> で拍に吸着しない</span>
+        <span class="tl-hint muted">行の区切り（上の目盛り）はドラッグで動かせます。<span class="kbd">Shift</span> で拍に吸着しない。波形を見ながら合わせられます</span>
         <span class="tl-btns">
           <button id="btnUndoEdit" class="ghost small" title="歌詞・タイミングの変更を元に戻す（Ctrl+Z）" disabled>元に戻す</button>
           <button id="tlOut" class="ghost small icon-txt" title="縮小" aria-label="タイムラインを縮小">−</button>
-          <button id="tlIn" class="ghost small icon-txt" title="拡大（タイムライン上でホイールでも）" aria-label="タイムラインを拡大">＋</button>
+          <button id="tlIn" class="ghost small icon-txt" title="拡大（タイムライン上でホイールでも）" aria-label="タイムラインを拡大">+</button>
           <button id="tlFit" class="ghost small" title="全体を表示">全体</button>
         </span>
       </div>
@@ -222,7 +225,7 @@
           </div>
           <label class="check center-free"><input id="eCenter" class="center-toggle" type="checkbox"><span>中央を空ける（キャラクター用）<small>中央にキャラクターなどを重ねる前提で、文字と演出を横長の画面では左右、縦長の画面では上下に、行ごとに交互に置きます。背景と画面効果は全体のままです（プレビューには空ける範囲を点線で表示）</small></span></label>
           <label class="row center-dir" hidden>縦長のとき<select class="centerDirSel" aria-label="縦長の画面での分け方"><option value="tb">上下に分ける</option><option value="lr">左右に分ける</option></select></label>
-          <div class="rng-row"><span class="rng-lab">書き出す範囲</span><select class="rngFrom" aria-label="書き出す範囲の最初の行"></select><span class="muted">〜</span><select class="rngTo" aria-label="書き出す範囲の最後の行"></select><span class="rngInfo muted mono"></span></div>
+          <div class="rng-row"><span class="rng-lab">書き出す範囲</span><select class="rngFrom" aria-label="書き出す範囲の最初の行"></select><span class="muted">~</span><select class="rngTo" aria-label="書き出す範囲の最後の行"></select><span class="rngInfo muted mono"></span></div>
           <div class="outbtns"><button id="eMP4" class="primary">MP4 を書き出す</button><button id="eMP4File" class="ghost mp4file" hidden title="保存先のファイルを先に選び、そこへ直接書き込みます。長い曲・1080p 以上でブラウザのメモリが足りずに失敗するときに使ってください（Chrome / Edge）">大きな動画用（ファイルに直接保存）</button><button id="eLRC" class="ghost" title="各行の開始時刻を付けた歌詞（.lrc）を書き出します。書き出す範囲を選んでいるときは、その行だけを動画の頭からの時刻で書き出します">LRC を書き出す</button></div>
           <div class="outbtns out-png"><button id="ePNG" class="ghost">連番PNG（ZIP）</button><button id="ePNGA" class="ghost">透過PNG（ZIP・背景なし）</button><button id="ePNGL" class="ghost" title="後景（背景のグラフィックと歌詞の後ろの装飾）と前景（歌詞とその装飾・ゴースト）を、別々のフォルダ（back / front）に透過PNGで書き出します。画面全体の演出は両方にかかるので、前景を後景の上に重ねると通常の見た目になります">透過PNG 前景／後景（ZIP）</button></div>
           <button class="terms-open linkish">書き出した動画の権利について</button>
@@ -308,7 +311,7 @@
         <label class="check center-free"><input id="outCenter" class="center-toggle" type="checkbox"><span>中央を空ける（キャラクター用）<small>中央にキャラクターなどを重ねる前提で、文字と演出を横長の画面では左右、縦長の画面では上下に、行ごとに交互に置きます。背景と画面効果は全体のままです（プレビューには空ける範囲を点線で表示）</small></span></label>
           <label class="row center-dir" hidden>縦長のとき<select class="centerDirSel" aria-label="縦長の画面での分け方"><option value="tb">上下に分ける</option><option value="lr">左右に分ける</option></select></label>
         <label class="row" style="gap:6px;margin-top:10px"><input id="outAudio" type="checkbox" checked> 曲を動画に含める</label>
-        <div class="rng-row"><span class="rng-lab">書き出す範囲</span><select class="rngFrom" aria-label="書き出す範囲の最初の行"></select><span class="muted">〜</span><select class="rngTo" aria-label="書き出す範囲の最後の行"></select><span class="rngInfo muted mono"></span></div>
+        <div class="rng-row"><span class="rng-lab">書き出す範囲</span><select class="rngFrom" aria-label="書き出す範囲の最初の行"></select><span class="muted">~</span><select class="rngTo" aria-label="書き出す範囲の最後の行"></select><span class="rngInfo muted mono"></span></div>
         <div class="outbtns">
           <button id="btnMP4" class="primary">MP4 を書き出す</button>
           <button id="btnMP4File" class="mp4file" hidden title="保存先のファイルを先に選び、そこへ直接書き込みます。長い曲・1080p 以上でブラウザのメモリが足りずに失敗するときに使ってください（Chrome / Edge）">MP4（大きな動画用・ファイルに直接保存）</button>
@@ -352,11 +355,11 @@
       <p class="terms-sub">※ 使った歌詞や曲の権利は、それぞれの権利者に帰属します。</p>
     </div>
     <p>ツール本体は <strong>MIT ライセンス</strong>で公開しています。詳細なライセンスはこちら：</p>
-    <p><a href="https://github.com/852wa/JIZURA" target="_blank" rel="noopener">https://github.com/852wa/JIZURA</a></p>
+    <p><a href="https://github.com/DuyhuongNgv2/AURA-STUDIO-Lyrics" target="_blank" rel="noopener">https://github.com/DuyhuongNgv2/AURA-STUDIO-Lyrics</a></p>
     <p class="muted terms-note">入力した歌詞や曲は、このブラウザの中だけで処理され、サーバーには送信されません。</p>
     <details class="terms-oss"><summary>使用しているオープンソース</summary>
-      <p>MP4 書き出し：mp4-muxer（MIT License）<br>フォント：Google Fonts 配布の各書体（SIL Open Font License 1.1）</p>
+      <p>MP4 書き出し：mp4-muxer(MIT License)<br>フォント：Google Fonts 配布の各書体(SIL Open Font License 1.1)</p>
     </details>
-    <div class="terms-foot"><span class="muted mono">© 2026 hakoniwa · MIT</span><button value="close" class="primary" autofocus>閉じる</button></div>
+    <div class="terms-foot"><span class="muted mono">© 2026 AURA Motion Lyrics · MIT</span><button value="close" class="primary" autofocus>閉じる</button></div>
   </form>
 </dialog>

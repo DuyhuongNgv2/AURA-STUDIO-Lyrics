@@ -1,11 +1,11 @@
-// Build JIZURA_AE.jsx comps on the emulated AE object model (dev/aeom.js) and report problems.
+// Build AURA_AE.jsx comps on the emulated AE object model (dev/aeom.js) and report problems.
 //   node dev/ae_test.js [plan_ae.json | folder ...]
 // Checks: every style x several seeds through the panel's own planner (with and without 追加分 / 和風),
 // and any JSON plans exported by the browser app.
 const fs = require('fs'), vm = require('vm'), path = require('path');
 const AEOM = require('./aeom');
 const ROOT = path.join(__dirname, '..');
-const SRC = fs.readFileSync(path.join(ROOT, 'JIZURA_AE.jsx'), 'utf8').replace(/^#target.*\n/, '')
+const SRC = fs.readFileSync(path.join(ROOT, 'AURA_AE.jsx'), 'utf8').replace(/^#target.*\n/, '')
   .replace(/jzUI\(thisObj\);\s*\}\)\(this\);\s*$/, 'thisObj.__jz = { jzMakePlan: jzMakePlan, jzBuild: jzBuild, log: function () { return JZLOG; }, JZ_DATA: JZ_DATA, JZ_REG: JZ_REG, jzOrder: jzOrder, jzChunk: jzChunk, jzMoodEnabled: jzMoodEnabled, fallbacks: function () { return JZ_FALLBACKS; } };\n})(this);');
 const total = { builds: 0, comps: 0, layers: 0, exprs: 0, animators: 0, effects: {}, unknown: new Set(), exprErrors: [], problems: [], warnings: [] };
 // ExtendScript is ES3: run the panel in a realm without ES5+ built-ins so accidental use fails here, not in AE
@@ -25,7 +25,7 @@ function load() {
   for (const k of ['JSON', 'Math', 'Date', 'String', 'Number', 'Array', 'Object', 'RegExp', 'Error', 'parseInt', 'parseFloat', 'isFinite', 'isNaN', 'encodeURIComponent', 'decodeURIComponent']) delete env.ctx[k];
   vm.createContext(env.ctx);
   vm.runInContext(ES3_PRELUDE, env.ctx);
-  vm.runInContext(SRC, env.ctx, { filename: 'JIZURA_AE.jsx' });
+  vm.runInContext(SRC, env.ctx, { filename: 'AURA_AE.jsx' });
   return { env, JZ: env.ctx.__jz };
 }
 try { require('acorn').parse(SRC, { ecmaVersion: 3 }); } catch (e) { console.log('ES3 SYNTAX ERROR', e.message, JSON.stringify(SRC.slice(e.pos - 100, e.pos + 40))); process.exit(1); }

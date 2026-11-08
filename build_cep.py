@@ -1,8 +1,8 @@
 """Build the After Effects CEP panel (HTML panel = the browser app + "build in AE" bridge).
 usage: python3 build_cep.py [--debug]
-  -> <out>/com.852wa.jizura/   the extension folder (unsigned; install in debug mode or sign it into a .zxp)
-     <out>/JIZURA_CEP.zip       that folder + install notes + signing scripts
-Needs the built browser app (dist/JIZURA.html or index.html) — run build.py first.
+  -> <out>/com.duyhuongngv2.aura/   the extension folder (unsigned; install in debug mode or sign it into a .zxp)
+     <out>/AURA_CEP.zip       that folder + install notes + signing scripts
+Needs the built browser app (dist/AURA.html or index.html) — run build.py first.
 --debug adds a .debug file (Chrome DevTools on http://localhost:8098) — for development only."""
 import argparse, glob, os, shutil, subprocess, sys, zipfile
 from app.english import localize_cep
@@ -16,9 +16,9 @@ ap.add_argument('--lang', choices=['ja', 'en'], default='ja')
 a = ap.parse_args()
 
 english = a.lang == 'en'
-app_html = next((p for p in (['en/index.html'] if english else ['dist/JIZURA.html', 'index.html']) if os.path.exists(p)), None)
+app_html = next((p for p in (['en/index.html'] if english else ['dist/AURA.html', 'index.html']) if os.path.exists(p)), None)
 if not app_html: sys.exit('build the browser app first (python3 build.py)')
-extension_id = 'com.852wa.jizura.en' if english else 'com.852wa.jizura'
+extension_id = 'com.duyhuongngv2.aura.en' if english else 'com.duyhuongngv2.aura'
 ext = os.path.join(a.out, extension_id)
 if os.path.isdir(ext): shutil.rmtree(ext)
 os.makedirs(os.path.join(ext, 'CSXS')); os.makedirs(os.path.join(ext, 'jsx'))
@@ -49,11 +49,11 @@ open(os.path.join(ext, 'index.html'), 'w', encoding='utf-8').write(html)
 # 2) ExtendScript side: host + the build engine (same code as JIZURA_AE.jsx, without its ScriptUI)
 host = open('cep/host.jsx', encoding='utf-8').read()
 open(os.path.join(ext, 'jsx', 'host.jsx'), 'w', encoding='utf-8').write(es_escape(localize_cep(host, host=True) if english else host))
-subprocess.run([sys.executable, 'build_ae.py', '--core', '--lang', a.lang, '--out', os.path.join(ext, 'jsx', 'jizura_core.jsx')], check=True, stdout=subprocess.DEVNULL)
+subprocess.run([sys.executable, 'build_ae.py', '--core', '--lang', a.lang, '--out', os.path.join(ext, 'jsx', 'aura_core.jsx')], check=True, stdout=subprocess.DEVNULL)
 
 # 3) manifest (+ optional remote-debug file)
 manifest = open('cep/manifest.xml', encoding='utf-8').read().replace('@VERSION@', VERSION)
-if english: manifest = manifest.replace('com.852wa.jizura', extension_id).replace('<Menu>JIZURA 字面</Menu>', '<Menu>JIZURA English</Menu>')
+if english: manifest = manifest.replace('com.852wa.jizura', extension_id).replace('<Menu>AURA Motion Lyrics</Menu>', '<Menu>AURA Motion Lyrics English</Menu>')
 open(os.path.join(ext, 'CSXS', 'manifest.xml'), 'w', encoding='utf-8').write(manifest)
 if a.debug:
     open(os.path.join(ext, '.debug'), 'w', encoding='utf-8').write(
@@ -62,7 +62,7 @@ for f in ['LICENSE', 'THIRD_PARTY_NOTICES.md']:
     if os.path.exists(f): shutil.copy(f, ext)
 
 # 4) distributable zip: extension folder + install notes + signing scripts
-package_name = 'JIZURA_CEP_en' if english else 'JIZURA_CEP'
+package_name = 'AURA_CEP_en' if english else 'AURA_CEP'
 zp = os.path.join(a.out, package_name + '.zip')
 with zipfile.ZipFile(zp, 'w', zipfile.ZIP_DEFLATED) as z:
     for p in sorted(glob.glob(os.path.join(ext, '**'), recursive=True) + glob.glob(os.path.join(ext, '.debug'))):
@@ -71,11 +71,11 @@ with zipfile.ZipFile(zp, 'w', zipfile.ZIP_DEFLATED) as z:
         name = os.path.basename(f)
         if english:
             if name == 'README_CEP.md':
-                z.writestr(os.path.join(package_name, name), 'JIZURA English CEP panel\n\nExtract this ZIP and run install_win.bat or install_mac.command. Restart After Effects and open Window > Extensions > JIZURA English. It can coexist with the Japanese panel.\n')
+                z.writestr(os.path.join(package_name, name), 'AURA Motion Lyrics English CEP panel\n\nExtract this ZIP and run install_win.bat or install_mac.command. Restart After Effects and open Window > Extensions > AURA Motion Lyrics English. It can coexist with the Japanese panel.\n')
                 continue
             if name in ('install_win.bat', 'install_mac.command', 'sign_zxp_win.bat', 'sign_zxp_mac.sh'):
-                content = open(f, encoding='utf-8').read().replace('com.852wa.jizura', extension_id).replace('> JIZURA.', '> JIZURA English.')
-                if name.startswith('sign_zxp'): content = content.replace('JIZURA.zxp', 'JIZURA_en.zxp')
+                content = open(f, encoding='utf-8').read().replace('com.852wa.jizura', extension_id).replace('> AURA Motion Lyrics.', '> AURA Motion Lyrics English.')
+                if name.startswith('sign_zxp'): content = content.replace('AURA.zxp', 'AURA_en.zxp')
                 info = zipfile.ZipInfo(os.path.join(package_name, name))
                 info.create_system = 3
                 info.external_attr = (0o755 if name.endswith(('.command', '.sh')) else 0o644) << 16

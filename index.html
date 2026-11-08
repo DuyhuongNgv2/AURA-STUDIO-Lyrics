@@ -3,20 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>AURA — Trình tạo video lời bài hát chữ nhảy (Kinetic Typography)</title>
+<title>AURA Motion Lyrics — Trình tạo video lời bài hát chữ nhảy (Kinetic Typography)</title>
 <meta name="description" content="Tạo video lời bài hát chữ nhảy (kinetic typography lyric video) mượt mà trong trình duyệt, hỗ trợ tiếng Việt có dấu 100%, rồi xuất MP4.">
-<link rel="canonical" href="https://DuyhuongNgv2.github.io/JIZURA-VI/">
-<link rel="alternate" hreflang="ja" href="https://DuyhuongNgv2.github.io/JIZURA-VI/ja/">
-<link rel="alternate" hreflang="en" href="https://DuyhuongNgv2.github.io/JIZURA-VI/en/">
-<link rel="alternate" hreflang="zh-Hant" href="https://DuyhuongNgv2.github.io/JIZURA-VI/zh-hant/">
-<link rel="alternate" hreflang="zh-Hans" href="https://DuyhuongNgv2.github.io/JIZURA-VI/zh-hans/">
-<link rel="alternate" hreflang="ko" href="https://DuyhuongNgv2.github.io/JIZURA-VI/ko/">
-<link rel="alternate" hreflang="id-ID" href="https://DuyhuongNgv2.github.io/JIZURA-VI/id/">
-<link rel="alternate" hreflang="vi" href="https://DuyhuongNgv2.github.io/JIZURA-VI/">
+<link rel="canonical" href="https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/">
+<link rel="alternate" hreflang="ja" href="https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/ja/">
+<link rel="alternate" hreflang="en" href="https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/en/">
+<link rel="alternate" hreflang="zh-Hant" href="https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/zh-hant/">
+<link rel="alternate" hreflang="zh-Hans" href="https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/zh-hans/">
+<link rel="alternate" hreflang="ko" href="https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/ko/">
+<link rel="alternate" hreflang="id-ID" href="https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/id/">
+<link rel="alternate" hreflang="vi" href="https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="AURA — Trình tạo video lời bài hát chữ nhảy (Kinetic Typography)">
+<meta property="og:title" content="AURA Motion Lyrics — Trình tạo video lời bài hát chữ nhảy (Kinetic Typography)">
 <meta property="og:description" content="Tạo video lời bài hát chữ nhảy (kinetic typography lyric video) mượt mà trong trình duyệt, hỗ trợ tiếng Việt có dấu 100%, rồi xuất MP4.">
-<meta property="og:url" content="https://DuyhuongNgv2.github.io/JIZURA-VI/">
+<meta property="og:url" content="https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/">
 <meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -444,9 +444,15 @@ button.play:hover { transform: scale(1.08); filter: brightness(1.1); }
 .ln.is-inter .txt { color: var(--muted); font-style: italic; }
 .ln .txt-edit { width: 100%; padding: 3px 6px; font-size: 13px; }
 .ln .tools .icon[aria-pressed=true] { color: var(--purple); }
+.ln.has-wordtimes .wtog { color: var(--cyan); }
+.ln .wedit { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 2px 0 2px 28px; font-size: 11px; }
+.ln .wedit .whead { color: var(--faint); }
+.ln .wedit .wrow { display: inline-flex; align-items: center; gap: 4px; }
+.ln .wedit .wstart { width: 64px; padding: 2px 4px; font-size: 11px; }
+.ln .wedit .wend { color: var(--muted); }
 #timeline {
   width: 100%;
-  height: 76px;
+  height: 108px;
   display: block;
   background: #111219;
   border: 1px solid var(--line);
@@ -936,10 +942,9 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
       <span class="logo" aria-hidden="true">Λ</span>
       <div class="brand-text">
         <span class="mark" aria-hidden="true">AURA</span>
-        <span class="word">LYRICS</span>
-        <span class="sub-badge">STUDIO <b>PRO</b></span>
+        <span class="word">MOTION LYRICS</span>
       </div>
-      <span class="ver">v0.10.1</span>
+      <span class="ver">v0.17.0</span>
     </div>
     <div class="proj">
       <input id="songTitle" type="text" placeholder="Tên bài hát (hiển thị trên tiêu đề và HUD)" aria-label="Tên bài hát">
@@ -953,9 +958,9 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
       <button id="modeMobile" class="mode-mobile" aria-pressed="false" title="Giao diện cho điện thoại (nút Ngẫu nhiên cố định ở trên, các dòng được thu gọn)">Điện thoại</button>
       <button id="modeEasy" aria-pressed="false" title="Giao diện đơn giản tập trung vào việc tạo tự động">Cơ bản</button>
       <button id="modePro" aria-pressed="true" title="Hiển thị tất cả cài đặt">Nâng cao</button>
-      <button id="btnTour" class="ghost tour-btn" title="Hướng dẫn nhanh về chế độ đơn giản" aria-label="Hướng dẫn sử dụng">？</button>
+      <button id="btnTour" class="ghost tour-btn" title="Hướng dẫn nhanh về chế độ đơn giản" aria-label="Hướng dẫn sử dụng">?</button>
     </div>
-    <label class="lang-switch"><span class="sr-only">Ngôn ngữ</span><select aria-label="Ngôn ngữ" onchange="if(this.value)location.href=this.value"><option value="index.html" lang="vi" selected>VI · Tiếng Việt</option><option value="en/index.html" lang="en">EN · English</option><option value="ja/index.html" lang="ja">日本語</option><option value="zh-hant/index.html" lang="zh-Hant">繁體中文</option><option value="zh-hans/index.html" lang="zh-Hans">简体中文</option><option value="ko/index.html" lang="ko">한국어</option><option value="id/index.html" lang="id-ID">Bahasa Indonesia</option></select></label>
+    <label class="lang-switch"><span class="sr-only">Ngôn ngữ</span><select aria-label="Ngôn ngữ" onchange="if(this.value)location.href=this.value"><option value="index.html" lang="vi" selected>VI · Tiếng Việt</option><option value="en/index.html" lang="en">EN · Tiếng Anh</option><option value="ja/index.html" lang="ja">JA · Tiếng Nhật</option><option value="zh-hant/index.html" lang="zh-Hant">ZH-HANT · Tiếng Trung phồn thể</option><option value="zh-hans/index.html" lang="zh-Hans">ZH-HANS · Tiếng Trung giản thể</option><option value="ko/index.html" lang="ko">KO · Tiếng Hàn</option><option value="id/index.html" lang="id-ID">ID · Bahasa Indonesia</option></select></label>
     <div class="acts">
       <label class="file" title="Mở dự án đã lưu (.json)">Mở dự án<input id="fileProject" type="file" accept=".json,application/json"></label>
       <button id="btnSave" title="Lưu dự án dưới dạng .json">Lưu</button>
@@ -977,14 +982,14 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
           <button id="tapStop" class="ghost">Hoàn thành</button>
       </div>
       <div class="sec">
-        <div class="sec-h"><h2>Lời bài hát</h2><span class="sec-btns"><label class="file ghost small" title="Mở tệp LRC (lời có dấu thời gian) để thay lời hiện tại (Hoàn tác để lấy lại)">Mở LRC<input id="fileLrc" type="file" accept=".lrc,.txt,text/plain"></label><button id="btnClearLyrics" class="ghost small" title="Xóa lời bài hát cùng với câu và cắt cảnh, cài đặt trên mỗi câu và phạm vi xuất (có thể được khôi phục bằng Hoàn tác hoặc Ctrl+Z)">Xóa</button><button id="btnSyntax" class="ghost small" aria-expanded="false">Cú pháp</button></span></div>
+        <div class="sec-h"><h2>Lời bài hát</h2><span class="sec-btns"><label class="file ghost small" title="Mở tệp phụ đề/LRC (lời có dấu thời gian) để thay lời hiện tại (Hoàn tác để lấy lại)">Mở phụ đề/LRC<input id="fileLrc" type="file" accept=".lrc,.txt,.srt,.vtt,.ass,.ssa,text/plain"></label><button id="btnClearLyrics" class="ghost small" title="Xóa lời bài hát cùng với câu và cắt cảnh, cài đặt trên mỗi câu và phạm vi xuất (có thể được khôi phục bằng Hoàn tác hoặc Ctrl+Z)">Xóa</button><button id="btnSyntax" class="ghost small" aria-expanded="false">Cú pháp</button></span></div>
         <textarea id="lyrics" rows="9" spellcheck="false" aria-label="Lời bài hát (mỗi câu một dòng)"></textarea>
         <div class="lyric-tags">
-          <button type="button" class="tag" data-tag="Verse" title="Thêm tiêu đề [Verse]">＋ Verse</button>
-          <button type="button" class="tag" data-tag="Chorus" title="Thêm tiêu đề [Chorus]">＋ Chorus</button>
-          <button type="button" class="tag" data-tag="Bridge" title="Thêm tiêu đề [Bridge]">＋ Bridge</button>
-          <button type="button" class="tag" data-tag="Cut" title="Chèn dấu cắt câu /">＋ Cắt ( / )</button>
-          <button type="button" class="tag" data-tag="Impact" title="Chèn dấu nhấn mạnh *từ*">＋ Nhấn ( * )</button>
+          <button type="button" class="tag" data-tag="Verse" title="Thêm tiêu đề [Verse]">+ Verse</button>
+          <button type="button" class="tag" data-tag="Chorus" title="Thêm tiêu đề [Chorus]">+ Chorus</button>
+          <button type="button" class="tag" data-tag="Bridge" title="Thêm tiêu đề [Bridge]">+ Bridge</button>
+          <button type="button" class="tag" data-tag="Cut" title="Chèn dấu cắt câu /">+ Cắt ( / )</button>
+          <button type="button" class="tag" data-tag="Impact" title="Chèn dấu nhấn mạnh *từ*">+ Nhấn ( * )</button>
           <span id="lyricCount" class="lyric-counter muted mono"></span>
         </div>
         <label class="lang-row">Ngôn ngữ lời bài hát<select id="lyricLang"><option value="auto">Tự động</option><option value="ja">Tiếng Nhật</option><option value="zh-Hant">Tiếng Trung phồn thể</option><option value="zh-Hans">Tiếng Trung giản thể</option><option value="ko">Tiếng Hàn</option><option value="en">Tiếng Anh</option><option value="vi">Tiếng Việt</option></select><span id="langNote" class="muted"></span></label>
@@ -996,6 +1001,7 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
             <li>Ở cuối dòng: <code>!</code> …thêm đèn flash và rung</li>
             <li><code>lời bài hát|ghi chú</code> …văn bản nhỏ trong bố cục</li>
             <li><code>[01:23.45]Lời bài hát</code> …sử dụng dấu thời gian LRC như hiện tại</li>
+            <li><code>SRT / VTT / SSA・ASS</code> … cũng mở được tệp phụ đề (lấy thời điểm bắt đầu và giờ từng từ từ <code>\k</code>)</li>
             <li><code>[interlude 8]</code> … đoạn nhạc nền 8 giây (không hiện lời, chỉ nền và hiệu ứng). Không số thì mặc định 4 giây; Đặt điểm chuyển cảnh hoặc thanh neo để chỉnh độ dài</li>
             <li><code>#</code> Đánh dấu ghi chú (bỏ qua)</li>
           </ul>
@@ -1008,11 +1014,14 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
         <div class="row">
           <label class="file" title="MP3, WAV, M4A, v.v...">Chọn tệp<input id="audioFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac"></label>
           <button id="btnTap" title="Nhấn vào đầu mỗi dòng trong khi bài hát đang phát">Đặt điểm chuyển cảnh</button>
+          <button id="btnWhisper" title="Nghe audio để căn thời điểm bắt đầu từng dòng (chạy trong trình duyệt)">Whisper tự căn lời</button>
         </div>
+        <div id="whisperStatus" class="muted audio-name">Chưa chạy — cần audio thật + lời đã nhập.</div>
         <div class="fields pro-only">
           <label class="field">BPM<input id="bpm" type="number" min="0" max="300" step="0.1" placeholder="Tự động"></label>
           <label class="field">Bắt đầu (giây)<input id="offset" type="number" min="0" step="0.05"></label>
           <label class="field">Thời lượng<input id="lineScale" type="number" min="0.4" max="3" step="0.05"></label>
+          <label class="field">Lệch phách đầu (giây)<input id="beatOffset" type="number" min="-2" max="2" step="0.01"></label>
         </div>
         <div class="row pro-only">
           <label class="row" style="gap:6px"><input id="snap" type="checkbox"> Bám theo nhịp</label>
@@ -1079,11 +1088,11 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
         <button id="btnDiversity" class="primary div-btn" title="Tự động áp dụng hiệu ứng CapCut độc bản, không trùng lặp cho từng câu hát (Phím D)">Độc bản</button>
       </div>
       <div class="tl-bar">
-        <span class="tl-hint muted">Kéo thanh neo ở trên để dời điểm bắt đầu câu. Giữ <span class="kbd">Shift</span> để kéo tự do không bám nhịp</span>
+        <span class="tl-hint muted">Kéo thanh neo ở trên để dời điểm bắt đầu câu. Giữ <span class="kbd">Shift</span> để kéo tự do không bám nhịp. Nhìn sóng âm mà căn cho khớp</span>
         <span class="tl-btns">
           <button id="btnUndoEdit" class="ghost small" title="Hoàn tác thay đổi lời và thời gian (Ctrl+Z)" disabled>Hoàn tác</button>
           <button id="tlOut" class="ghost small icon-txt" title="Thu nhỏ" aria-label="Thu nhỏ dòng thời gian">−</button>
-          <button id="tlIn" class="ghost small icon-txt" title="Phóng to (hoặc cuộn trong dòng thời gian)" aria-label="Phóng to dòng thời gian">＋</button>
+          <button id="tlIn" class="ghost small icon-txt" title="Phóng to (hoặc cuộn trong dòng thời gian)" aria-label="Phóng to dòng thời gian">+</button>
           <button id="tlFit" class="ghost small" title="Hiển thị tất cả bài hát">Tất cả</button>
         </span>
       </div>
@@ -1146,7 +1155,7 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
           </div>
           <label class="check center-free"><input id="eCenter" class="center-toggle" type="checkbox"><span>Để trống giữa (cho nhân vật)<small>Để đặt nhân vật hoặc video khác ở giữa: chữ và hiệu ứng đặt trái / phải trên khung ngang và trên / dưới trên khung dọc, xen kẽ từng dòng. Nền và hiệu ứng màn hình vẫn phủ toàn khung (xem trước đánh dấu vùng trống bằng nét đứt)</small></span></label>
           <label class="row center-dir" hidden>Khi khung dọc<select class="centerDirSel" aria-label="Cách chia trên khung dọc"><option value="tb">Trên / dưới</option><option value="lr">Trái / phải</option></select></label>
-          <div class="rng-row"><span class="rng-lab">Phạm vi xuất</span><select class="rngFrom" aria-label="Hàng đầu tiên của phạm vi xuất"></select><span class="muted">〜</span><select class="rngTo" aria-label="Hàng cuối cùng của phạm vi xuất"></select><span class="rngInfo muted mono"></span></div>
+          <div class="rng-row"><span class="rng-lab">Phạm vi xuất</span><select class="rngFrom" aria-label="Hàng đầu tiên của phạm vi xuất"></select><span class="muted">~</span><select class="rngTo" aria-label="Hàng cuối cùng của phạm vi xuất"></select><span class="rngInfo muted mono"></span></div>
           <div class="outbtns"><button id="eMP4" class="primary">Xuất MP4</button><button id="eMP4File" class="ghost mp4file" hidden title="Chọn tệp đích trước; video được ghi trực tiếp vào tệp đó. Chức năng này được sử dụng khi các bài hát dài hoặc 1080p trở lên không thành công do không đủ bộ nhớ trình duyệt (Chrome / Edge)">Đối với video lớn (lưu trực tiếp vào tệp)</button><button id="eLRC" class="ghost" title="Lưu lời với thời điểm bắt đầu của từng dòng (.lrc). Khi đã chọn phạm vi xuất, chỉ các dòng đó, tính từ đầu video">Lưu LRC</button></div>
           <div class="outbtns out-png"><button id="ePNG" class="ghost">PNG theo thứ tự(ZIP)</button><button id="ePNGA" class="ghost">PNG trong suốt (ZIP, không có nền)</button><button id="ePNGL" class="ghost" title="Xuất PNG trong suốt sang hai thư mục: back/ (đồ họa, nền và trang trí phía sau lời bài hát) và front/ (lời bài hát, trang trí và hiệu ứng). Hiệu ứng màn hình được áp dụng cho cả hai, vì vậy hãy xếp chồng mặt trước lên trên mặt sau để có giao diện bình thường.">Lớp PNG trong suốt (trước/sau, ZIP)</button></div>
           <button class="terms-open linkish">Về quyền đối với video đã xuất</button>
@@ -1232,7 +1241,7 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
         <label class="check center-free"><input id="outCenter" class="center-toggle" type="checkbox"><span>Để trống giữa (cho nhân vật)<small>Để đặt nhân vật hoặc video khác ở giữa: chữ và hiệu ứng đặt trái / phải trên khung ngang và trên / dưới trên khung dọc, xen kẽ từng dòng. Nền và hiệu ứng màn hình vẫn phủ toàn khung (xem trước đánh dấu vùng trống bằng nét đứt)</small></span></label>
           <label class="row center-dir" hidden>Khi khung dọc<select class="centerDirSel" aria-label="Cách chia trên khung dọc"><option value="tb">Trên / dưới</option><option value="lr">Trái / phải</option></select></label>
         <label class="row" style="gap:6px;margin-top:10px"><input id="outAudio" type="checkbox" checked> Đưa âm thanh vào video</label>
-        <div class="rng-row"><span class="rng-lab">Phạm vi xuất</span><select class="rngFrom" aria-label="Hàng đầu tiên của phạm vi xuất"></select><span class="muted">〜</span><select class="rngTo" aria-label="Hàng cuối cùng của phạm vi xuất"></select><span class="rngInfo muted mono"></span></div>
+        <div class="rng-row"><span class="rng-lab">Phạm vi xuất</span><select class="rngFrom" aria-label="Hàng đầu tiên của phạm vi xuất"></select><span class="muted">~</span><select class="rngTo" aria-label="Hàng cuối cùng của phạm vi xuất"></select><span class="rngInfo muted mono"></span></div>
         <div class="outbtns">
           <button id="btnMP4" class="primary">Xuất MP4</button>
           <button id="btnMP4File" class="mp4file" hidden title="Chọn tệp đích trước; video được ghi trực tiếp vào tệp đó. Chức năng này được sử dụng khi các bài hát dài hoặc 1080p trở lên không thành công do không đủ bộ nhớ trình duyệt (Chrome / Edge)">MP4 (video lớn, lưu trực tiếp vào tệp)</button>
@@ -1276,12 +1285,12 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
       <p class="terms-sub">Lời bài hát và âm nhạc được sử dụng vẫn là tài sản của chủ sở hữu quyền tương ứng.</p>
     </div>
     <p>Công cụ này được phát hành theo giấy phép <strong>MIT </strong>. Xem giấy phép đầy đủ ở đây:</p>
-    <p><a href="https://github.com/852wa/JIZURA" target="_blank" rel="noopener">https://github.com/852wa/JIZURA</a></p>
+    <p><a href="https://github.com/DuyhuongNgv2/AURA-STUDIO-Lyrics" target="_blank" rel="noopener">https://github.com/DuyhuongNgv2/AURA-STUDIO-Lyrics</a></p>
     <p class="muted terms-note">Lời bài hát và âm thanh đã tải lên chỉ được xử lý trong trình duyệt này và không được gửi đến máy chủ.</p>
     <details class="terms-oss"><summary>Phần mềm nguồn mở</summary>
-      <p>Xuất MP4:mp4-muxer（MIT License）<br>Phông chữ:Google Fonts phông chữ phân phối（SIL Open Font License 1.1）</p>
+      <p>Xuất MP4:mp4-muxer(MIT License)<br>Phông chữ:Google Fonts phông chữ phân phối(SIL Open Font License 1.1)</p>
     </details>
-    <div class="terms-foot"><span class="muted mono">© 2026 hakoniwa · MIT</span><button value="close" class="primary" autofocus>Đóng</button></div>
+    <div class="terms-foot"><span class="muted mono">© 2026 AURA Motion Lyrics · MIT</span><button value="close" class="primary" autofocus>Đóng</button></div>
   </form>
 </dialog>
 
@@ -1370,6 +1379,19 @@ J.rng = seed => {                    // mulberry32 stream
 J.noise1 = (x, seed = 0) => {
   const i = Math.floor(x), f = x - i, u = f * f * (3 - 2 * f);
   return J.lerp(J.rs(seed, i), J.rs(seed, i + 1), u);
+};
+
+/* beat pulse 0..1: 1 right on a beat, decaying after it (v0.14.0).
+   `every` > 1 pulses only on every Nth beat (index 0 is the grid start, not necessarily a real downbeat).
+   Without beats (thumbnail, no audio) a gentle sine keeps the effect alive instead of freezing. */
+J.beatPulse = (env, o = {}) => {
+  const decay = o.decay != null ? o.decay : 9, every = o.every > 1 ? o.every : 1;
+  if (env && env.beat && env.beat.len > 0.15) {
+    if (every > 1 && ((env.beat.index % every) + every) % every !== 0) return 0;
+    return Math.exp(-Math.max(0, env.beat.since) * decay);
+  }
+  const t = env ? (env.ltb ?? env.lt ?? 0) : 0;
+  return 0.5 + 0.5 * Math.sin(t * 5);
 };
 
 /* ---- colour ---- */
@@ -1979,11 +2001,17 @@ const extra={
   vi_baloo:['Baloo 2',700,'round','Baloo+2:wght@700'],
   vi_quicksand:['Quicksand',700,'round','Quicksand:wght@700']
 };
+/* families embedded locally (fonts/manifest.json, inlined by build.py) */
+const EMBEDDED_VI=new Set(['Be Vietnam Pro','Montserrat','Lexend','Noto Sans','Noto Serif','Oswald']);
 for(const [key,[family,weight,kind,gf]] of Object.entries(extra)) {
   const isSerif = kind==='mincho';
   const fb = isSerif ? fbSerif : fbSans;
   J.FONTS[key]={label:family+' '+weight,family:'"'+family+'"',weight,kind:kind||'gothic',fb,gf};
-  map[key]=F(family,weight,gf);
+  /* embedded families (fonts/manifest.json, inlined by build.py) must not carry gf:
+     otherwise ensureFonts fetches them from Google Fonts although they are already
+     local — and the vietnamese test asserts vi faces have no Google Fonts dependency.
+     Families not embedded keep their gf so they still load from Google Fonts. */
+  map[key]=EMBEDDED_VI.has(family)?F(family,weight):F(family,weight,gf);
 }
 J.LOCAL_FONT_FAMILIES=new Set(['Be Vietnam Pro','Montserrat','Lexend','Noto Sans','Noto Serif','Oswald','Dancing Script','Pacifico','Caveat','Sedgwick Ave','Charm','Playfair Display','Lora','Anton','Syne','Space Mono','Comfortaa','Baloo 2','Quicksand']);
 const originalLocale=J.segLocale;
@@ -3053,7 +3081,7 @@ J.register = (group, key, def, pack) => {
   if (!G) throw new Error('unknown group ' + group);
   if (!def || !def.name) throw new Error(`${group}.${key}: name is required`);
   const reg = J[G[0]], order = J[G[1]];
-  if (reg[key] && reg[key].pack !== pack) console.warn(`JIZURA: ${group}.${key} is being replaced`);
+  if (reg[key] && reg[key].pack !== pack) console.warn(`AURA: ${group}.${key} is being replaced`);
   def.pack = pack || def.pack || 'core';
   reg[key] = def;
   if (!def.special && !order.includes(key)) order.push(key);
@@ -3073,6 +3101,67 @@ J.taggedWith = (group, mood) => J.order(group).filter(k => { const d = J.registr
 (() => {
 'use strict';
 const E = J.E;
+
+/* ---------- karaoke: light each word as it is sung ----------
+   A cut whose words have times (Whisper, Enhanced LRC, hand-set) draws its text dim, then sweeps the lit
+   colour across the words as their times pass. Only the full-text draw sweeps: per-character / chunk draws
+   (kinetic, romaji…) and decorative copies keep rendering exactly as before. */
+J.karaokeAt = (env, it) => {
+  const cut = env.cut;
+  if (!cut || cut.line == null || cut.line < 0 || !it.text) return null;
+  const raw = String(it.text), flat = raw.replace(/\n/g, '');
+  // a layout may wrap the text (J.splitLines turns the break space into '\n'
+  // and trims the chunk), so compare ignoring whitespace; the word offsets
+  // (c0/c1) live in the source text's coordinates, not the laid-out ones
+  const squash = s => String(s).replace(/\s+/g, '');
+  let wt = null, src = null;
+  if (flat === cut.text || (raw.includes('\n') && squash(flat) === squash(cut.text))) { wt = cut.wordTimes; src = cut.text; }
+  else if (cut.lineText && (flat === cut.lineText || (raw.includes('\n') && squash(flat) === squash(cut.lineText)))) { wt = cut.lineWordTimes; src = cut.lineText; }
+  if (!wt || !wt.length) return null;
+  // layoutText numbers glyphs skipping '\n', and a wrap drops the space it
+  // replaced: map each laid-out glyph index back to its source-text index
+  let idxMap = null;
+  if (raw.includes('\n')) {
+    idxMap = [];
+    let j = 0;
+    for (const ch of raw) {
+      if (ch === '\n') { if (src[j] === ' ' || src[j] === '　') j++; continue; }
+      while ((src[j] === ' ' || src[j] === '　') && ch !== ' ' && ch !== '　') j++;
+      idxMap.push(j); j++;
+    }
+  }
+  const oi = i => (idxMap && idxMap[i] != null ? idxMap[i] : i);
+  const t = env.t != null ? env.t : cut.start + (env.lt || 0);
+  const sc = env.sc || {};
+  const litColor = sc.accent || '#fff', dimAlpha = 0.35;
+  const wordOf = i => { i = oi(i); for (let k = 0; k < wt.length; k++) if (i >= wt[k].c0 && i < wt[k].c1) return wt[k]; return null; };
+  const prevWord = i => { i = oi(i); let p = null; for (let k = 0; k < wt.length; k++) { if (wt[k].c1 <= i) p = wt[k]; else break; } return p; };
+  const fracOf = w => {
+    if (!w) return 0;
+    if (t < w.start) return 0;
+    if (t >= w.end) return 1;
+    return (t - w.start) / Math.max(0.01, w.end - w.start);
+  };
+  const litFrac = i => {
+    const w = wordOf(i);
+    if (w) return fracOf(w);
+    return fracOf(prevWord(i));          // punctuation / spaces light with the word before them
+  };
+  const litWord = i => {
+    const w = wordOf(i);
+    if (w) return t >= w.start;
+    const p = prevWord(i);
+    return p ? t >= p.start : false;
+  };
+  let anyLit = false, allLit = true;
+  for (let k = 0; k < wt.length; k++) {
+    if (t >= wt[k].start) anyLit = true;
+    if (t < wt[k].end) allLit = false;
+  }
+  // a clip, a band split or vertical text cannot be swept with a straight overlay: flip whole words instead
+  const mode = (it.clip || it.clipY || it.clipFn || it.bands || it.vbands || it.vertical) ? 'flip' : 'sweep';
+  return { mode, litColor, dimAlpha, litFrac, litWord, anyLit, allLit };
+};
 
 /* ---------- main-item pipeline: enter / hold / exit + draw ---------- */
 J.mainDraw = (env, it) => {
@@ -3100,7 +3189,36 @@ J.mainDraw = (env, it) => {
   if (pOut > 0 && ex !== J.EXIT.cut) ex.apply(env, it, pOut, ctx);
   it.charFn = J.combineChar(it.charFns);
   it.pieceFn = J.combinePiece(it.pieceFns);
-  return J.drawFx(env, it);
+  const kara = J.karaokeAt(env, it);
+  if (!kara) return J.drawFx(env, it);
+  // every word lit already: one pass, all accent (no dim underlay to double-draw through)
+  if (kara.allLit) return J.drawFx(env, Object.assign({}, it, { color: kara.litColor, gradient: null, pattern: null }));
+  if (kara.mode === 'flip') {
+    // bands / clips / vertical text: one pass, each word flips colour whole (keeps the effect intact)
+    const baseFn = it.charFn;
+    return J.drawFx(env, Object.assign({}, it, { gradient: null, pattern: null, charFn: (i, g, N) => {
+      const b = baseFn ? baseFn(i, g, N) : null;
+      if (b && b.hide) return b;
+      if (kara.litWord(i)) return Object.assign({}, b, { color: kara.litColor });
+      return Object.assign({}, b, { a: (b && b.a != null ? b.a : 1) * kara.dimAlpha });
+    }}));
+  }
+  // two passes: the whole text dim, then the lit sweep drawn straight on top (no echo / streak / bands twice)
+  const dimIt = Object.assign({}, it, { alpha: (it.alpha ?? 1) * kara.dimAlpha, gradient: null });
+  const bb = J.drawFx(env, dimIt);
+  if (kara.anyLit) {
+    const baseFn = it.charFn;
+    J.drawItem(env, Object.assign({}, it, { color: kara.litColor, gradient: null, pattern: null, charFn: (i, g, N) => {
+      const b = baseFn ? baseFn(i, g, N) : null;
+      if (b && b.hide) return b;
+      const f = kara.litFrac(i);
+      if (f <= 0) return Object.assign({}, b, { hide: true });
+      if (f >= 1) return b;
+      if (b && (b.clipX || b.clipY)) return f >= 0.5 ? b : Object.assign({}, b, { hide: true });
+      return Object.assign({}, b, { clipX: [-0.7, -0.7 + 1.4 * f] });
+    }}));
+  }
+  return bb;
 };
 
 /* draw an item honouring bands / clip / streak / echo / wipe-bar / cursor / treatment hooks */
@@ -4036,9 +4154,9 @@ J.defaultProject = () => ({
   centerFree: false,              // 中央を空ける: lay the cuts out in side bands (left / right or top / bottom) around a character
   seed: 20260922,
   aspect: '16:9', res: 1080, fps: 24,
-  fx: { motion: 0.7, glitch: 0.55, chroma: 0.7, decor: 0.5, density: 0.55, texture: 0.6, flash: true, onTwos: true, koma: 12, hud: 'auto', bgSwitch: 0.35, hideNo: false, hideTime: false },
+  fx: { motion: 0.7, glitch: 0.55, chroma: 0.7, decor: 0.5, density: 0.55, texture: 0.6, flash: true, beatSync: false, beatAmt: 0.7, beatEvery: 1, onTwos: true, koma: 12, hud: 'auto', bgSwitch: 0.35, hideNo: false, hideTime: false },
   enabled: Object.fromEntries(J.GROUP_KEYS.map(g => [g, Object.fromEntries(J.order(g).map(k => [k, true]))])),
-  timing: { bpm: 0, offset: 0.4, snap: true, tail: 0.9, lineTimes: {}, lineScale: 1 },
+  timing: { bpm: 0, offset: 0.4, beatOffset: 0, snap: true, tail: 0.9, lineTimes: {}, lineScale: 1 },
   overrides: {},
   locks: { tech: {}, params: {} },   // groups and values Randomize / Shuffle must not change (UI side only)
   colors: { enabled: false },
@@ -4082,6 +4200,19 @@ J.parseLyrics = (raw) => {
     if (bar >= 0) { note = s.slice(bar + 1).trim() || null; s = s.slice(0, bar).trim(); }
     let impact = false;
     if (/[!！]$/.test(s) && s.length > 1 && /!$/.test(s)) { impact = true; s = s.slice(0, -1).trim(); }
+    // Enhanced LRC: <mm:ss.xx> before a word — the word runs to the next tag (lyric-align / Whisper output).
+    // The tags are stripped from the text; the words keep their times (end = the next word's start).
+    let rawWords = null;
+    if (s.includes('<')) {
+      const orig = s, tags = [];
+      const re = /<(\d+):(\d+(?:[.:]\d+)?)>/g;
+      let m2;
+      while ((m2 = re.exec(orig))) tags.push({ t: +m2[1] * 60 + parseFloat(m2[2].replace(':', '.')), idx: m2.index, len: m2[0].length });
+      if (tags.length) {
+        rawWords = tags.map((tg, k) => ({ start: tg.t, text: orig.slice(tg.idx + tg.len, k + 1 < tags.length ? tags[k + 1].idx : orig.length) }));
+        s = orig.replace(/<\d+:\d+(?:[.:]\d+)?>/g, '');
+      }
+    }
     const emph = [];
     s = s.replace(/\*([^*]+)\*/g, (_, w) => { emph.push(w); return w; });
     let manual = null;
@@ -4091,9 +4222,26 @@ J.parseLyrics = (raw) => {
       s = manual.join(latin ? ' ' : '');
     }
     if (!s) continue;
-    const base = { text: s, note, impact, emph, manual, gapBefore: pendingGap, src: ri };
+    let words = null;
+    if (rawWords && rawWords.length) {
+      words = [];
+      rawWords.forEach((rw, k) => {
+        const end = k + 1 < rawWords.length ? rawWords[k + 1].start : null;
+        // one tag may cover a short phrase: split it into words (CJK phrases into characters) and
+        // spread the phrase's time evenly over them — a single-word tag keeps its exact time
+        let pieces = [];
+        rw.text.replace(/\*/g, '').split(/[\s\/]+/).map(x => x.trim()).filter(Boolean).forEach(piece => {
+          if (/[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff\uac00-\ud7af]/.test(piece) && !/[A-Za-z]/.test(piece)) pieces.push(...[...piece]);
+          else pieces.push(piece);
+        });
+        const n = pieces.length, span = end != null && n > 0 ? (end - rw.start) / n : null;
+        pieces.forEach((pc, ci) => words.push({ start: span != null ? rw.start + ci * span : rw.start, end: span != null ? rw.start + (ci + 1) * span : null, text: pc }));
+      });
+      if (!words.length) words = null;
+    }
+    const base = { text: s, note, impact, emph, manual, gapBefore: pendingGap, src: ri, words };
     pendingGap = false;
-    if (times.length) times.forEach(t => lines.push(Object.assign({}, base, { lrc: t })));
+    if (times.length) times.forEach(t => lines.push(Object.assign({}, base, { lrc: t, words: words && (times.length === 1 || Math.abs(t - words[0].start) < 0.02) ? words : null })));
     else lines.push(Object.assign({}, base, { lrc: null }));
   }
   // LRC: order by time. A line without a tag (an interlude, a line added by hand) stays right after the line it
@@ -4210,16 +4358,86 @@ J.phraseChunks = (words) => {
   return out.length ? out : words;
 };
 
+/* ---------------- word tokens (karaoke): one display word + its normalised form + char offsets ----------
+   The tokenisation mirrors the Whisper matcher (src/12_ui.js: whisperNorm / whisperWords) so a word timed by
+   Whisper, by an Enhanced LRC file or by hand always lands on the same word on screen:
+   · Latin / Vietnamese: maximal runs of letters and digits (don't → don + t, gập-ghềnh → gập + ghềnh,
+     café → café with norm cafe); diacritics are stripped for the norm only, never for the display text
+   · Japanese / Chinese / Korean: one character per token (no word spacing in those scripts)
+   Offsets are in code points, the same units J.layoutText counts its glyphs in. */
+J.wordNorm = (s, lang) => {
+  const t = String(s || '');
+  if (lang === 'ja' || lang === 'zh' || lang === 'zh-Hant' || lang === 'zh-Hans' || lang === 'ko') return t.normalize('NFC').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+  return t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+};
+J.wordTokens = (text, lang) => {
+  const s = String(text || '').normalize('NFC'), arr = [...s], out = [];
+  const cjk = lang === 'ja' || lang === 'zh' || lang === 'zh-Hant' || lang === 'zh-Hans' || lang === 'ko';
+  if (cjk) {
+    arr.forEach((ch, i) => { if (/[\p{L}\p{N}]/u.test(ch)) out.push({ text: ch, norm: ch.toLowerCase(), start: i, end: i + 1 }); });
+    return out;
+  }
+  let cur = null;
+  const flush = () => { if (cur) { out.push(cur); cur = null; } };
+  arr.forEach((ch, i) => {
+    const n = ch.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
+    if (/^[a-z0-9]$/.test(n)) {
+      if (!cur) cur = { text: '', norm: '', start: i, end: i + 1 };
+      cur.text += ch; cur.norm += n; cur.end = i + 1;
+    } else flush();
+  });
+  flush();
+  return out;
+};
+/* a line's word times, cut down to the words a cut (or a whole line) actually shows.
+   Matches by normalised text, in order, so a cut showing the middle of a line still finds its words;
+   a word without its own time lights together with the word before it (a leading one with the first). */
+J.sliceWordTimes = (wt, text, lang) => {
+  if (!wt || !wt.length) return null;
+  const toks = J.wordTokens(text, lang);
+  if (!toks.length) return null;
+  const out = new Array(toks.length).fill(null);
+  if (wt.every(w => w.norm == null) && wt.length === toks.length) {
+    for (let i = 0; i < toks.length; i++) out[i] = { start: wt[i].start, end: wt[i].end, c0: toks[i].start, c1: toks[i].end };
+  } else {
+    let j = 0;
+    for (let i = 0; i < toks.length; i++) {
+      while (j < wt.length && wt[j].norm !== toks[i].norm) j++;
+      if (j >= wt.length) break;
+      out[i] = { start: wt[j].start, end: wt[j].end, c0: toks[i].start, c1: toks[i].end };
+      j++;
+    }
+  }
+  if (!out.some(Boolean)) return null;
+  let prev = null;
+  for (let i = 0; i < out.length; i++) {
+    if (out[i]) { prev = out[i]; continue; }
+    if (prev) out[i] = { start: prev.end, end: prev.end, c0: toks[i].start, c1: toks[i].end };
+  }
+  const first = out.find(Boolean);
+  for (let i = 0; i < out.length && !out[i]; i++) out[i] = { start: first.start, end: first.start, c0: toks[i].start, c1: toks[i].end };
+  return out;
+};
+
 /* ---------------- timing ---------------- */
 J.computeTiming = (project, parsed, audio) => {
   const T = project.timing || {};
   const lines = parsed.lines;
   const beat = T.bpm > 0 ? 60 / T.bpm : 0;
-  // fixed times: a hand-set time (typed, tapped, dragged) wins over the LRC tag; the rest is estimated
+  // word times: a hand-set / Whisper / imported list wins over the tags written in the lyrics
+  const effWords = lines.map((l, i) => {
+    const st = T.wordTimes && Array.isArray(T.wordTimes[i]) && T.wordTimes[i].length ? T.wordTimes[i] : null;
+    return st || (l.words && l.words.length ? l.words : null);
+  });
+  // fixed times: a hand-set time (typed, tapped, dragged) wins over the LRC tag; a line whose words are
+  // timed but which has no line time starts with its first word; the rest is estimated
   const fixed = lines.map((l, i) => {
     const man = T.lineTimes && T.lineTimes[i] != null ? +T.lineTimes[i] : null;
     if (man != null && isFinite(man)) return Math.max(0, man);
-    return l.lrc != null && isFinite(l.lrc) ? l.lrc : null;
+    if (l.lrc != null && isFinite(l.lrc)) return l.lrc;
+    const w = effWords[i];
+    if (w && w[0] != null && isFinite(+w[0].start)) return Math.max(0, +w[0].start);
+    return null;
   });
   // a fixed time may not go back past an earlier one (the saved value itself is left alone)
   let lastFix = -Infinity;
@@ -4259,9 +4477,29 @@ J.computeTiming = (project, parsed, audio) => {
     if (beat && !(L.interlude && L.secs > 0)) d = Math.max(2, Math.round(d / beat)) * beat;
     return s + d;
   });
+  // word times, validated: inside this line, in order, each word at least 0.05 s long
+  const wordTimes = lines.map((l, i) => {
+    const w = effWords[i];
+    if (!w) return null;
+    const s0 = starts[i], e0 = ends[i], out = [];
+    let prevEnd = s0;
+    for (let k = 0; k < w.length; k++) {
+      const ww = w[k];
+      let a = +ww.start;
+      if (!isFinite(a)) continue;
+      let b = ww.end != null && isFinite(+ww.end) ? +ww.end : (k + 1 < w.length && isFinite(+w[k + 1].start) ? +w[k + 1].start : e0);
+      a = J.clamp(a, s0, e0);
+      if (a < prevEnd) a = prevEnd;
+      if (a >= e0) break;
+      b = J.clamp(b, a + 0.05, e0);
+      out.push({ start: +a.toFixed(3), end: +b.toFixed(3), text: ww.text != null ? String(ww.text) : null });
+      prevEnd = b;
+    }
+    return out.length ? out : null;
+  });
   let duration = (ends.length ? ends[ends.length - 1] : 3) + (T.tail ?? 0.9);
   if (audio && audio.duration && T.useAudioLength !== false) duration = Math.max(audio.duration, ends.length ? ends[ends.length - 1] + 0.2 : 1);
-  return { starts, ends, duration };
+  return { starts, ends, duration, wordTimes };
 };
 
 /* ---------------- planning ---------------- */
@@ -4298,7 +4536,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'JIZURA', appVersion: '0.10.1', title, artist, W, H, fps: project.fps || 24,
+    version: 1, generator: 'AURA', appVersion: '0.17.0', title, artist, W, H, fps: project.fps || 24,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -4310,6 +4548,9 @@ J.plan = (project, audio) => {
   if (J.setLang) J.setLang(plan.lang);                     // chunking + measuring below use this language
   if (J.setTypeset) J.setTypeset(plan.typeset);
   const beats = plan.beats;
+  // v0.14.0: beat-aware picks only when there is actually a beat grid —
+  // with no beats the toggle must be a no-op (same plan as OFF)
+  const fxBeat = fx.beatSync && beats.length ? fx : Object.assign({}, fx, { beatSync: false });
   const snap = (t) => {
     if (!beats.length || !(project.timing && project.timing.snap)) return t;
     let lo = 0, hi = beats.length - 1;
@@ -4332,18 +4573,18 @@ J.plan = (project, audio) => {
   }
 
   // 統一感: sections, repeated lines, キメ lines and the per-section palettes (see makeUnify below)
-  const U = plan.unify ? makeUnify(parsed.lines, { st, en, fx, history, lang: plan.lang, seed: project.seed }) : null;
+  const U = plan.unify ? makeUnify(parsed.lines, { st, en, fx: fxBeat, history, lang: plan.lang, seed: project.seed }) : null;
   parsed.lines.forEach((ln, li) => {
     const s = tm.starts[li], e = tm.ends[li];
     const ov = (project.overrides || {})[li] || {};
     const lineSeed = ov.lock && ov.lockedSeed != null ? ov.lockedSeed : J.h(project.seed, li + 1, ov.seed | 0);
     const rng = J.rng(lineSeed);
     if (ln.interlude) {                                    // [間奏]: background, decorations and screen effects only
-      plan.lines.push({ index: li, src: ln.src, lrc: ln.lrc, text: '', interlude: true, secs: ln.secs, start: s, end: e, visEnd: e, note: null, impact: false, emph: [], chunks: [], seed: lineSeed });
+      plan.lines.push({ index: li, src: ln.src, lrc: ln.lrc, text: '', interlude: true, secs: ln.secs, start: s, end: e, visEnd: e, note: null, impact: false, emph: [], chunks: [], wordTimes: null, seed: lineSeed });
       const bg = ov.bg && J.BG[ov.bg] ? ov.bg : pickBg(rng, st, en, fx, bgHistory); bgHistory.push(bg);
       const dur = e - s, showTitle = dur >= 6 && !!(title || artist);
       plan.cuts.push(makeCut({ text: '', lineText: '', line: li, start: s, end: e, layout: 'interlude', enter: 'blur', exit: 'blur', hold: 'still', inDur: 0.4, outDur: 0.4,
-        params: { variant: 'quiet', showTitle, titleText: showTitle ? [title, artist].filter(Boolean).join('  /  ') : '' }, decor: Array.isArray(ov.decor) ? ov.decor.filter(id => J.DECOR[id]).map(id => decorParams(rng, id)) : pickDecor(rng, st, en, Object.assign({}, fx, { decor: Math.max(0.6, fx.decor) }), 'interlude', history),
+        params: { variant: 'quiet', showTitle, titleText: showTitle ? [title, artist].filter(Boolean).join('  /  ') : '' }, decor: Array.isArray(ov.decor) ? ov.decor.filter(id => J.DECOR[id]).map(id => decorParams(rng, id)) : pickDecor(rng, st, en, Object.assign({}, fxBeat, { decor: Math.max(0.6, fx.decor) }), 'interlude', history),
         scheme: schemeIdx, seed: J.h(lineSeed, 405), bg, bgP: J.BG[bg] && J.BG[bg].plan ? J.BG[bg].plan(rng, st) : {}, cam: 'push', camP: {} }));
       if (en.fx == null || en.fx.chroma !== false) addEvent(s, 'chroma', 1 + fx.chroma, 0.25);
       for (let t = s + 1.2; t < e - 0.8; t += J.clamp(dur / 4, 1.6, 3.2)) {          // a few effect accents so a long interlude keeps moving
@@ -4355,7 +4596,9 @@ J.plan = (project, audio) => {
     const n = [...ln.text.replace(/\s+/g, '')].length;
     const visEnd = Math.min(e, s + Math.max(3.6, n * 0.5 + 1.2));
     const D = visEnd - s;
-    plan.lines.push({ index: li, src: ln.src, lrc: ln.lrc, text: ln.text, start: s, end: e, visEnd, note: ln.note, impact: ln.impact, emph: ln.emph, chunks: null, seed: lineSeed });
+    const wt = tm.wordTimes[li];
+    const lineWordTimes = wt ? wt.map(w => ({ start: w.start, end: w.end, text: w.text, norm: w.text != null ? J.wordNorm(w.text, plan.lang) : null })) : null;
+    plan.lines.push({ index: li, src: ln.src, lrc: ln.lrc, text: ln.text, start: s, end: e, visEnd, note: ln.note, impact: ln.impact, emph: ln.emph, chunks: null, wordTimes: lineWordTimes, seed: lineSeed });
     const chunks = ln.manual || (['en','vi'].includes(plan.lang) ? J.phraseChunks(J.chunkText(ln.text)) : J.chunkText(ln.text));
     plan.lines[li].chunks = chunks;
     const L = J.lerp(1.3, 0.5, fx.density);
@@ -4416,7 +4659,7 @@ J.plan = (project, audio) => {
       if (UU) layout = UU.layout(li, layout, { nn, dur, emph, kime, rng, portrait: LH > LW, recap: u.recap });
       let enter = ov.enter && J.ENTER[ov.enter] ? ov.enter : pickEnter(rng, st, en, layout, dur, history, emph, nn);
       let exit = ov.exit && J.EXIT[ov.exit] ? ov.exit : pickExit(rng, st, en, layout, dur, k === units.length - 1, history);
-      let hold = ov.hold && J.HOLD[ov.hold] ? ov.hold : pickHold(rng, en, fx, history);
+      let hold = ov.hold && J.HOLD[ov.hold] ? ov.hold : pickHold(rng, en, fxBeat, history);
       let weightGrow = false;
       if (UU) {
         enter = UU.enter(li, enter, { layout, dur, emph, kime, rng, nn });
@@ -4442,13 +4685,13 @@ J.plan = (project, audio) => {
       if (!U && nSchemes > 1 && k > 0 && rng.chance(0.12 * fx.bgSwitch)) sch = (schemeIdx + 1) % nSchemes;
       let LD = J.LAYOUTS[layout];
       let params = LD.plan(rng, { text: txt, n: nn, W: LW, H: LH, dur }, st);
-      let decor = Array.isArray(ov.decor) ? ov.decor.filter(id => J.DECOR[id]).map(id => decorParams(rng, id)) : pickDecor(rng, st, en, fx, layout, history);
+      let decor = Array.isArray(ov.decor) ? ov.decor.filter(id => J.DECOR[id]).map(id => decorParams(rng, id)) : pickDecor(rng, st, en, fxBeat, layout, history);
       let treat = ov.treat && J.TREAT[ov.treat] ? ov.treat : pickTreat(rng, st, en, fx, LD, emph, history);
       if (UU) { decor = UU.decor(li, decor, { layout, kime, rng }); treat = UU.treat(li, treat, { kime, rng, LD }); }
       let treatP = J.TREAT[treat].plan ? J.TREAT[treat].plan(rng, st) : {};
       if (!ov.bg && k > 0 && !U && rng.chance(0.18 * fx.bgSwitch + 0.04)) { lineBg = pickBg(rng, st, en, fx, bgHistory); lineBgP = J.BG[lineBg].plan ? J.BG[lineBg].plan(rng, st) : {}; }
       let bg = LD.busy && !(J.BG[lineBg] && J.BG[lineBg].subtle) ? 'none' : lineBg;
-      let cam = ov.cam && J.CAMERA[ov.cam] ? ov.cam : pickCam(rng, st, en, fx, LD, emph, history);
+      let cam = ov.cam && J.CAMERA[ov.cam] ? ov.cam : pickCam(rng, st, en, fxBeat, LD, emph, history);
       if (UU) cam = UU.cam(li, cam, { kime, emph, rng });
       let camP = J.CAMERA[cam].plan ? J.CAMERA[cam].plan(rng, st) : {};
       let cutSeed = J.h(lineSeed, k, 17);
@@ -4586,6 +4829,23 @@ J.plan = (project, audio) => {
         if (pick) { const D2 = J.FXE[pick]; const d = (D2.dur || 4) * F; addEvent(cs - (D2.pre ? D2.pre * F : 0), pick, (D2.amp || 1) * (0.7 + 0.5 * g + (emph ? 0.3 : 0)), d); fxHistory.push(pick); }
       }
       if (dur > 1.1) { const pick = pickFx(rng, st, en, fx, emph, fxHistory, 'mid'); if (pick) { const D2 = J.FXE[pick]; addEvent(cs + rng.range(0.4, 0.75) * dur, pick, (D2.amp || 1) * (0.5 + 0.4 * g), (D2.dur || 3) * F); } }
+      // v0.14.0 beat-synced motion: extra flash / zoom / chroma accents on the beat grid inside this cut.
+      // Plan-time only (absolute t, rotating types, no clock, no rng) so Preview and export agree.
+      if (fx.beatSync && (fx.beatAmt ?? 0.7) > 0.02 && plan.beats && plan.beats.length) {
+        const bEvery = fx.beatEvery || 1, bAmt = fx.beatAmt ?? 0.7, bTypes = ['flash', 'zoom', 'chroma'];
+        let bn = 0;
+        for (let bi = 0; bi < plan.beats.length; bi++) {
+          const bt = plan.beats[bi];
+          if (bt < cs || bt >= ce) continue;
+          if (bi % bEvery !== 0) continue;
+          if (Math.abs(bt - cs) < 0.02) continue;   // the cut start already has its own events
+          const bt2 = bTypes[bn++ % bTypes.length];
+          if (!fxOn(bt2)) continue;
+          if (bt2 === 'flash') addEvent(bt, 'flash', bAmt, 3 * F);
+          else if (bt2 === 'zoom') addEvent(bt, 'zoom', 0.8 * bAmt, 0.22);
+          else addEvent(bt, 'chroma', 1.2 * bAmt, 0.25);
+        }
+      }
       if (LS && Array.isArray(LS.events)) { plan.events.splice(evMark); for (const e of LS.events) plan.events.push({ t: cs + e.dt, type: e.type, amp: e.amp, dur: e.dur }); }
       // 文字整列: at most one screen effect per cut besides the colour split (the キメ line keeps its accents)
       if (plan.typeset && !cut.kime && !LS) {
@@ -4599,7 +4859,7 @@ J.plan = (project, audio) => {
     const nextStart = li < parsed.lines.length - 1 ? tm.starts[li + 1] : null;
     if (nextStart != null && nextStart - visEnd > 1.3 && !parsed.lines[li + 1].interlude) {
       const r2 = J.rng(J.h(lineSeed, 404));
-      plan.cuts.push(makeCut({ text: title || '', lineText: '', line: li, start: visEnd, end: nextStart, layout: 'interlude', enter: 'blur', exit: 'blur', hold: 'still', inDur: 0.3, outDur: 0.3, params: J.LAYOUTS.interlude.plan(r2), decor: pickDecor(r2, st, en, Object.assign({}, fx, { decor: 1 }), 'interlude'), scheme: schemeIdx, seed: J.h(lineSeed, 405) }));
+      plan.cuts.push(makeCut({ text: title || '', lineText: '', line: li, start: visEnd, end: nextStart, layout: 'interlude', enter: 'blur', exit: 'blur', hold: 'still', inDur: 0.3, outDur: 0.3, params: J.LAYOUTS.interlude.plan(r2), decor: pickDecor(r2, st, en, Object.assign({}, fxBeat, { decor: 1 }), 'interlude'), scheme: schemeIdx, seed: J.h(lineSeed, 405) }));
     }
   });
   plan.cuts.sort((a, b) => a.start - b.start);
@@ -4609,6 +4869,16 @@ J.plan = (project, audio) => {
     if (c.layout === 'interlude') { c.params = Object.assign({}, c.params, { showTitle: false }); return; }   // no lyric: the whole frame
     c.zone = zoneOf(c.line);
   });
+  // word-level karaoke: each cut keeps the times of the words it shows (char offsets in the cut text),
+  // plus the same for the whole line (some layouts draw the full line instead of the cut's part)
+  const sliceCut = c => {
+    if (!c || c.line == null || c.line < 0 || c.layout === 'interlude') return;   // no lyric on screen: nothing to sweep
+    const L = plan.lines[c.line];
+    if (!L || !L.wordTimes) return;
+    c.wordTimes = J.sliceWordTimes(L.wordTimes, c.text, plan.lang);
+    if (c.lineText && c.lineText !== c.text) c.lineWordTimes = J.sliceWordTimes(L.wordTimes, c.lineText, plan.lang);
+  };
+  plan.cuts.forEach(c => { sliceCut(c); if (c.companion) sliceCut(c.companion); });
   plan.events.sort((a, b) => a.t - b.t);
   plan.energy = audio && audio.energy ? audio.energy : null;
   plan.energyRate = audio && audio.energyRate ? audio.energyRate : 0;
@@ -4884,12 +5154,18 @@ function pickExit(rng, st, en, layout, dur, lastOfLine, history) {
   return cands.length ? rng.wpick(cands) : 'cut';
 }
 const HOLD_W = { still: 1, jitter: 1.2, drift: 1, breathe: 0.7, wave: 0.4, glitchtick: 0.9 };
+/* v0.14.0: parts that read the beat (env.beat / plan.beats) — favoured when fx.beatSync is on.
+   Every key here was verified in the source to read env.beat (or plan.beats) with a fallback. */
+const BEAT_HOLD = new Set(['ccPulseHeart', 'knWordPulse', 'knBeatLean', 'tyKeyPulse', 'tyTrackStep', 'pulse', 'heartbeat']);
+const BEAT_CAM = new Set(['beatPunch', 'earthquake', 'snapPan', 'jelly']);
+const BEAT_DECOR = new Set(['beatRing', 'sonarArcs', 'spectrumRing', 'lineBurst']);
 function pickHold(rng, en, fx, history) {
   const cands = J.HOLD_ORDER.filter(k => en.hold[k] !== false && J.HOLD[k]).map(k => {
     const D = J.HOLD[k];
     let w = HOLD_W[k] != null ? HOLD_W[k] : (D.w ?? 0.8);
     if (k === 'jitter' || (D.tags && D.tags.includes('glitch'))) w *= 0.4 + fx.motion;
     if (k === 'glitchtick') w *= fx.glitch;
+    if (fx.beatSync && BEAT_HOLD.has(k)) w *= 2.2;
     return [k, w * novelty(history, 'hold', k)];
   });
   return cands.length ? rng.wpick(cands) : 'still';
@@ -4902,7 +5178,7 @@ function pickDecor(rng, st, en, fx, layout, history = []) {
   const recent = new Set(history.slice(-2).flatMap(h => h.decor || []));
   const LD = J.LAYOUTS[layout] || {};
   const cands = J.DECOR_ORDER.filter(k => en.decor[k] && J.DECOR[k] && !(LD.busy && J.DECOR[k].layer === 'back' && !J.DECOR[k].subtle))
-    .map(k => [k, wkey(st.decor, k, J.DECOR[k].w != null ? J.DECOR[k].w * 0.5 : 0.35) * (recent.has(k) ? 0.35 : 1)]);
+    .map(k => [k, wkey(st.decor, k, J.DECOR[k].w != null ? J.DECOR[k].w * 0.5 : 0.35) * (recent.has(k) ? 0.35 : 1) * (fx.beatSync && BEAT_DECOR.has(k) ? 2.2 : 1)]);
   const out = [];
   for (let i = 0; i < count && cands.length; i++) {
     const k = rng.wpick(cands);
@@ -4931,6 +5207,7 @@ function pickCam(rng, st, en, fx, LD, emph, history) {
     const D = J.CAMERA[k];
     let w = wkey(st.bias && st.bias.cam, k, D.w ?? 1) * novelty(history, 'cam', k);
     if (D.strong) w *= 0.25 + 0.9 * (fx.motion ?? 0.7) + (emph ? 0.6 : 0);
+    if (fx.beatSync && BEAT_CAM.has(k)) w *= 2.2;
     if (LD.cam === false && k !== 'push') w *= 0.05;
     return [k, w];
   });
@@ -5033,7 +5310,7 @@ J.previewPlan = (project, group, key) => {
   }
   cuts.forEach((c, i) => { c.index = i; });
   return {
-    version: 1, lang: J.resolveLang(project), generator: 'JIZURA-preview', title: '', artist: '', W, H, fps: 24,
+    version: 1, lang: J.resolveLang(project), generator: 'AURA-preview', title: '', artist: '', W, H, fps: 24,
     duration: cuts[cuts.length - 1].end, styleKey: project.style, style: st, fx,
     lines: [], cuts, events, beats: [], hud: false, keyBg: null,
   };
@@ -5180,6 +5457,330 @@ J.omakase = (project, rnd = Math.random, themeId = null) => {
   for (const [i, o] of Object.entries(project.overrides || {})) if (o.lock) overrides[i] = o; else if (o.cutTime) overrides[i] = { cutTime: o.cutTime };   // cut times are timing, not the look
   return Object.assign({ mood, style, fx, enabled, fonts, colors, overrides, seed: Math.floor(rnd() * 1e9) }, switches);
 };
+})();
+
+/* ============================================================
+   AURA — subtitle import: SRT / WebVTT / SSA-ASS → standard LRC
+   At import time each cue becomes one LRC line ([mm:ss.xx]text);
+   per-word times (\k in ASS, timestamp tags in VTT) become inline
+   <mm:ss.xx> tags, so they flow through the Enhanced LRC path that
+   loadLrc / computeTiming / karaoke already know (v0.13.0).
+   No planner / render / export / undo change; no new project field.
+   Cue End is not kept (the planner derives line ends itself);
+   ASS style / position is ignored (the app has its own styles).
+   ============================================================ */
+'use strict';
+(function () {
+  const J = window.J;
+
+  const r3 = v => Math.round(v * 1000) / 1000;
+
+  /* --- time helpers --- */
+  // SRT/VTT clock: [HH:]MM:SS[.mmm|,mmm] — hours optional, 1-2 digits
+  function parseClock(s) {
+    const m = String(s || '').trim().match(/^(?:(\d{1,2}):)?(\d{1,2}):(\d{1,2})(?:[.,](\d{1,3}))?$/);
+    if (!m) return null;
+    return (m[1] ? +m[1] : 0) * 3600 + (+m[2]) * 60 + (+m[3]) + (m[4] ? +('0.' + m[4]) : 0);
+  }
+  // ASS clock: H:MM:SS.cc (centiseconds; lenient 1-3 decimals)
+  function parseAssClock(s) {
+    const m = String(s || '').trim().match(/^(\d+):(\d{1,2}):(\d{1,2})(?:\.(\d{1,3}))?$/);
+    if (!m) return null;
+    return (+m[1]) * 3600 + (+m[2]) * 60 + (+m[3]) + (m[4] ? +('0.' + m[4]) : 0);
+  }
+  // seconds → [mm:ss.xx] (LRC line tag, centiseconds)
+  function lrcStamp(t) {
+    t = Math.max(0, t);
+    const m = Math.floor(t / 60), s = t - m * 60;
+    return '[' + String(m).padStart(2, '0') + ':' + s.toFixed(2).padStart(5, '0') + ']';
+  }
+  // seconds → <mm:ss.xx> (Enhanced LRC word tag)
+  function wordTag(t) {
+    t = Math.max(0, t);
+    const m = Math.floor(t / 60), s = t - m * 60;
+    return '<' + String(m).padStart(2, '0') + ':' + s.toFixed(2).padStart(5, '0') + '>';
+  }
+
+  /* --- text helpers --- */
+  const normText = s => String(s || '').replace(/\s+/g, ' ').trim();
+  // strip HTML-ish tags <...> but keep the inner text; only tags matching a valid
+  // tag name are stripped, so a literal '<' in the lyrics (e.g. 'a < b') survives
+  const stripHtml = s => String(s || '').replace(/<\/?[A-Za-z][^<>]*>/g, '');
+
+  // a cue's timed words, derived from its segments (end = next word's start, last = cue end).
+  // Segment text keeps its edge spaces (they are the word separators in the line);
+  // the word list trims them, and whitespace-only segments are not words.
+  function cueWords(segs, end) {
+    const words = [];
+    const timed = segs.filter(s => s.t != null && s.text.trim());
+    timed.forEach((s, k) => {
+      const e = k + 1 < timed.length ? timed[k + 1].t : end;
+      words.push({ text: s.text.trim(), start: s.t, end: Math.max(s.t, e) });
+    });
+    return words;
+  }
+  function finishCue(start, end, segs) {
+    return { start, end, segs, text: segs.map(s => s.text).join(''), words: cueWords(segs, end) };
+  }
+
+  // split one karaoke syllable into timed token segments, keeping the punctuation
+  // between tokens as untimed text (so 'grace,' never loses its comma)
+  function tokenizeSegs(text, start, dur, lang) {
+    const toks = (J.wordTokens ? J.wordTokens(text, lang) : null) || [];
+    if (!toks.length) return [{ t: null, text }];
+    const cps = [...text], out = [], n = toks.length, span = dur / n;
+    let pos = 0;
+    toks.forEach((tk, i) => {
+      if (tk.start > pos) out.push({ t: null, text: cps.slice(pos, tk.start).join('') });
+      out.push({ t: r3(start + i * span), text: tk.text });
+      pos = tk.end;
+    });
+    if (pos < cps.length) out.push({ t: null, text: cps.slice(pos).join('') });
+    return out;
+  }
+
+  /* ---------------- format detection (sniff content; extension is only a hint) ---------------- */
+  J.detectSubsFormat = (text) => {
+    const t = String(text || '').replace(/^\ufeff/, '');
+    const head = t.replace(/^\s+/, '');
+    if (/^WEBVTT(\s|$)/.test(head)) return 'vtt';
+    if (/\[Script Info\]/i.test(t) && (/\[Events\]/i.test(t) || /\[V4\+ Styles\]/i.test(t) || /\[V4 Styles\]/i.test(t))) return 'ass';
+    if (/-->/.test(t)) {
+      if (/\d{1,2}:\d{2}:\d{2},\d/.test(t)) return 'srt';
+      if (/\d{1,2}:\d{2}:\d{2}\.\d/.test(t) || /\d{1,2}:\d{2}\.\d{1,3}\s*-->/.test(t)) return 'vtt';
+    }
+    if (/^\[\d+:\d{1,2}/m.test(t)) return 'lrc';
+    return 'txt';
+  };
+
+  /* ---------------- SRT ---------------- */
+  function parseSrt(text) {
+    const cues = []; let skipped = 0; const warnings = [];
+    const blocks = String(text).replace(/\r\n?/g, '\n').split(/\n\s*\n/);
+    for (const block of blocks) {
+      const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
+      if (!lines.length) continue;
+      // the timestamp line is found anywhere in the block (lines before it are the
+      // sequence number or junk); a block with no timestamp line is not a cue
+      let ti = -1, tm = null;
+      for (let k = 0; k < lines.length; k++) {
+        tm = lines[k].match(/^(\d{1,2}:\d{1,2}:\d{1,2}[.,]\d{1,3})\s*-->\s*(\d{1,2}:\d{1,2}:\d{1,2}[.,]\d{1,3})/);
+        if (tm) { ti = k; break; }
+      }
+      if (ti < 0) continue;
+      const start = parseClock(tm[1]), end = parseClock(tm[2]);
+      const body = lines.slice(ti + 1).map(l => normText(stripHtml(l))).filter(Boolean);
+      const joined = body.join(' / ');
+      if (start == null || end == null || end <= start || !joined) { skipped++; continue; }
+      cues.push(finishCue(r3(Math.max(0, start)), r3(end), [{ t: null, text: joined }]));
+    }
+    return { format: 'srt', cues, skipped, warnings, title: null };
+  }
+
+  /* ---------------- WebVTT ---------------- */
+  // timestamp tags inside cue text (<MM:SS.mmm> / <HH:MM:SS.mmm>) become word times;
+  // other tags (<v Name>, <c.cls>, <b>…) are stripped, their text kept
+  function vttLineSegs(ln) {
+    const out = [];
+    const re = /<((?:\d{1,2}:)?\d{1,2}:\d{1,2}(?:\.\d{1,3})?)>/g;
+    let pos = 0, m, pending = null;
+    const pushText = (t, raw) => {
+      // collapse whitespace runs but keep the edge spaces: they are the word
+      // separators between segments (trimming here would glue 'Hello' + 'brave'
+      // into 'Hellobrave' in the line text, and parseLyrics would tokenize it
+      // as one word — the timed words would never match)
+      const clean = stripHtml(raw).replace(/\s+/g, ' ');
+      if (clean) out.push({ t, text: clean });
+    };
+    while ((m = re.exec(ln))) {
+      pushText(pending, ln.slice(pos, m.index));
+      pending = parseClock(m[1]);
+      pos = m.index + m[0].length;
+    }
+    pushText(pending, ln.slice(pos));
+    return out;
+  }
+  function parseVtt(text) {
+    const cues = []; let skipped = 0; const warnings = [];
+    const rows = String(text).replace(/^\ufeff/, '').replace(/\r\n?/g, '\n').split('\n');
+    let i = 0;
+    while (i < rows.length && !rows[i].trim()) i++;
+    if (i < rows.length && /^WEBVTT(\s|$)/.test(rows[i].trim())) {
+      i++;
+      while (i < rows.length && rows[i].trim()) i++;   // header block (NOTE / STYLE / REGION…)
+    } else {
+      warnings.push('WEBVTT ヘッダーがありません');
+    }
+    let block = [];
+    const flushBlock = () => {
+      const b = block; block = [];
+      if (!b.length) return;
+      const first = b[0].trim();
+      if (/^(NOTE|STYLE|REGION)(\s|$)/i.test(first)) return;   // NOTE / STYLE / REGION block anywhere
+      let ti = -1;
+      for (let k = 0; k < b.length; k++) {
+        if (/^(?:\d{1,2}:)?\d{1,2}:\d{1,2}\.\d{1,3}\s*-->/.test(b[k].trim())) { ti = k; break; }
+      }
+      if (ti < 0) return;   // no timestamp line — not a cue (ID-only junk, ignored)
+      const tm = b[ti].trim().match(/^((?:\d{1,2}:)?\d{1,2}:\d{1,2}\.\d{1,3})\s*-->\s*((?:\d{1,2}:)?\d{1,2}:\d{1,2}\.\d{1,3})/);
+      if (!tm) { skipped++; return; }
+      const start = parseClock(tm[1]), end = parseClock(tm[2]);
+      const segs = [];
+      b.slice(ti + 1).forEach((ln, li) => {
+        if (li > 0) segs.push({ t: null, text: ' / ' });
+        segs.push(...vttLineSegs(ln));
+      });
+      const joined = segs.map(s => s.text).join('');
+      if (start == null || end == null || end <= start || !normText(joined)) { skipped++; return; }
+      cues.push(finishCue(r3(Math.max(0, start)), r3(end), segs));
+    };
+    for (; i <= rows.length; i++) {
+      const line = i < rows.length ? rows[i] : '';
+      if (!line.trim()) { flushBlock(); continue; }
+      block.push(line);
+    }
+    return { format: 'vtt', cues, skipped, warnings, title: null };
+  }
+
+  /* ---------------- SSA / ASS ---------------- */
+  const ASS_COLS = ['Layer', 'Start', 'End', 'Style', 'Name', 'MarginL', 'MarginR', 'MarginV', 'Effect', 'Text'];
+  // split a Dialogue line into fields: commas inside {...} override groups
+  // ({\pos(100,200)}, {\move(...)}, {\fad(200,300)}…) do NOT split; if there are
+  // more parts than columns, the rest belongs to the last column (Text may hold commas)
+  function splitAssFields(s, n) {
+    const parts = [];
+    let depth = 0, cur = '';
+    for (const ch of String(s)) {
+      if (ch === '{') depth++;
+      else if (ch === '}') depth = Math.max(0, depth - 1);
+      if (ch === ',' && depth === 0) { parts.push(cur); cur = ''; }
+      else cur += ch;
+    }
+    parts.push(cur);
+    if (parts.length <= n) return parts.map(p => p.trim());
+    const head = parts.slice(0, n - 1).map(p => p.trim());
+    head.push(parts.slice(n - 1).join(',').trim());
+    return head;
+  }
+  // one Dialogue's text → timed segments. \k / \K / \kf (centiseconds) mark the
+  // syllables; every other {...} override is stripped. {\p1}…{\p0} drawing
+  // segments are dropped whole. Text before the first \k tag is untimed.
+  function parseAssText(raw, cueStart, lang) {
+    const segs = [];
+    let cum = 0, cur = null, drawing = false;
+    const flush = () => {
+      if (!cur) return;
+      const c = cur; cur = null;
+      if (!c.text) return;
+      if (!c.tagged) { segs.push({ t: null, text: c.text }); return; }
+      segs.push(...tokenizeSegs(c.text, cueStart + c.start, c.dur, lang));
+    };
+    let i = 0; const n = raw.length;
+    while (i < n) {
+      if (raw[i] === '{') {
+        const j = raw.indexOf('}', i);
+        const group = j < 0 ? raw.slice(i + 1) : raw.slice(i + 1, j);
+        i = j < 0 ? n : j + 1;
+        const pm = group.match(/\\p(\d+)/);
+        if (pm) {
+          if (+pm[1] !== 0) { flush(); drawing = true; }
+          else drawing = false;
+          continue;
+        }
+        if (drawing) continue;
+        const km = group.match(/\\[kK]f?(\d+)/);
+        if (km) {
+          flush();
+          const dur = +km[1] / 100;
+          cur = { start: cum, dur, text: '', tagged: true };
+          cum += dur;
+        }
+        continue;   // any other override group: stripped
+      }
+      let j = raw.indexOf('{', i);
+      if (j < 0) j = n;
+      let run = raw.slice(i, j);
+      i = j;
+      run = run.replace(/\\[Nn]/g, ' / ').replace(/\\h/g, ' ');
+      if (drawing) continue;
+      if (!cur) cur = { start: cum, dur: 0, text: '', tagged: false };
+      cur.text += run;
+    }
+    flush();
+    return segs;
+  }
+  function parseAss(text, lang) {
+    const cues = []; let skipped = 0; const warnings = []; let title = null;
+    const rows = String(text).replace(/^\ufeff/, '').replace(/\r\n?/g, '\n').split('\n');
+    let section = '', fmt = null;
+    const events = [];
+    for (const raw of rows) {
+      const line = raw.trim();
+      if (!line) continue;
+      const sec = line.match(/^\[(.+)\]$/);
+      if (sec) { section = sec[1].trim().toLowerCase(); continue; }
+      if (section === 'script info') {
+        const tm = line.match(/^Title:\s*(.+)$/i);
+        if (tm && title == null) title = tm[1].trim();
+        continue;
+      }
+      if (section === 'events') {
+        if (/^Format:/i.test(line)) { fmt = line.slice(7).split(',').map(s => s.trim().toLowerCase()); continue; }
+        if (/^Dialogue:/i.test(line)) events.push(line.slice(9));
+        continue;
+      }
+    }
+    const cols = fmt && fmt.length ? fmt : ASS_COLS.map(c => c.toLowerCase());
+    if (!fmt) warnings.push('Format: 行がありません — 標準の列順序を使いました');
+    const iStart = cols.indexOf('start'), iEnd = cols.indexOf('end'), iText = cols.indexOf('text');
+    if (iStart < 0 || iEnd < 0 || iText < 0) {
+      warnings.push('Format: に Start / End / Text がありません');
+      return { format: 'ass', cues, skipped: events.length, warnings, title };
+    }
+    for (const ev of events) {
+      const f = splitAssFields(ev, cols.length);
+      const start = parseAssClock(f[iStart]), end = parseAssClock(f[iEnd]);
+      const rawText = f.length > iText ? f[iText] : '';
+      if (start == null || end == null || end <= start) { skipped++; continue; }
+      const segs = parseAssText(rawText || '', start, lang);
+      if (!normText(segs.map(s => s.text).join(''))) { skipped++; continue; }
+      cues.push(finishCue(r3(Math.max(0, start)), r3(end), segs));
+    }
+    // duet lines: two Dialogues at (nearly) the same time, overlapping → one line
+    cues.sort((a, b) => a.start - b.start || a.end - b.end);
+    const merged = [];
+    for (const c of cues) {
+      const last = merged[merged.length - 1];
+      if (last && Math.abs(c.start - last.start) < 0.05 && c.start < last.end) {
+        last.segs.push({ t: null, text: ' / ' }, ...c.segs);
+        last.end = Math.max(last.end, c.end);
+        last.text = last.segs.map(s => s.text).join('');
+        last.words = cueWords(last.segs, last.end);
+      } else merged.push(c);
+    }
+    return { format: 'ass', cues: merged, skipped, warnings, title };
+  }
+
+  /* ---------------- public API ---------------- */
+  J.parseSubs = (text, lang) => {
+    const clean = String(text || '').replace(/^\ufeff/, '');
+    const format = J.detectSubsFormat(clean);
+    if (format === 'srt') return parseSrt(clean);
+    if (format === 'vtt') return parseVtt(clean);
+    if (format === 'ass') return parseAss(clean, lang || 'vi');
+    return { format, cues: [], skipped: 0, warnings: [], title: null };
+  };
+  // cues → standard LRC text ([mm:ss.xx] per line, <mm:ss.xx> per word)
+  J.subsToLrc = (parsed) => {
+    const out = [];
+    if (parsed.title) out.push('[ti:' + String(parsed.title).replace(/[\r\n\]]/g, '') + ']');
+    (parsed.cues || []).forEach(c => {
+      let line = lrcStamp(c.start);
+      c.segs.forEach(s => { if (s.t != null) line += wordTag(s.t); line += s.text; });
+      out.push(line);
+    });
+    return out.join('\n');
+  };
 })();
 
 /* ============================================================
@@ -5469,9 +6070,11 @@ class Renderer {
       if (ev.type === 'chroma') spike += ev.amp * Math.pow(0.55, dt);
       else if (ev.type === 'shake') shake += ev.amp * Math.pow(0.62, dt);
     }
-    if (plan.beats && plan.beats.length) {
-      const b = prevBeat(plan.beats, t);
-      if (b != null && t - b < 0.25) beatPulse = 0.9 * Math.exp(-(t - b) * 16);
+    // v0.14.0: the beat chroma pulse is gated behind fx.beatSync — OFF means truly OFF
+    if (fx.beatSync && plan.beats && plan.beats.length) {
+      const bi = beatAt(plan.beats, t);
+      const bEvery = fx.beatEvery || 1;
+      if (bi && bi.since < 0.25 && bi.index % bEvery === 0) beatPulse = 0.9 * (fx.beatAmt ?? 0.7) * Math.exp(-bi.since * 16);
     }
     const chroma = (fx.chroma ?? 0.7) * (st.ghost ?? 1) * (1 + spike + beatPulse);
     const step = Math.floor(tq / clock + 1e-6);
@@ -5795,6 +6398,7 @@ class Renderer {
   post(ctx, plan, t, tq, step, sc, scale, opt, allowFilter) {
     const cw = ctx.canvas.width, ch = ctx.canvas.height;
     const fx = plan.fx, st = plan.style;
+    const postBeat = plan.beats && plan.beats.length ? beatAt(plan.beats, t) : null;   // v0.14.0: screen effects may pulse on the beat
     const active = plan.events.filter(ev => t >= ev.t && t < ev.t + Math.max(ev.dur, 1 / plan.fps));
     const needScratch = active.some(ev => ['slice', 'block', 'zoom', 'mosaic'].includes(ev.type) || (J.FXE[ev.type] && J.FXE[ev.type].scratch)) || (!opt.fast && (st.glow || 0) > 0);
     const S = needScratch ? this.ensure(this.scratch, cw, ch) : null;
@@ -5811,7 +6415,7 @@ class Renderer {
       if (D && D.draw) {
         if (D.scratch) copy();
         try {
-          D.draw(ctx, ev, k, { cw, ch, S, sc, st: plan.style, step: st2, t, scale, renderer: this, allowFilter, opt, transparent: !!opt.transparent, tmp: (w, h) => this.ensure(this.tiny, w, h), tmp2: (w, h) => this.ensure(this.small2 || (this.small2 = mk(2, 2)), w, h) });
+          D.draw(ctx, ev, k, { cw, ch, S, sc, st: plan.style, step: st2, t, scale, renderer: this, allowFilter, opt, transparent: !!opt.transparent, beat: postBeat, tmp: (w, h) => this.ensure(this.tiny, w, h), tmp2: (w, h) => this.ensure(this.small2 || (this.small2 = mk(2, 2)), w, h) });
         } catch (e) { console.warn('fx', ev.type, e); }
         ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.filter = 'none'; ctx.imageSmoothingEnabled = true;
         if (guard) guard.end();
@@ -5974,9 +6578,13 @@ J.analyzeAudio = async (file) => {
   const p95 = sorted[Math.floor(sorted.length * 0.95)] || 1;
   const energyN = new Float32Array(n);
   for (let f = 0; f < n; f++) energyN[f] = Math.min(1, energy[f] / p95);
-  // waveform peaks for the timeline
-  const bins = 1600, peaks = new Float32Array(bins), per = Math.max(1, Math.floor(len / bins));
+  // waveform peaks for the timeline (v0.16.0: 8192 bins, normalised to the 95th percentile like energyN,
+  // so quiet songs still show a readable wave and loud/clipped ones never flatten past 1.0)
+  const bins = 8192, peaks = new Float32Array(bins), per = Math.max(1, Math.floor(len / bins));
   for (let b = 0; b < bins; b++) { let m = 0; for (let i = b * per, e = Math.min(len, (b + 1) * per); i < e; i += 4) { const v = Math.abs(mono[i]); if (v > m) m = v; } peaks[b] = m; }
+  const psorted = Array.from(peaks).sort((a, b) => a - b);
+  const pp95 = psorted[Math.floor(psorted.length * 0.95)] || 1;
+  for (let b = 0; b < bins; b++) peaks[b] = Math.min(1, peaks[b] / pp95);
   return {
     name: file.name, duration: audioBuffer.duration, sampleRate: sr, buffer: audioBuffer,
     bpm: Math.round(60 / period * 10) / 10, beats, energy: energyN, energyRate: rate, peaks,
@@ -6004,11 +6612,31 @@ J.audioWav = (buffer, duration, offset = 0) => {
 
 /* the last song, kept in this browser (IndexedDB) so a reload does not silently drop the audio from exports */
 const IDB = { db: null };
+/* v0.11.0 moved the song store from 'jizura' to 'aura' — copy every record once, then drop the old db */
 IDB.open = () => IDB.db || (IDB.db = new Promise((res, rej) => {
   if (typeof indexedDB === 'undefined') return rej(new Error('no IndexedDB'));
-  const r = indexedDB.open('jizura', 1);
+  const r = indexedDB.open('aura', 1);
   r.onupgradeneeded = () => { r.result.createObjectStore('files'); };
-  r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  r.onsuccess = async () => {
+    const db = r.result;
+    try {
+      if (localStorage.getItem('aura.idbMigrated') !== '1') {
+        const old = await new Promise((rs) => { const ro = indexedDB.open('jizura', 1); ro.onsuccess = () => rs(ro.result); ro.onerror = () => rs(null); });
+        if (old && old.objectStoreNames.contains('files')) {
+          const keys = await new Promise((rs, rj) => { const q = old.transaction('files', 'readonly').objectStore('files').getAllKeys(); q.onsuccess = () => rs(q.result || []); q.onerror = () => rj(q.error); });
+          for (const k of keys) {
+            const rec = await new Promise((rs, rj) => { const q = old.transaction('files', 'readonly').objectStore('files').get(k); q.onsuccess = () => rs(q.result); q.onerror = () => rj(q.error); });
+            if (rec !== undefined) await new Promise((rs, rj) => { const tx = db.transaction('files', 'readwrite'); tx.objectStore('files').put(rec, k); tx.oncomplete = rs; tx.onerror = () => rj(tx.error); });
+          }
+          try { indexedDB.deleteDatabase('jizura'); } catch (e) {}
+        }
+        try { old && old.close(); } catch (e) {}
+        try { localStorage.setItem('aura.idbMigrated', '1'); } catch (e) {}
+      }
+    } catch (e) {}
+    res(db);
+  };
+  r.onerror = () => rej(r.error);
 }));
 J.saveSong = async (file) => {
   try {
@@ -6150,7 +6778,7 @@ J.lrcText = (project, lines, range) => {
   const tm = J.computeTiming(project, parsed, null);
   const rows = String(project.lyrics || '').replace(/\r/g, '').split('\n');
   const stamp = t => { t = Math.max(0, t); const m = Math.floor(t / 60), s = t - m * 60; return `[${String(m).padStart(2, '0')}:${s.toFixed(2).padStart(5, '0')}]`; };
-  const clean = r => String(r || '').trim().replace(/^(\[\d+:\d+(?:[.:]\d+)?\])+/, '').trim();
+  const clean = r => String(r || '').trim().replace(/^(\[\d+:\d+(?:[.:]\d+)?\])+/, '').replace(/<\d+:\d+(?:[.:]\d+)?>/g, '').trim();   // line-level export: the <mm:ss.xx> word tags stay in the project, not in the .lrc
   const out = [];
   const ti = project.title || parsed.meta.ti, ar = project.artist || parsed.meta.ar;
   if (ti) out.push(`[ti:${ti}]`); if (ar) out.push(`[ar:${ar}]`); if (parsed.meta.al) out.push(`[al:${parsed.meta.al}]`);
@@ -6328,7 +6956,7 @@ J.exportPNGZip = async ({ plan, project, transparent, layers, onProgress, signal
   const scale = w / plan.W;
   for (let i = 0; i < total; i += every) {
     if (signal && signal.aborted) throw new Error('Đã hủy');
-    const name = `jizura_${String(i).padStart(5, '0')}.png`;
+    const name = `aura_${String(i).padStart(5, '0')}.png`;
     for (const layer of layers ? ['back', 'front'] : [null]) {
       R.frame(ctx, plan, span.t0 + i / fps, { scale, transparent: transparent || !!layers, layer });
       const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
@@ -6351,6 +6979,7 @@ J.AE_MAP = {
   hold: { float: 'drift', sway: 'wave', pulse: 'breathe', shimmer: 'still', colorRun: 'still', rotateSlow: 'drift', trackBreathe: 'breathe', skewWobble: 'wave', beatHop: 'wave', hWave: 'wave', heartbeat: 'breathe', orbitSmall: 'jitter', jelly: 'breathe', scanBand: 'glitchtick', noiseDrift: 'drift', tilt: 'drift', zoomSlow: 'drift', stretchPulse: 'breathe', glitchJump: 'glitchtick', echoTrail: 'drift' },
   decor: { crosshair: 'brackets', cropMarks: 'brackets', reticle: 'rings', radar: 'rings', progressRing: 'rings', timecodeBar: 'barcode', rulerEdge: 'grid', dimension: 'leaders', indexNum: 'counter', dateStamp: 'barcode', qrBlock: 'barcode', glitchRects: 'bars', concentricSquares: 'shapes', triangleSpin: 'shapes', lineBurst: 'sparks', plusGrid: 'grid', guides: 'grid', waveLine: 'waveform', spiralLine: 'rings', halftonePatch: 'shapes', checkerStrip: 'stripes', beatRing: 'rings', orbitDots: 'dots', constellation: 'sparks', confetti: 'shapes', petals: 'shapes', rainStreaks: 'slash', snow: 'dots', lightLeak: 'blobs', bokeh: 'blobs', speedCorner: 'slash', risingParticles: 'sparks', twinkle: 'sparks', brushStroke: 'bars', tapePieces: 'bars', scribbleCircle: 'rings', scribbleUnder: 'slash', crossOut: 'slash', highlightMark: 'bars', heartsStars: 'shapes', watermarkKanji: 'counter', verticalStrip: 'leaders', romajiLine: 'leaders', bracketsJP: 'brackets', seal: 'shapes' },
   fx: { rgbSplit: 'chroma', smear: 'slice', vhsRoll: 'slice', trackingNoise: 'slice', waveWarp: 'slice', pixelDrift: 'slice', tileShift: 'block', gridRepeat: 'block', mirrorFlash: 'block', strobe: 'invert', blackFrame: 'invert', whiteFrame: 'flash', filmBurn: 'flash', lightSweep: 'flash', panelWipe: 'flash', zoomPunch: 'zoom', whipBlur: 'zoom', posterize: 'mosaic', hueShift: 'chroma', irisTrans: 'zoom', doors: 'slice', blindsTrans: 'slice', splitSlide: 'slice', crtOff: 'flash' },
+  trans: { glBurn: 'inkBlob', glDissolve: 'inkBlob', glWater: 'wipe', glWarp: 'zoomThrough', glMorph: 'inkBlob', glGlitch: 'pixelate', glZoom: 'zoomThrough', glDream: 'flashCross' },
 };
 // The plan goes to the After Effects panel as-is (version 2): the panel builds every key it implements and
 // picks the closest counterpart itself (from the exported metadata / J.AE_MAP) for anything it lacks.
@@ -7750,9 +8379,10 @@ reg('enter', 'ccGlitchRGB', {
 reg('hold', 'ccPulseHeart', {
   name: 'ハートビート', tags: ['emotional', 'pop', 'calm'], w: 2.0,
   apply(env, it) {
-    const speed = 4.5;
-    const beat = Math.sin(env.lt * speed);
-    const pulse = beat > 0 ? Math.pow(beat, 4) * 0.12 : 0;
+    // v0.14.0: pulse on the real beat when there is one; the old sine fallback when there is not
+    let pulse;
+    if (env.beat && env.beat.len > 0.15) pulse = J.beatPulse(env, { decay: 9 }) * 0.12;
+    else { const beat = Math.sin(env.lt * 4.5); pulse = beat > 0 ? Math.pow(beat, 4) * 0.12 : 0; }
     it.sx = (it.sx || 1) * (1 + pulse);
     it.sy = (it.sy || 1) * (1 + pulse);
   }
@@ -18433,6 +19063,373 @@ fx('loopScroll', { name: '横ループ', tags: ['pop', 'graphic', 'glitch'], w: 
 
 })();
 
+/* AURA pack: gl-transitions — real GLSL cut-to-cut transitions, vendored verbatim from
+   gl-transitions@3.0.0 (MIT, https://gl-transitions.com). The shaders are plain GLSL text;
+   they run on the WebGL host in src/13_gltrans.js. No library, no CDN, no importmap,
+   so the app stays fully offline. See THIRD_PARTY_NOTICES.md for the credit. */
+(() => {
+'use strict';
+const PK = 'gltrans';
+const reg = (g, k, d) => J.register(g, k, d, PK);
+
+/* ---- vendored GLSL (verbatim from gl-transitions@3.0.0; Author/License headers kept) ---- */
+const GLSL = {
+  glBurn: `// Author: liubailin2020@gmail.com
+// License: MIT
+// Description: The outgoing image burns away in noisy, glowing patches
+// Tags: burn, fire, noise
+
+// @color Color of the burning edges
+uniform vec3 burnColor; // = vec3(1.0, 0.5, 0.0)
+
+float random (in vec2 st) {
+    return fract(sin(dot(st.xy,
+                         vec2(12.9898,78.233)))*
+        43758.5453123);
+}
+
+// Based on Morgan McGuire @morgan3d
+// https://www.shadertoy.com/view/4dS3Wd
+float noise (in vec2 st) {
+    vec2 i = floor(st);
+    vec2 f = fract(st);
+
+    float a = random(i);
+    float b = random(i + vec2(1.0, 0.0));
+    float c = random(i + vec2(0.0, 1.0));
+    float d = random(i + vec2(1.0, 1.0));
+
+    vec2 u = f * f * (3.0 - 2.0 * f);
+
+    return mix(a, b, u.x) +
+            (c - a)* u.y * (1.0 - u.x) +
+            (d - b) * u.x * u.y;
+}
+
+#define OCTAVES 4
+float fbm (in vec2 st) {
+    float value = 0.0;
+    float amplitude = .5;
+    for (int i = 0; i < OCTAVES; i++) {
+        value += amplitude * noise(st);
+        st *= 2.;
+        amplitude *= .5;
+    }
+    return value;
+}
+
+vec4 transition (vec2 uv) {
+    if (progress <= 0.0) return getFromColor(uv);
+    if (progress >= 1.0) return getToColor(uv);
+    vec4 from = getFromColor(uv);
+    vec4 to = getToColor(uv);
+    float n = fbm(uv * 4.);
+    float l = smoothstep(progress, progress + 0.05, n);
+    float edge = (1.0 - l) * l * 5.0;
+    return mix(to, from, l) + vec4(burnColor, 0.0) * edge;
+}`,
+  glDissolve: `// Author: Rich Harris
+// License: MIT
+// Description: The incoming image appears through blobs of Perlin noise
+// Tags: noise, dissolve
+
+// @param Scale of the noise; higher values make smaller blobs
+uniform float scale; // = 4.0
+// @param Softness of the blob edges
+uniform float smoothness; // = 0.01
+
+// @param Random seed
+uniform float seed; // = 12.9898
+
+// http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
+float random(vec2 co)
+{
+    float a = seed;
+    float b = 78.233;
+    float c = 43758.5453;
+    float dt= dot(co.xy ,vec2(a,b));
+    float sn= mod(dt,3.14);
+    return fract(sin(sn) * c);
+}
+
+// 2D Noise based on Morgan McGuire @morgan3d
+// https://www.shadertoy.com/view/4dS3Wd
+float noise (in vec2 st) {
+    vec2 i = floor(st);
+    vec2 f = fract(st);
+
+    // Four corners in 2D of a tile
+    float a = random(i);
+    float b = random(i + vec2(1.0, 0.0));
+    float c = random(i + vec2(0.0, 1.0));
+    float d = random(i + vec2(1.0, 1.0));
+
+    // Smooth Interpolation
+
+    // Cubic Hermine Curve.  Same as SmoothStep()
+    vec2 u = f*f*(3.0-2.0*f);
+    // u = smoothstep(0.,1.,f);
+
+    // Mix 4 coorners porcentages
+    return mix(a, b, u.x) +
+            (c - a)* u.y * (1.0 - u.x) +
+            (d - b) * u.x * u.y;
+}
+
+vec4 transition (vec2 uv) {
+  vec4 from = getFromColor(uv);
+  vec4 to = getToColor(uv);
+  float n = noise(uv * scale);
+
+  float p = mix(-smoothness, 1.0 + smoothness, progress);
+  float lower = p - smoothness;
+  float higher = p + smoothness;
+
+  float q = smoothstep(lower, higher, n);
+
+  return mix(
+    from,
+    to,
+    1.0 - q
+  );
+}`,
+  glWater: `// Author: Paweł Płóciennik
+// License: MIT
+// Description: Ripples spread from the center like a drop falling into water, crossfading to the incoming image
+// Tags: ripple, water, blend
+// @param Frequency of the ripples
+uniform float amplitude; // = 30
+// @param Speed of the ripples
+uniform float speed; // = 30
+
+vec4 transition(vec2 p) {
+  vec2 dir = p - vec2(.5);
+  float dist = length(dir);
+
+  if (dist > progress) {
+    return mix(getFromColor( p), getToColor( p), progress);
+  } else {
+    vec2 offset = dir * sin(dist * amplitude - progress * speed);
+    return mix(getFromColor( p + offset), getToColor( p), progress);
+  }
+}`,
+  glWarp: `// Author: Eke Péter <peterekepeter@gmail.com>
+// License: MIT
+// Description: The outgoing image zooms in while the incoming one zooms out into place, sweeping from right to left
+// Tags: warp, zoom, horizontal
+vec4 transition(vec2 p) {
+  float x = progress;
+  x=smoothstep(.0,1.0,(x*2.0+p.x-1.0));
+  return mix(getFromColor((p-.5)*(1.-x)+.5), getToColor((p-.5)*x+.5), x);
+}`,
+  glMorph: `// Author: paniq
+// License: MIT
+// Description: A crossfade in which each image is displaced by the other's colors, like a morph
+// Tags: morph, distort, blend
+// @param Strength of the displacement
+uniform float strength; // = 0.1
+
+vec4 transition(vec2 p) {
+  vec4 ca = getFromColor(p);
+  vec4 cb = getToColor(p);
+  
+  vec2 oa = (((ca.rg+ca.b)*0.5)*2.0-1.0);
+  vec2 ob = (((cb.rg+cb.b)*0.5)*2.0-1.0);
+  vec2 oc = mix(oa,ob,0.5)*strength;
+  
+  float w0 = progress;
+  float w1 = 1.0-w0;
+  return mix(getFromColor(p+oc*w0), getToColor(p-oc*w1), progress);
+}`,
+  glGlitch: `// Author: Gunnar Roth
+// based on work from natewave
+// License: MIT
+// Description: A crossfade with glitchy, color-shifted blocks
+// Tags: glitch, chromatic, blend
+vec4 transition(vec2 p) {
+  vec2 block = floor(p.xy / vec2(16));
+  vec2 uv_noise = block / vec2(64);
+  uv_noise += floor(vec2(progress) * vec2(1200.0, 3500.0)) / vec2(64);
+  vec2 dist = progress > 0.0 ? (fract(uv_noise) - 0.5) * 0.3 *(1.0 -progress) : vec2(0.0);
+  vec2 red = p + dist * 0.2;
+  vec2 green = p + dist * .3;
+  vec2 blue = p + dist * .5;
+
+  vec4 center = mix(getFromColor(green), getToColor(green), progress);
+  return vec4(mix(getFromColor(red), getToColor(red), progress).r, center.g, mix(getFromColor(blue), getToColor(blue), progress).b, center.a);
+}`,
+  glZoom: `// License: MIT
+// Author: rectalogic
+// Description: A crossfade through a strong zoom blur
+// Tags: zoom, blur, blend
+// ported by gre from https://gist.github.com/rectalogic/b86b90161503a0023231
+
+// Converted from https://github.com/rectalogic/rendermix-basic-effects/blob/master/assets/com/rendermix/CrossZoom/CrossZoom.frag
+// Which is based on https://github.com/evanw/glfx.js/blob/master/src/filters/blur/zoomblur.js
+// With additional easing functions from https://github.com/rectalogic/rendermix-basic-effects/blob/master/assets/com/rendermix/Easing/Easing.glsllib
+
+// @range(0, 1) Blur strength
+uniform float strength; // = 0.4
+
+const float PI = 3.141592653589793;
+
+float Linear_ease(in float begin, in float change, in float duration, in float time) {
+    return change * time / duration + begin;
+}
+
+float Exponential_easeInOut(in float begin, in float change, in float duration, in float time) {
+    if (time == 0.0)
+        return begin;
+    else if (time == duration)
+        return begin + change;
+    time = time / (duration / 2.0);
+    if (time < 1.0)
+        return change / 2.0 * pow(2.0, 10.0 * (time - 1.0)) + begin;
+    return change / 2.0 * (-pow(2.0, -10.0 * (time - 1.0)) + 2.0) + begin;
+}
+
+float Sinusoidal_easeInOut(in float begin, in float change, in float duration, in float time) {
+    return -change / 2.0 * (cos(PI * time / duration) - 1.0) + begin;
+}
+
+float rand (vec2 co) {
+  return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+vec4 crossFade(in vec2 uv, in float dissolve) {
+    return mix(getFromColor(uv), getToColor(uv), dissolve);
+}
+
+vec4 transition(vec2 uv) {
+    vec2 texCoord = uv.xy / vec2(1.0).xy;
+
+    // Linear interpolate center across center half of the image
+    vec2 center = vec2(Linear_ease(0.25, 0.5, 1.0, progress), 0.5);
+    float dissolve = Exponential_easeInOut(0.0, 1.0, 1.0, progress);
+
+    // Mirrored sinusoidal loop. 0->strength then strength->0
+    float strength = Sinusoidal_easeInOut(0.0, strength, 0.5, progress);
+
+    vec4 color = vec4(0.0);
+    float total = 0.0;
+    vec2 toCenter = center - texCoord;
+
+    /* randomize the lookup values to hide the fixed number of samples */
+    float offset = rand(uv);
+
+    for (float t = 0.0; t <= 40.0; t++) {
+        float percent = (t + offset) / 40.0;
+        float weight = 4.0 * (percent - percent * percent);
+        color += crossFade(texCoord + toCenter * percent * strength, dissolve) * weight;
+        total += weight;
+    }
+    return color / total;
+}`,
+  glDream: `// Author: Zeh Fernando
+// License: MIT
+// Description: Zooms and rotates into a bright flash, then out to the incoming image
+// Tags: zoom, rotate, flash
+
+// Definitions --------
+#define DEG2RAD 0.03926990816987241548078304229099 // 1/180*PI
+
+
+// Transition parameters --------
+
+// In degrees
+uniform float rotation; // = 6
+
+// Multiplier
+uniform float scale; // = 1.2
+
+
+// The code proper --------
+
+vec4 transition(vec2 uv) {
+  // Massage parameters
+  float phase = progress < 0.5 ? progress * 2.0 : (progress - 0.5) * 2.0;
+  float angleOffset = progress < 0.5 ? mix(0.0, rotation * DEG2RAD, phase) : mix(-rotation * DEG2RAD, 0.0, phase);
+  float newScale = progress < 0.5 ? mix(1.0, scale, phase) : mix(scale, 1.0, phase);
+  
+  vec2 center = vec2(0, 0);
+
+  // Calculate the source point
+  vec2 assumedCenter = vec2(0.5, 0.5);
+  vec2 p = (uv.xy - vec2(0.5, 0.5)) / newScale * vec2(ratio, 1.0);
+
+  // This can probably be optimized (with distance())
+  float angle = atan(p.y, p.x) + angleOffset;
+  float dist = distance(center, p);
+  p.x = cos(angle) * dist / ratio + 0.5;
+  p.y = sin(angle) * dist + 0.5;
+  vec4 c = progress < 0.5 ? getFromColor(p) : getToColor(p);
+
+  // Finally, apply the color
+  // The flash lights up the image, not the transparent areas around it.
+  return vec4(c.rgb + (progress < 0.5 ? mix(0.0, 1.0, phase) : mix(1.0, 0.0, phase)), c.a);
+}`,
+};
+
+/* catalog defaults (gl-transitions.json defaultParams) — a uniform is never left at 0 */
+const DEFAULTS = {
+  glBurn: { burnColor: [1, 0.5, 0] },
+  glDissolve: { scale: 4, smoothness: 0.01, seed: 12.9898 },
+  glWater: { amplitude: 30, speed: 30 },
+  glWarp: {},
+  glMorph: { strength: 0.1 },
+  glGlitch: {},
+  glZoom: { strength: 0.4 },
+  glDream: { rotation: 6, scale: 1.2 },
+};
+
+/* same p<=0 / p>=1 edge handling as trReg in 11p_treattrans.js: p=0 draws A exactly, p=1 draws B exactly */
+const glReg = (k, d) => reg('trans', k, Object.assign({}, d, {
+  draw(ctx, A, B, p, I) {
+    ctx.save();
+    try {
+      if (!(p > 0)) ctx.drawImage(A, 0, 0);
+      else if (p >= 1) ctx.drawImage(B, 0, 0);
+      else d.draw(ctx, A, B, p, I, I.P || {});
+    } finally { ctx.restore(); }
+  } }));
+
+/* one shader draw: through the WebGL host; honest crossfade when WebGL is unavailable
+   (compile error, no WebGL, lost context) — no crash, no fake shader, one console.warn */
+const glDraw = key => (ctx, A, B, p, I, P) => {
+  const params = Object.assign({}, DEFAULTS[key], P);
+  if (J.gltrans && J.gltrans.render(key, GLSL[key], A, B, p, params, I.cw, I.ch)) {
+    ctx.drawImage(J.gltrans.canvas, 0, 0, I.cw, I.ch);
+  } else {
+    ctx.globalAlpha = 1 - p; ctx.drawImage(A, 0, 0); ctx.globalAlpha = 1;
+  }
+};
+
+glReg('glBurn', { name: 'バーン', tags: ['graphic', 'pop', 'emotional'], w: 1.0, dur: 0.35,
+  plan: () => ({ burnColor: [1, 0.5, 0] }),
+  draw: glDraw('glBurn') });
+glReg('glDissolve', { name: 'ノイズディゾルブ', tags: ['graphic', 'calm', 'emotional'], w: 0.9, dur: 0.4,
+  plan: rng => ({ scale: 4, smoothness: 0.01, seed: +(12.9898 + rng() * 20).toFixed(4) }),
+  draw: glDraw('glDissolve') });
+glReg('glWater', { name: '水の波紋', tags: ['graphic', 'calm', 'emotional'], w: 0.9, dur: 0.4,
+  plan: () => ({ amplitude: 30, speed: 30 }),
+  draw: glDraw('glWater') });
+glReg('glWarp', { name: 'クロスワープ', tags: ['graphic', 'pop', 'kinetic'], w: 1.0, dur: 0.35,
+  plan: () => ({}),
+  draw: glDraw('glWarp') });
+glReg('glMorph', { name: 'モーフ', tags: ['graphic', 'emotional', 'calm'], w: 0.9, dur: 0.4,
+  plan: () => ({ strength: 0.1 }),
+  draw: glDraw('glMorph') });
+glReg('glGlitch', { name: 'グリッチメモリー', tags: ['glitch', 'pop', 'graphic'], w: 0.6, dur: 0.35,
+  plan: () => ({}),
+  draw: glDraw('glGlitch') });
+glReg('glZoom', { name: 'クロスズーム', tags: ['graphic', 'pop', 'kinetic'], w: 1.0, dur: 0.4,
+  plan: () => ({ strength: 0.4 }),
+  draw: glDraw('glZoom') });
+glReg('glDream', { name: 'ドリーミーズーム', tags: ['graphic', 'pop', 'emotional'], w: 0.8, dur: 0.45,
+  plan: () => ({ rotation: 6, scale: 1.2 }),
+  draw: glDraw('glDream') });
+})();
+
 /* JIZURA pack: horror (1/3) — uneasy / found-footage layouts: flashlight, door gap, obsessive wall writing, CCTV, spirit board,
    missing poster, the one wrong glyph, rising from the dark, redacted file, static TV, spirit photo, the wrong shadow */
 (() => {
@@ -26543,7 +27540,7 @@ reg('magazine', {
     const dper = Math.max(4, Math.floor(aw / (ds * 1.05)));
     const dt = J.splitLines(deck, dper).split('\n').slice(0, 3).join('\n');
     env.draw({ text: dt, font: serifF(env), size: ds, lead: 1.55, align: 'left', x: ax, y: ry + ds * 1.2 + (dt.split('\n').length - 1) * ds * 0.78, color: C.text, alpha: fa * 0.75, ghost: false });
-    env.draw({ text: pad3(p.folio) + '   ' + (romajiOf(env) || 'JIZURA').slice(0, 18), font: monoF(env), size: ls * 0.85, track: 0.1, align: 'left', x: A.x + mx * 0.5, y: A.y + ph - my * 0.45, color: C.text, alpha: fa * 0.8, ghost: false });
+    env.draw({ text: pad3(p.folio) + '   ' + (romajiOf(env) || 'AURA').slice(0, 18), font: monoF(env), size: ls * 0.85, track: 0.1, align: 'left', x: A.x + mx * 0.5, y: A.y + ph - my * 0.45, color: C.text, alpha: fa * 0.8, ghost: false });
     return bb || box(ax, hy - m.h / 2, ax + m.w, hy + m.h / 2);
     };
     const res = drawA();
@@ -27207,7 +28204,7 @@ reg('swissGrid', {
     }
     if (p.label) {
       const a = tin(env, 0.3, 0.4, E.outCubic) * out;
-      env.draw({ text: 'JIZURA  ／  No.' + lineNo(env) + '  ／  ' + J.fmtTime(env.cut.start), font: monoF(env), size: ls * 0.8, track: 0.25, x: m * 0.62, y: (gy0 + gy1) / 2, rot: -90, color: sc.sub, alpha: a, ghost: false });
+      env.draw({ text: 'AURA  ／  No.' + lineNo(env) + '  ／  ' + J.fmtTime(env.cut.start), font: monoF(env), size: ls * 0.8, track: 0.25, x: m * 0.62, y: (gy0 + gy1) / 2, rot: -90, color: sc.sub, alpha: a, ghost: false });
     }
     return bb;
   },
@@ -27966,7 +28963,7 @@ reg('stampSheet', {
     shadowR(env, sx - m, sy - m * 1.8, sw + m * 2, sh + m * 2.8, 0, sa, u * 0.012);
     env.rect(sx - m, sy - m * 1.8, sw + m * 2, sh + m * 2.8, C.fill, sa, false);
     if (C.edge) env.line([[sx - m, sy - m * 1.8], [sx + sw + m, sy - m * 1.8], [sx + sw + m, sy + sh + m], [sx - m, sy + sh + m], [sx - m, sy - m * 1.8]], C.line, 1.2, sa, false);
-    env.draw({ text: 'JIZURA POST  ·  ' + p.val + ' × ' + (cols * rows - 3) + '  ·  No.' + lineNo(env), font: monoF(env), size: Math.min(ls * 0.8, m * 0.7), track: 0.2, align: 'left', x: sx, y: sy - m * 0.9, color: C.text, alpha: sa * 0.7, ghost: false });
+    env.draw({ text: 'AURA POST  ·  ' + p.val + ' × ' + (cols * rows - 3) + '  ·  No.' + lineNo(env), font: monoF(env), size: Math.min(ls * 0.8, m * 0.7), track: 0.2, align: 'left', x: sx, y: sy - m * 0.9, color: C.text, alpha: sa * 0.7, ghost: false });
     const port2 = rows > cols;
     const spc = port2 ? 2 : 3, spr = port2 ? 3 : 2;
     const hc = Math.min(p.hc, cols - spc), hr = Math.min(p.hr, rows - spr);
@@ -29002,7 +29999,7 @@ reg('clapper', {
     lab('PROD.', x0 + pad, y0 + pad + ls * 0.4);
     const rowH = r2 - r1;
     [['SCENE', lineNo(env)], ['TAKE', String(p.take)], ['ROLL', p.roll]].forEach(([k2, v], i) => { lab(k2, x0 + bw * i / 3 + pad, r1 + ls * 0.6); val(v, x0 + bw * i / 3 + pad, r1 + rowH * 0.62, rowH * 0.46); });
-    [['DATE', J.fmtTime(env.cut.start)], ['DIR.', 'JIZURA'], ['CAM.', 'A']].forEach(([k2, v], i) => { lab(k2, x0 + bw * i / 3 + pad, r2 + ls * 0.6); val(v, x0 + bw * i / 3 + pad + ls * 3.2, r2 + (y0 + bh - r2) * 0.55, Math.min((y0 + bh - r2) * 0.42, ls * 1.3)); });
+    [['DATE', J.fmtTime(env.cut.start)], ['DIR.', 'AURA'], ['CAM.', 'A']].forEach(([k2, v], i) => { lab(k2, x0 + bw * i / 3 + pad, r2 + ls * 0.6); val(v, x0 + bw * i / 3 + pad + ls * 3.2, r2 + (y0 + bh - r2) * 0.55, Math.min((y0 + bh - r2) * 0.42, ls * 1.3)); });
     const fb = fitBlock(env.cut.text.trim(), p.font, bw - pad * 2, (r1 - y0) - ls * 1.6, { lead: 1.08 }, 2);
     const size = Math.min(fb.size, bh * 0.3);
     const bb = J.mainDraw(env, { text: fb.text, font: p.font, size, x: x0 + pad * 1.4, y: y0 + ls * 1.2 + ((r1 - y0) - ls * 1.2) / 2, align: 'left', lead: 1.08, color: chalk, noHold: plateHold(env), mi: miAt(env, 0.25) });
@@ -37255,7 +38252,10 @@ J.randomOk = (project, g, k) => {
       doorsOpen: 'Double doors', checker: 'Checkerboard',
       blockDissolve: 'Block dissolve', inkBlob: 'Ink blot',
       shatterTiles: 'Shattering tiles', sliceShift: 'Sliding strips',
-      cubeTurn: 'Cube turn', flashCross: 'Flash cut', pixelate: 'Pixel transition'
+      cubeTurn: 'Cube turn', flashCross: 'Flash cut', pixelate: 'Pixel transition',
+      glBurn: 'Burn through', glDissolve: 'Noise dissolve', glWater: 'Water drop',
+      glWarp: 'Cross warp', glMorph: 'Morph', glGlitch: 'Glitch memories',
+      glZoom: 'Cross zoom', glDream: 'Dreamy zoom'
     }
   };
   const acronym = { rgb: 'RGB', crt: 'CRT', vhs: 'VHS', qr: 'QR', tv: 'TV', led: 'LED', hud: 'HUD', jp: 'JP' };
@@ -37354,7 +38354,7 @@ const extraEnConcat = {
 
 /* Vietnamese display labels; stable IDs and project data are unchanged. */
 (() => {
-const parts = {"layout": {"center": "Chính giữa", "mixed": "Phối hợp", "vcols": "Chữ dọc", "marquee": "Biểu ngữ chạy", "tile": "Lát chữ", "scatter": "Phân tán", "ring": "Vòng chữ", "wave": "Lượn sóng", "huge": "Chữ khổng lồ", "labels": "Nhãn", "condensed": "Chữ nén", "gloss": "Chú thích", "type": "Gõ chữ", "diag": "Dải chéo", "circle": "Hình tròn", "stack": "Chữ chồng bóng", "pill": "Viên nang", "hrFlashlight": "Đèn pin", "hrDoorGap": "Khe cửa", "hrWallScrawl": "Chữ nguệch ngoạc trên tường", "hrCctv": "Màn hình giám sát", "hrOuija": "Bàn cầu cơ", "hrMissing": "Áp phích tìm người", "hrWrongOne": "Ký tự lạc chỗ", "hrRisingDark": "Hiện ra từ bóng tối", "hrRedacted": "Hồ sơ bôi đen", "hrStaticTv": "Tivi nhiễu", "hrSpiritPhoto": "Ảnh bóng ma", "hrWrongShadow": "Bóng lệch", "knSlamStack": "Chữ đập chồng", "knQuarterTurn": "Xoay một phần tư vòng", "knSwapCenter": "Đổi chỗ từ", "knZoomDive": "Chui vào chữ", "knFlowSnap": "Trôi rồi vào hàng", "knSeesaw": "Bập bênh", "knTypeSlam": "Gõ rồi đập chữ", "knRhythmCuts": "Cắt nhảy theo từ", "knPathRide": "Đường chạy vòng", "knGearWords": "Bánh răng chữ", "knCollide": "Va chạm đối đầu", "knTumble": "Khối chữ nhào lộn", "knReflow": "Dọc thành ngang", "knPadGrid": "Lưới đệm trống", "lowerThird": "Dải chữ phía dưới", "corners": "Hai góc đối diện", "staircase": "Bậc thang", "zigzag": "Zíc zắc", "arcTop": "Cầu vồng", "spiral": "Xoắn ốc", "gridCells": "Ô lưới", "dropCap": "Chữ cái đầu lớn", "justified": "Căn đều", "frameBox": "Khung tranh", "bubble": "Bong bóng", "subtitleBar": "Thanh phụ đề", "ticker": "Dòng tin chạy", "splitScreen": "Chia màn hình", "mirror": "Phản chiếu", "sideways": "Chữ xoay ngang", "edgeFrame": "Khung viền", "perspective": "Phối cảnh", "hanko": "Con dấu ký tên", "genkou": "Giấy bản thảo", "panels": "Khung truyện tranh", "filmstrip": "Dải phim", "quote": "Trích dẫn", "ruler": "Đường kích thước", "searchBar": "Thanh tìm kiếm", "chat": "Hội thoại", "notification": "Thông báo", "ticket": "Vé", "rain": "Mưa chữ", "hanging": "Treo chữ", "orbit": "Quỹ đạo", "tunnel": "Đường hầm", "wordCloud": "Đám mây từ", "bounceLine": "Dòng chữ nảy", "elastic": "Đàn hồi", "crossBands": "Dải giao nhau", "stickerBomb": "Ghép nhãn dán", "neon": "Đèn neon", "keycaps": "Phím bấm", "bubbles": "Bong bóng", "slotMachine": "Máy quay số", "flipBoard": "Bảng lật", "credits": "Danh đề cuối", "zoomRepeat": "Phóng lặp", "splitHalves": "Chia đôi", "columnsBig": "Cột chữ tương phản", "circleWords": "Từ đồng tâm", "dotMatrix": "Ma trận chấm", "depthStack": "Chồng lớp chiều sâu", "typeSpecimen": "Mẫu chữ", "kanjiFocus": "Nhấn một ký tự", "halfVertical": "Phối chữ dọc", "curtain": "Rèm", "equalizer": "Cân bằng âm thanh", "tape": "Băng dính", "magazine": "Trang tạp chí", "headlineDeck": "Tiêu đề và dòng dẫn", "contents": "Mục lục", "footnote": "Chú thích cuối trang", "proofread": "Bản sửa thử", "numbered": "Đánh số", "poster": "Áp phích", "swissGrid": "Lưới kiểu Thụy Sĩ", "dictionary": "Từ điển", "ema": "Thẻ gỗ cầu nguyện", "ransom": "Chữ cắt dán", "newspaper": "Báo", "vinyl": "Đĩa than", "cassette": "Băng cát sét", "bookSpine": "Gáy sách", "polaroid": "Ảnh lấy liền", "stampSheet": "Tờ tem", "postcard": "Bưu thiếp", "letterPaper": "Giấy viết thư", "calendar": "Lịch", "chochin": "Đèn lồng giấy", "routeMap": "Bản đồ tuyến", "stationSign": "Biển nhà ga", "noren": "Rèm cửa Nhật", "tanzaku": "Dải giấy điều ước", "omikuji": "Quẻ giấy", "kakejiku": "Tranh cuộn treo", "shoji": "Vách giấy Nhật", "clapper": "Bảng quay phim", "warningLabel": "Nhãn cảnh báo", "priceTag": "Nhãn giá", "nameTag": "Thẻ tên", "stickyNotes": "Giấy ghi chú", "karuta": "Thẻ bài chữ Nhật", "cube": "Khối lập phương", "cylinder": "Hình trụ", "flipCards": "Thẻ lật", "accordion": "Nếp gấp đàn xếp", "flag": "Lá cờ", "ribbon": "Ruy băng", "pendulum": "Con lắc", "pile": "Đống chữ", "blocks": "Khối", "balloons": "Bóng bay chữ", "magnets": "Nam châm", "tiles": "Ô chữ", "bulbs": "Bóng đèn biển hiệu", "ledScroll": "Bảng LED chạy", "billboard": "Biển quảng cáo", "crowdBubbles": "Đám đông hội thoại", "crossword": "Ô chữ giao nhau", "wordSearch": "Tìm từ", "puzzle": "Ghép hình", "shadowPlay": "Múa bóng", "kaleido": "Kính vạn hoa", "dominoes": "Đô mi nô", "burst": "Bùng nổ", "fisheye": "Ống kính mắt cá", "wall": "Tường phối cảnh", "origami": "Gấp giấy", "zipper": "Khóa kéo", "sliceStack": "Lớp cắt chồng", "glitchGrid": "Lưới nhiễu", "mosaicTiles": "Ô khảm", "maskReveal": "Cửa sổ chữ", "contour": "Đường đồng mức", "halftoneBig": "Chữ lớn chấm in", "stencil": "Khuôn chữ", "tyKeySplit": "Tách ký tự nhấn", "tyCropGiant": "Chữ lớn tràn khung", "tyCross": "Chữ hình chữ thập", "tyBandHide": "Dải che chữ", "tyRuby": "Chú âm nhỏ", "tyBaseline": "Dòng kẻ", "tyScaleSteps": "Cỡ chữ tăng dần", "tyJustify": "Chồng chữ căn đều", "tyIndexTable": "Bảng ký tự", "tySplitType": "Chữ tách đôi", "tyErode": "Chữ lặp mòn dần", "tyVRuler": "Thước dọc", "tyFullTrack": "Giãn chữ đầy ngang", "tyStatCount": "Đếm ký tự", "tyMargin": "Khoảng trắng", "tyRotBlock": "Khối xoay", "tySquare": "Chữ xếp vuông", "tyLineFocus": "Nhấn dòng"}, "enter": {"cut": "Cắt thẳng", "assemble": "Tách rồi ráp", "slice": "Cắt lát", "type": "Gõ chữ", "pop": "Bật lên", "drop": "Rơi xuống", "stretch": "Kéo giãn", "wipe": "Quét", "blur": "Làm mờ", "spin": "Xoay tròn", "flicker": "Chập chờn", "scramble": "Xáo ký tự", "zoom": "Phóng vào", "riseMask": "Lộ từ dưới", "dropMask": "Lộ từ trên", "slideL": "Trượt từ trái", "slideR": "Trượt từ phải", "slideWhole": "Trượt cả dòng", "flipX": "Lật quanh trục dọc", "flipY": "Lật quanh trục ngang", "domino": "Đô mi nô", "fold": "Gấp", "unroll": "Trải cuộn", "strokeDraw": "Vẽ viền rồi tô", "outlineFill": "Viền thành nét đặc", "splitJoin": "Ghép từ trên và dưới", "vSlice": "Lát dọc", "shutter": "Màn trập", "iris": "Khẩu độ", "diagWipe": "Quét chéo", "blinds": "Rèm lá", "checker": "Ô bàn cờ", "randomOrder": "Thứ tự chữ ngẫu nhiên", "bounceBig": "Nảy mạnh", "squashDrop": "Rơi bẹp", "rubber": "Cao su", "glitchIn": "Hiện bằng nhiễu", "echoIn": "Bóng chữ hội tụ", "whip": "Quất nhanh", "skewIn": "Xiên vào", "trackIn": "Thu khoảng cách chữ", "trackOut": "Giãn khoảng cách chữ", "blurStagger": "Mờ so le", "fadeStagger": "Hiện dần từng chữ", "waveIn": "Lượn sóng vào", "spiralIn": "Phóng xoắn ốc", "zoomOut": "Từ lớn về thường", "resolve": "Hội tụ rõ nét", "magnet": "Hút nam châm", "inkBleed": "Loang mực", "neonOn": "Bật đèn neon", "cursorSweep": "Con trỏ quét", "stamp": "Đóng dấu", "springIn": "Nảy lò xo vào", "pendulum": "Con lắc", "rollIn": "Cuộn vào", "slingshot": "Ná bắn", "rockSettle": "Lắc rồi đứng yên", "bounceBall": "Nảy như bóng", "snapRail": "Khớp vào hàng", "fanOpen": "Xòe quạt", "cylinder": "Hình trụ", "shuffle": "Xáo trộn", "stopMotion": "Chuyển động giật khung", "ripple": "Gợn sóng", "zipper": "Khóa kéo", "zoomAlt": "Phóng xen kẽ", "tiltUp": "Nghiêng lên", "stickerPeel": "Dán nhãn", "crumple": "Mở giấy vò", "noteUnfold": "Mở thư", "tornJoin": "Ráp mảnh giấy rách", "splitFlap": "Bảng lật cơ", "overexpose": "Cháy sáng", "glint": "Lóe sáng", "loupe": "Kính lúp", "filmFeed": "Chạy phim", "backlight": "Ánh sáng ngược", "lightLeak": "Lọt sáng", "heatHaze": "Hơi nóng", "crtOn": "Bật màn hình CRT", "interlace": "Quét xen kẽ", "loadingBar": "Thanh tải", "dither": "Nhiễu hạt màu", "odometer": "Trống số quay", "matrixRain": "Mưa dữ liệu", "hatchFill": "Tô nét gạch", "brushReveal": "Lộ theo nét cọ", "inkDrop": "Giọt mực", "quarters": "Hội tụ từ bốn phía", "invertBox": "Khung đảo màu", "printRegister": "Khớp bản màu", "echoCount": "Đếm vào", "liquidFill": "Chất lỏng dâng", "windBlown": "Gió thổi", "strokeOrder": "Từng nét một", "clockWipe": "Quét kim đồng hồ", "shadowFirst": "Bóng xuất hiện trước", "bubbles": "Bong bóng", "tokoroten": "Chữ đùn sợi", "hrBlinkCreep": "Giữa những lần chớp mắt", "hrJumpScare": "Bất ngờ hù dọa", "hrUneasy": "Nhịp bất an", "hrVhold": "Khung dọc trôi", "hrMirrorSnap": "Chữ soi gương", "hrManifest": "Hiện hình", "hrClawReveal": "Vết cào", "knWordSlam": "Từ đập xuống", "knTypeToSlam": "Gõ rồi lớn dần", "knReplaceIn": "Đổi vào", "knHingeDrop": "Rơi theo bản lề", "knLoopIn": "Vòng vào", "knPushIn": "Đẩy vào", "knInertia": "Phanh gấp", "knWordSpin": "Từ xoay", "knDiveIn": "Từ lao từ máy quay", "knStretchOut": "Kéo dài như băng", "tyKeyFirst": "Ký tự nhấn hiện trước", "tyLineWipe": "Quét từng dòng", "tyZoomOne": "Phóng từng chữ", "tyUnderLift": "Nâng từ gạch chân", "tyDotGrow": "Chấm thành chữ", "tyBracketOpen": "Mở ngoặc", "tyRetype": "Gõ lại", "tyRubyDrop": "Rơi từ chú âm", "ccPopBounce": "Bật nảy lò xo (CapCut)", "ccTypeBlink": "Máy đánh chữ có con trỏ (CapCut)", "ccSmoothSlideUp": "Trượt mượt từ dưới lên", "ccStompImpact": "Đập nện rung chuyển", "ccGlitchRGB": "Nhiễu điện tử RGB"}, "hold": {"still": "Đứng yên", "jitter": "Rung nhẹ", "drift": "Trôi", "breathe": "Nhịp thở", "wave": "Lượn sóng", "glitchtick": "Nhịp nhiễu", "float": "Lơ lửng", "sway": "Đung đưa", "pulse": "Nhịp đập", "shimmer": "Lung linh", "colorRun": "Màu chạy", "rotateSlow": "Xoay chậm", "trackBreathe": "Co giãn khoảng cách chữ", "skewWobble": "Lắc xiên", "beatHop": "Nảy theo nhịp", "hWave": "Sóng ngang", "heartbeat": "Nhịp tim", "orbitSmall": "Quỹ đạo nhỏ", "jelly": "Lắc đàn hồi", "scanBand": "Dải quét", "noiseDrift": "Nhiễu trôi", "tilt": "Nghiêng", "zoomSlow": "Tiến chậm", "stretchPulse": "Giãn theo nhịp", "glitchJump": "Nhảy nhiễu ngắt quãng", "echoTrail": "Vệt bóng chữ", "glowFlicker": "Ánh sáng chập chờn", "windGust": "Gió giật", "dangle": "Đung đưa treo", "eqBounce": "Nảy theo âm lượng", "flashBox": "Đảo màu theo nhịp", "glintSweep": "Vệt sáng lướt", "flipSwap": "Lật ngắt quãng", "shadowSway": "Bóng đung đưa", "magnetJiggle": "Rung nam châm", "typeRattle": "Rung máy đánh chữ", "focusRack": "Chuyển tiêu điểm", "pluckString": "Gảy dây", "hrTwitch": "Co giật", "hrStare": "Chữ nhìn chằm chằm", "hrLagOne": "Một chữ đến trễ", "hrFlickerLight": "Đèn sắp tắt", "knWordPulse": "Từ đập nhịp", "knCounterRock": "Nghiêng đối chiều", "knWordRide": "Từ lướt sóng", "knTickShift": "Dịch theo nhịp tích tắc", "knBeatLean": "Nghiêng theo nhịp", "knGapBreath": "Khoảng cách thở", "tyKeyPulse": "Ký tự nhấn đập nhịp", "tyReadCursor": "Con trỏ đọc", "tyOutlineBlink": "Viền chớp", "tyTrackStep": "Khoảng cách từng nấc", "ccPulseHeart": "Đập nhịp tim", "ccWaveSway": "Sóng nước bồng bềnh", "ccJitterBass": "Rung theo tiếng Bass"}, "exit": {"cut": "Cắt thẳng", "explode": "Nổ tung", "fall": "Vỡ rồi rơi", "drift": "Trôi đi", "slice": "Cắt lát", "wipe": "Quét", "shrink": "Thu nhỏ", "blur": "Làm mờ", "stretch": "Kéo giãn", "scatter": "Phân tán", "glitch": "Nhiễu", "sinkMask": "Chìm xuống", "riseOut": "Bay lên", "slideOutL": "Trượt sang trái", "slideOutR": "Trượt sang phải", "flipOutX": "Khép cửa", "flipOutY": "Lật xuống", "foldOut": "Gấp ra", "squash": "Ép bẹp", "trackOutWide": "Giãn rộng chữ", "collapse": "Co vào tâm", "zoomThrough": "Phóng xuyên", "zoomFar": "Lùi xa", "spinOut": "Xoay bay đi", "twist": "Xoắn", "waveOut": "Lượn sóng ra", "blurOutStagger": "Mờ lần lượt", "undraw": "Trở về nét viền", "outlineOut": "Nét đặc tan còn viền", "irisClose": "Khép khẩu độ", "diagWipeOut": "Quét chéo ra", "blindsClose": "Đóng rèm lá", "checkerOut": "Tan theo ô cờ", "splitApart": "Tách trên và dưới", "vSliceDrop": "Lát dọc rơi", "melt": "Tan chảy", "dissolve": "Tan vụn", "backspace": "Xóa lùi", "scrambleOut": "Biến thành ký hiệu", "glitchDissolve": "Tan thành khối nhiễu", "echoOut": "Bóng chữ tỏa ra", "whipOut": "Quất ra", "gravity": "Rơi theo trọng lực", "popOut": "Bật ra", "burn": "Cháy tan", "sweepCover": "Thanh quét che", "shatterLite": "Vỡ thành bốn", "peelOff": "Bóc nhãn", "crumpleOut": "Vò rồi ném", "tearOut": "Xé đi", "scorchOut": "Cháy sém", "overexposeOut": "Cháy trắng", "scanOut": "Xóa bằng dòng quét", "stripesOut": "Tan theo sọc", "halftoneOut": "Tan thành chấm in", "eraserOut": "Xóa bảng", "vacuumOut": "Hút về một điểm", "sandOut": "Tan như cát", "shredOut": "Cắt vụn", "dominoOut": "Đổ đô mi nô", "hingeOut": "Bản lề bung", "rocketOff": "Phóng như tên lửa", "bounceOff": "Nảy ra", "balloonOff": "Bay như bóng", "deflateOut": "Xẹp rồi bay", "hazeOut": "Tan trong sương", "glassBreak": "Vỡ như kính", "zipOut": "Kéo vụt ra", "clapShut": "Khép vào giữa", "lampOff": "Tắt đèn", "slotOut": "Cuộn ô số ra", "clockOut": "Quét vòng ra", "matrixOut": "Mưa số", "tornadoOut": "Lốc xoáy", "rollUpOut": "Cuộn lên", "snakeOut": "Rời theo hàng", "flutterOut": "Lả tả rơi", "rollOff": "Lăn đi", "fanClose": "Khép quạt", "rgbSplitOut": "Tách màu RGB", "shockOut": "Sóng xung kích", "floodOut": "Chìm ngập", "slashOut": "Chém đôi", "mosaicOut": "Tan ô khảm", "scribbleOut": "Nét nguệch ngoạc xóa", "candleOut": "Thổi tắt", "hrPulledDown": "Bị kéo xuống", "hrLookBack": "Một chữ còn lại", "hrTurnAway": "Quay mặt đi", "hrShiver": "Run rẩy biến mất", "hrSwallow": "Bị nuốt", "hrFlickerDie": "Chớp rồi tắt", "hrDrain": "Rút cạn", "knWordKick": "Đá từ ra", "knPushOut": "Đẩy ra", "knDiveGlyph": "Chui vào ký tự", "knLaunch": "Phóng đi", "knWordBlink": "Từ chớp tắt", "knCloseGap": "Khép khoảng cách", "knJumpCutOut": "Cắt nhảy ra", "knStackAway": "Chồng rồi rơi", "tyStrike": "Gạch xóa", "tyToDot": "Trở về chấm", "tyLineFeed": "Xuống dòng", "tyBracketClose": "Đóng ngoặc", "tyToIndex": "Biến thành số", "tyKeyLast": "Ký tự nhấn ở lại", "tyUnderSink": "Chìm vào gạch chân", "tyFoldVert": "Gấp thành dọc", "ccZoomThrough": "Phóng xuyên màn hình", "ccSmokeFade": "Tan biến như khói", "ccDropFall": "Rơi tự do trọng lực"}, "decor": {"brackets": "Dấu góc", "rings": "Vòng tọa độ", "dots": "Vòng chấm", "arrows": "Mũi tên", "slash": "Nét chéo", "sparks": "Tia lửa", "leaders": "Đường dẫn chú thích", "waveform": "Dạng sóng", "barcode": "Mã vạch", "grid": "Lưới", "stripes": "Sọc", "blobs": "Vết mực", "bars": "Dải thô", "shapes": "Hình học", "counter": "Số lớn", "crosshair": "Tâm ngắm", "cropMarks": "Dấu cắt", "reticle": "Vòng ngắm", "radar": "Ra đa", "progressRing": "Vòng tiến trình", "timecodeBar": "Thanh mã thời gian", "rulerEdge": "Viền thước", "dimension": "Kích thước", "indexNum": "Số thứ tự", "dateStamp": "Dấu ngày chụp", "qrBlock": "Khối kiểu QR", "glitchRects": "Ô nhiễu", "concentricSquares": "Vuông đồng tâm", "triangleSpin": "Tam giác xoay", "lineBurst": "Tia đường kẻ", "plusGrid": "Lưới dấu cộng", "guides": "Đường căn", "waveLine": "Đường sóng", "spiralLine": "Đường xoắn", "halftonePatch": "Mảng chấm in", "checkerStrip": "Dải ô cờ", "beatRing": "Vòng theo nhịp", "orbitDots": "Chấm quay quỹ đạo", "constellation": "Chòm sao", "confetti": "Giấy tung", "petals": "Cánh hoa", "rainStreaks": "Vệt mưa", "snow": "Tuyết", "lightLeak": "Lọt sáng", "bokeh": "Đốm sáng mờ", "speedCorner": "Đường tốc độ", "risingParticles": "Hạt bay lên", "twinkle": "Lấp lánh", "brushStroke": "Nét cọ", "tapePieces": "Băng dính giấy", "scribbleCircle": "Vòng vẽ tay", "scribbleUnder": "Gạch chân vẽ tay", "crossOut": "Dấu biên tập", "highlightMark": "Dấu nhấn", "heartsStars": "Tim và sao", "watermarkKanji": "Chữ chìm lớn", "verticalStrip": "Dải chữ dọc", "romajiLine": "Dòng phiên âm Latin", "bracketsJP": "Ngoặc góc Nhật", "seal": "Con dấu đỏ", "kamon": "Gia huy", "seigaiha": "Họa tiết sóng Nhật", "asanoha": "Họa tiết lá gai", "hanabi": "Pháo hoa", "chochin": "Đèn lồng giấy", "shimenawa": "Dây thừng thiêng", "sensu": "Quạt xếp", "tsukiKumo": "Trăng và mây", "momiji": "Lá phong", "namiGashira": "Đầu ngọn sóng", "kasumi": "Sương mờ", "hexGrid": "Lưới lục giác", "spectrumRing": "Vòng phổ âm", "dataColumns": "Cột dữ liệu", "spinner": "Vòng quay", "headingTape": "Dải tiêu đề", "glyphLock": "Khóa ký tự", "atomOrbit": "Quỹ đạo nguyên tử", "sonarArcs": "Cung sóng định vị", "circuit": "Mạch điện", "swatches": "Bảng mẫu màu", "ruledLines": "Trang vở kẻ", "registration": "Dấu căn bản in", "punchHoles": "Lỗ bấm", "staple": "Ghim bấm", "paperClip": "Kẹp giấy", "indexTabs": "Thẻ phân trang", "vines": "Dây leo", "cloudPuffs": "Cụm mây", "starField": "Bầu trời sao", "moonPhases": "Pha trăng", "sunRays": "Tia nắng", "rainRipples": "Gợn mưa", "bubbles": "Bong bóng", "smoke": "Khói", "dandelion": "Hạt bồ công anh", "fireflies": "Đom đóm", "memphis": "Hình học Memphis", "zigzagRibbon": "Ruy băng zíc zắc", "polkaPatch": "Mảng chấm bi", "stripeCircle": "Vòng tròn sọc", "decoCorners": "Góc trang trí", "halfCircles": "Nửa vòng tròn", "loopArrows": "Mũi tên vòng", "starburst": "Tia sao", "tally": "Vạch đếm", "cursorClick": "Con trỏ nhấp", "windowChrome": "Khung cửa sổ", "progressBar": "Thanh tiến trình", "toggleSwitch": "Công tắc", "notifBell": "Chuông thông báo", "likeCounter": "Đếm lượt thích", "mediaControls": "Điều khiển phát", "volumeBars": "Vạch âm lượng", "musicNotes": "Nốt nhạc", "hrScratches": "Vết móng cào", "hrSigil": "Ấn chú", "hrWatchEye": "Con mắt theo dõi", "hrStaticPatch": "Mảng nhiễu", "hrDustBeam": "Chùm sáng bụi", "hrDrips": "Mực nhỏ giọt", "hrCracks": "Vết nứt", "knSpeedTrail": "Vệt tốc độ", "knWordTicks": "Đếm từ", "tyColophon": "Thông tin ấn bản", "tyRunningHead": "Tiêu đề đầu trang và số trang", "tyGlyphBody": "Dòng thân chữ", "tyTextRule": "Đường kẻ chữ", "tyTypeScale": "Thang cỡ chữ", "tyBigPunct": "Ngoặc kép lớn"}, "treat": {"none": "Không", "hrInkBleed": "Mực loang", "hrEroded": "Mòn nét", "hrRedact": "Bôi đen", "hrDoubleExp": "Chồng ảnh", "knWordScale": "Từ lớn nhỏ", "knWordPlate": "Chữ khoét nền", "outline": "Chữ rỗng", "outlineFill": "Chữ có viền", "doubleOutline": "Viền kép", "extrude": "Chữ nổi", "longShadow": "Bóng dài", "hardShadow": "Bóng cứng", "softShadow": "Bóng mềm", "glow": "Phát sáng", "marker": "Tô dấu", "underline": "Gạch chân", "strike": "Gạch ngang", "boxed": "Chữ trong khung", "gradientV": "Chuyển sắc dọc", "splitColor": "Chia hai màu", "halftone": "Chấm in", "stripes": "Sọc", "hatch": "Nét gạch", "dotted": "Viền chấm", "alternate": "Màu xen kẽ", "italic": "In nghiêng", "wide": "Chữ rộng", "tall": "Chữ cao", "echoOutline": "Viền lặp bóng", "emphasisDots": "Chấm nhấn", "neonOutline": "Ống neon", "chrome": "Mạ crôm", "rainbow": "Cầu vồng", "glitchSplit": "Lệch bản màu", "shadowStack": "Chồng bóng", "stencilGap": "Khe khuôn chữ", "waterline": "Đường mặt nước", "karaoke": "Karaoke", "sizeWave": "Cỡ chữ theo nhịp", "rotateAlt": "Góc xoay xen kẽ", "baselineShift": "Đường chân so le", "fauxBold": "Tăng đậm", "circled": "Chữ khoanh tròn", "bracketsQuote": "Dấu trích dẫn", "reflection": "Phản chiếu", "inline": "Nét trong", "sticker": "Viền nhãn dán", "gradientSweep": "Quét chuyển sắc", "kerningWide": "Giãn chữ rộng", "monoGrid": "Lưới bản thảo", "outlineOffset": "Viền lệch", "toneShadow": "Bóng chấm in", "fadeChars": "Chữ mờ dần", "cutShift": "Lát cắt lệch", "focusPull": "Đổi tiêu điểm", "spotChar": "Nhấn sáng ký tự", "ransom": "Chữ cắt dán", "tyHollowKey": "Ký tự nhấn rỗng", "tyHeadRules": "Kẻ đầu và chân trang", "tyHeadBig": "Chữ đầu lớn", "tyIndexSup": "Số chỉ ký tự", "ccKaraokeActive": "Chữ Karaoke đổi màu", "ccHighlighter": "Tô bút dạ quang", "ccNeonGlowTube": "Đèn Neon phát sáng"}, "bg": {"none": "Màu nền đơn", "auroraRibbons": "Dải cực quang", "meshBlobs": "Mảng lưới màu", "duotoneSweep": "Quét hai tông", "horizonGlow": "Chân trời sáng", "seigaiha": "Họa tiết sóng Nhật", "asanoha": "Họa tiết lá gai", "houndstooth": "Họa tiết răng sói", "herringbone": "Họa tiết xương cá", "argyle": "Ô quả trám", "tartan": "Kẻ ca rô Scotland", "chevron": "Vạch chữ V", "isoCubes": "Khối lập phương đẳng phối", "hexGrid": "Lưới lục giác", "triTess": "Lát tam giác", "moire": "Nhiễu giao thoa", "squareTunnel": "Hầm vuông", "spiralArms": "Cánh xoắn", "topoLines": "Đường địa hình", "ridgePlot": "Dãy núi", "starfield": "Bầu trời sao", "nightMoon": "Đêm trăng", "skyline": "Đường chân trời đô thị", "sunsetSun": "Mặt trời hoàng hôn", "oceanWaves": "Sóng biển", "rainWindow": "Mưa trên cửa kính", "snowLayers": "Lớp tuyết", "fireworks": "Pháo hoa", "cloudLayers": "Lớp mây", "mountains": "Núi", "filmStrip": "Dải phim", "vhsBand": "Dải nhiễu VHS", "tornPaper": "Giấy rách", "godRays": "Chùm tia sáng", "vignettePulse": "Viền tối đập nhịp", "kaleidoscope": "Kính vạn hoa", "marble": "Vân đá", "paperCut": "Giấy cắt", "hrFailingLamp": "Đèn chập chờn", "hrCorridor": "Hành lang tối", "hrMold": "Vết mốc lan", "hrDeadTrees": "Rừng khô", "sunburst": "Tia mặt trời", "concentric": "Đồng tâm", "halftoneFade": "Chấm in tan dần", "bigStripes": "Sọc lớn", "splitV": "Chia màu dọc", "splitH": "Chia màu ngang", "splitDiag": "Chia màu chéo", "gradientSweep": "Quét chuyển sắc", "spotlight": "Đèn rọi", "tvBars": "Vạch màu tivi", "checker": "Ô bàn cờ", "bigChar": "Chữ khổng lồ", "speedLines": "Đường tốc độ", "scanBars": "Vạch quét", "dotGrid": "Lưới chấm", "retroGrid": "Lưới hoài cổ", "bokehBg": "Đốm sáng mờ", "particlesBg": "Hạt lơ lửng", "ripples": "Gợn sóng", "polka": "Chấm bi", "eqBars": "Vạch cân bằng âm", "borderFrame": "Khung viền", "letterbox": "Khung điện ảnh", "noiseField": "Nhiễu chuyển động"}, "cam": {"push": "Tiến chậm", "orbitDrift": "Trôi theo quỹ đạo", "barrelRoll": "Xoay vòng máy quay", "pendulumSway": "Lắc con lắc", "focusIn": "Lấy nét vào", "rackFocus": "Chuyển tiêu điểm", "earthquake": "Động đất", "floatNoise": "Máy quay lơ lửng", "vertigo": "Thu phóng phối cảnh", "tiltDown": "Nghiêng xuống", "spiralIn": "Phóng xoắn ốc", "snapPan": "Lia giật", "jelly": "Lắc đàn hồi", "hrNervous": "Cầm tay run sợ", "hrDutchSnap": "Nghiêng bất ngờ", "knReadPan": "Lia theo dòng đọc", "knTiltKick": "Nghiêng giật", "knCardFlip": "Lật thẻ", "knShearKick": "Xiên giật", "knJumpCut": "Cắt nhảy", "knRushIn": "Lao vào", "pullOut": "Lùi ra", "panL": "Lia trái", "panR": "Lia phải", "tiltUp": "Nghiêng lên", "dutch": "Góc máy nghiêng", "handheld": "Máy cầm tay", "beatPunch": "Phóng theo nhịp", "whipIn": "Lia vụt vào", "crashZoom": "Phóng gấp", "bounce": "Nảy", "roll": "Xoay trục", "driftDiag": "Trôi chéo", "shakeHard": "Rung mạnh", "dollyIn": "Di chuyển máy vào", "stepZoom": "Phóng từng nấc"}, "fx": {"chroma": "Nhảy lệch màu", "shake": "Rung", "slice": "Cắt lát", "block": "Nhiễu khối", "invert": "Đảo màu", "flash": "Chớp sáng", "zoom": "Phóng mờ", "mosaic": "Ô khảm", "radialChroma": "Viền màu hướng tâm", "bloomFlash": "Chớp quầng sáng", "bulge": "Méo mắt cá", "pixelSort": "Sắp xếp điểm ảnh", "interlace": "Quét xen kẽ", "macroBlock": "Khối nén", "halftone": "Chấm in", "duotone": "Hai tông màu", "ditherBit": "Nhiễu hạt 1 bit", "rotateSnap": "Xoay giật", "echoFrames": "Bóng khung hình", "kaleido": "Kính vạn hoa", "bandInvert": "Dải đảo màu", "lightRays": "Tia sáng", "anamorphic": "Lóe sáng điện ảnh", "heartbeat": "Nhịp tim", "tvStatic": "Nhiễu tivi", "dustScratches": "Vết xước phim", "filmAdvance": "Chạy khung phim", "perspectiveTilt": "Nghiêng phối cảnh", "ripple": "Gợn sóng", "focusLines": "Đường hội tụ", "speedLines": "Đường tốc độ", "starGlint": "Tia sao lóe", "colorBars": "Vạch màu", "zoomStutter": "Phóng giật", "negativeRing": "Vòng đảo màu", "edgeDetect": "Dò cạnh", "shatter": "Kính vỡ", "defocus": "Mất nét", "snapshot": "Chụp nhanh", "squash": "Ép bẹp", "scanBar": "Thanh quét", "loopScroll": "Cuộn vòng", "hrSubliminal": "Hình thoáng ẩn", "hrSignalLoss": "Mất tín hiệu", "hrPassingShadow": "Bóng lướt qua", "panelWipe": "Quét từng ô", "irisTrans": "Chuyển khẩu độ", "doors": "Cánh cửa", "blindsTrans": "Chuyển rèm lá", "rgbSplit": "Tách màu RGB", "smear": "Kéo nhòe", "vhsRoll": "Cuộn VHS", "trackingNoise": "Nhiễu bám hình", "mirrorFlash": "Chớp phản chiếu", "strobe": "Đèn chớp", "posterize": "Phân bậc màu", "hueShift": "Đổi sắc", "tileShift": "Dịch ô", "filmBurn": "Cháy phim", "whipBlur": "Lia nhòe", "blackFrame": "Khung đen", "whiteFrame": "Khung trắng", "gridRepeat": "Lặp ô lưới", "waveWarp": "Biến dạng sóng", "pixelDrift": "Điểm ảnh trôi", "zoomPunch": "Phóng giật mạnh", "lightSweep": "Quét sáng", "crtOff": "Tắt màn hình CRT", "splitSlide": "Tách trượt"}, "trans": {"hrStaticCut": "Cắt nhiễu", "hrBlink": "Chớp mắt", "knCornerSwing": "Vung từ góc", "knStutterCut": "Cắt giật nhịp", "knStripSlam": "Dải đập", "wipe": "Quét", "diagonalWipe": "Quét dải chéo", "clockWipe": "Quét kim đồng hồ", "irisOpen": "Mở khẩu độ", "pushSlide": "Đẩy cảnh", "cover": "Che phủ", "uncover": "Vén mở", "zoomThrough": "Phóng xuyên", "doorsOpen": "Hai cánh cửa", "blinds": "Rèm lá", "checker": "Ô bàn cờ", "blockDissolve": "Tan khối", "whipPan": "Lia vụt", "spinOut": "Xoay chuyển cảnh", "inkBlob": "Vết mực loang", "shatterTiles": "Ô gạch vỡ", "sliceShift": "Dải cắt trượt", "cubeTurn": "Xoay lập phương", "flashCross": "Cắt chớp", "pixelate": "Chuyển điểm ảnh", "tyRuleWipe": "Quét dòng kẻ", "tyGridCells": "Lấp ô lưới"}};
+const parts = {"layout": {"center": "Chính giữa", "mixed": "Phối hợp", "vcols": "Chữ dọc", "marquee": "Biểu ngữ chạy", "tile": "Lát chữ", "scatter": "Phân tán", "ring": "Vòng chữ", "wave": "Lượn sóng", "huge": "Chữ khổng lồ", "labels": "Nhãn", "condensed": "Chữ nén", "gloss": "Chú thích", "type": "Gõ chữ", "diag": "Dải chéo", "circle": "Hình tròn", "stack": "Chữ chồng bóng", "pill": "Viên nang", "hrFlashlight": "Đèn pin", "hrDoorGap": "Khe cửa", "hrWallScrawl": "Chữ nguệch ngoạc trên tường", "hrCctv": "Màn hình giám sát", "hrOuija": "Bàn cầu cơ", "hrMissing": "Áp phích tìm người", "hrWrongOne": "Ký tự lạc chỗ", "hrRisingDark": "Hiện ra từ bóng tối", "hrRedacted": "Hồ sơ bôi đen", "hrStaticTv": "Tivi nhiễu", "hrSpiritPhoto": "Ảnh bóng ma", "hrWrongShadow": "Bóng lệch", "knSlamStack": "Chữ đập chồng", "knQuarterTurn": "Xoay một phần tư vòng", "knSwapCenter": "Đổi chỗ từ", "knZoomDive": "Chui vào chữ", "knFlowSnap": "Trôi rồi vào hàng", "knSeesaw": "Bập bênh", "knTypeSlam": "Gõ rồi đập chữ", "knRhythmCuts": "Cắt nhảy theo từ", "knPathRide": "Đường chạy vòng", "knGearWords": "Bánh răng chữ", "knCollide": "Va chạm đối đầu", "knTumble": "Khối chữ nhào lộn", "knReflow": "Dọc thành ngang", "knPadGrid": "Lưới đệm trống", "lowerThird": "Dải chữ phía dưới", "corners": "Hai góc đối diện", "staircase": "Bậc thang", "zigzag": "Zíc zắc", "arcTop": "Cầu vồng", "spiral": "Xoắn ốc", "gridCells": "Ô lưới", "dropCap": "Chữ cái đầu lớn", "justified": "Căn đều", "frameBox": "Khung tranh", "bubble": "Bong bóng", "subtitleBar": "Thanh phụ đề", "ticker": "Dòng tin chạy", "splitScreen": "Chia màn hình", "mirror": "Phản chiếu", "sideways": "Chữ xoay ngang", "edgeFrame": "Khung viền", "perspective": "Phối cảnh", "hanko": "Con dấu ký tên", "genkou": "Giấy bản thảo", "panels": "Khung truyện tranh", "filmstrip": "Dải phim", "quote": "Trích dẫn", "ruler": "Đường kích thước", "searchBar": "Thanh tìm kiếm", "chat": "Hội thoại", "notification": "Thông báo", "ticket": "Vé", "rain": "Mưa chữ", "hanging": "Treo chữ", "orbit": "Quỹ đạo", "tunnel": "Đường hầm", "wordCloud": "Đám mây từ", "bounceLine": "Dòng chữ nảy", "elastic": "Đàn hồi", "crossBands": "Dải giao nhau", "stickerBomb": "Ghép nhãn dán", "neon": "Đèn neon", "keycaps": "Phím bấm", "bubbles": "Bong bóng", "slotMachine": "Máy quay số", "flipBoard": "Bảng lật", "credits": "Danh đề cuối", "zoomRepeat": "Phóng lặp", "splitHalves": "Chia đôi", "columnsBig": "Cột chữ tương phản", "circleWords": "Từ đồng tâm", "dotMatrix": "Ma trận chấm", "depthStack": "Chồng lớp chiều sâu", "typeSpecimen": "Mẫu chữ", "kanjiFocus": "Nhấn một ký tự", "halfVertical": "Phối chữ dọc", "curtain": "Rèm", "equalizer": "Cân bằng âm thanh", "tape": "Băng dính", "magazine": "Trang tạp chí", "headlineDeck": "Tiêu đề và dòng dẫn", "contents": "Mục lục", "footnote": "Chú thích cuối trang", "proofread": "Bản sửa thử", "numbered": "Đánh số", "poster": "Áp phích", "swissGrid": "Lưới kiểu Thụy Sĩ", "dictionary": "Từ điển", "ema": "Thẻ gỗ cầu nguyện", "ransom": "Chữ cắt dán", "newspaper": "Báo", "vinyl": "Đĩa than", "cassette": "Băng cát sét", "bookSpine": "Gáy sách", "polaroid": "Ảnh lấy liền", "stampSheet": "Tờ tem", "postcard": "Bưu thiếp", "letterPaper": "Giấy viết thư", "calendar": "Lịch", "chochin": "Đèn lồng giấy", "routeMap": "Bản đồ tuyến", "stationSign": "Biển nhà ga", "noren": "Rèm cửa Nhật", "tanzaku": "Dải giấy điều ước", "omikuji": "Quẻ giấy", "kakejiku": "Tranh cuộn treo", "shoji": "Vách giấy Nhật", "clapper": "Bảng quay phim", "warningLabel": "Nhãn cảnh báo", "priceTag": "Nhãn giá", "nameTag": "Thẻ tên", "stickyNotes": "Giấy ghi chú", "karuta": "Thẻ bài chữ Nhật", "cube": "Khối lập phương", "cylinder": "Hình trụ", "flipCards": "Thẻ lật", "accordion": "Nếp gấp đàn xếp", "flag": "Lá cờ", "ribbon": "Ruy băng", "pendulum": "Con lắc", "pile": "Đống chữ", "blocks": "Khối", "balloons": "Bóng bay chữ", "magnets": "Nam châm", "tiles": "Ô chữ", "bulbs": "Bóng đèn biển hiệu", "ledScroll": "Bảng LED chạy", "billboard": "Biển quảng cáo", "crowdBubbles": "Đám đông hội thoại", "crossword": "Ô chữ giao nhau", "wordSearch": "Tìm từ", "puzzle": "Ghép hình", "shadowPlay": "Múa bóng", "kaleido": "Kính vạn hoa", "dominoes": "Đô mi nô", "burst": "Bùng nổ", "fisheye": "Ống kính mắt cá", "wall": "Tường phối cảnh", "origami": "Gấp giấy", "zipper": "Khóa kéo", "sliceStack": "Lớp cắt chồng", "glitchGrid": "Lưới nhiễu", "mosaicTiles": "Ô khảm", "maskReveal": "Cửa sổ chữ", "contour": "Đường đồng mức", "halftoneBig": "Chữ lớn chấm in", "stencil": "Khuôn chữ", "tyKeySplit": "Tách ký tự nhấn", "tyCropGiant": "Chữ lớn tràn khung", "tyCross": "Chữ hình chữ thập", "tyBandHide": "Dải che chữ", "tyRuby": "Chú âm nhỏ", "tyBaseline": "Dòng kẻ", "tyScaleSteps": "Cỡ chữ tăng dần", "tyJustify": "Chồng chữ căn đều", "tyIndexTable": "Bảng ký tự", "tySplitType": "Chữ tách đôi", "tyErode": "Chữ lặp mòn dần", "tyVRuler": "Thước dọc", "tyFullTrack": "Giãn chữ đầy ngang", "tyStatCount": "Đếm ký tự", "tyMargin": "Khoảng trắng", "tyRotBlock": "Khối xoay", "tySquare": "Chữ xếp vuông", "tyLineFocus": "Nhấn dòng"}, "enter": {"cut": "Cắt thẳng", "assemble": "Tách rồi ráp", "slice": "Cắt lát", "type": "Gõ chữ", "pop": "Bật lên", "drop": "Rơi xuống", "stretch": "Kéo giãn", "wipe": "Quét", "blur": "Làm mờ", "spin": "Xoay tròn", "flicker": "Chập chờn", "scramble": "Xáo ký tự", "zoom": "Phóng vào", "riseMask": "Lộ từ dưới", "dropMask": "Lộ từ trên", "slideL": "Trượt từ trái", "slideR": "Trượt từ phải", "slideWhole": "Trượt cả dòng", "flipX": "Lật quanh trục dọc", "flipY": "Lật quanh trục ngang", "domino": "Đô mi nô", "fold": "Gấp", "unroll": "Trải cuộn", "strokeDraw": "Vẽ viền rồi tô", "outlineFill": "Viền thành nét đặc", "splitJoin": "Ghép từ trên và dưới", "vSlice": "Lát dọc", "shutter": "Màn trập", "iris": "Khẩu độ", "diagWipe": "Quét chéo", "blinds": "Rèm lá", "checker": "Ô bàn cờ", "randomOrder": "Thứ tự chữ ngẫu nhiên", "bounceBig": "Nảy mạnh", "squashDrop": "Rơi bẹp", "rubber": "Cao su", "glitchIn": "Hiện bằng nhiễu", "echoIn": "Bóng chữ hội tụ", "whip": "Quất nhanh", "skewIn": "Xiên vào", "trackIn": "Thu khoảng cách chữ", "trackOut": "Giãn khoảng cách chữ", "blurStagger": "Mờ so le", "fadeStagger": "Hiện dần từng chữ", "waveIn": "Lượn sóng vào", "spiralIn": "Phóng xoắn ốc", "zoomOut": "Từ lớn về thường", "resolve": "Hội tụ rõ nét", "magnet": "Hút nam châm", "inkBleed": "Loang mực", "neonOn": "Bật đèn neon", "cursorSweep": "Con trỏ quét", "stamp": "Đóng dấu", "springIn": "Nảy lò xo vào", "pendulum": "Con lắc", "rollIn": "Cuộn vào", "slingshot": "Ná bắn", "rockSettle": "Lắc rồi đứng yên", "bounceBall": "Nảy như bóng", "snapRail": "Khớp vào hàng", "fanOpen": "Xòe quạt", "cylinder": "Hình trụ", "shuffle": "Xáo trộn", "stopMotion": "Chuyển động giật khung", "ripple": "Gợn sóng", "zipper": "Khóa kéo", "zoomAlt": "Phóng xen kẽ", "tiltUp": "Nghiêng lên", "stickerPeel": "Dán nhãn", "crumple": "Mở giấy vò", "noteUnfold": "Mở thư", "tornJoin": "Ráp mảnh giấy rách", "splitFlap": "Bảng lật cơ", "overexpose": "Cháy sáng", "glint": "Lóe sáng", "loupe": "Kính lúp", "filmFeed": "Chạy phim", "backlight": "Ánh sáng ngược", "lightLeak": "Lọt sáng", "heatHaze": "Hơi nóng", "crtOn": "Bật màn hình CRT", "interlace": "Quét xen kẽ", "loadingBar": "Thanh tải", "dither": "Nhiễu hạt màu", "odometer": "Trống số quay", "matrixRain": "Mưa dữ liệu", "hatchFill": "Tô nét gạch", "brushReveal": "Lộ theo nét cọ", "inkDrop": "Giọt mực", "quarters": "Hội tụ từ bốn phía", "invertBox": "Khung đảo màu", "printRegister": "Khớp bản màu", "echoCount": "Đếm vào", "liquidFill": "Chất lỏng dâng", "windBlown": "Gió thổi", "strokeOrder": "Từng nét một", "clockWipe": "Quét kim đồng hồ", "shadowFirst": "Bóng xuất hiện trước", "bubbles": "Bong bóng", "tokoroten": "Chữ đùn sợi", "hrBlinkCreep": "Giữa những lần chớp mắt", "hrJumpScare": "Bất ngờ hù dọa", "hrUneasy": "Nhịp bất an", "hrVhold": "Khung dọc trôi", "hrMirrorSnap": "Chữ soi gương", "hrManifest": "Hiện hình", "hrClawReveal": "Vết cào", "knWordSlam": "Từ đập xuống", "knTypeToSlam": "Gõ rồi lớn dần", "knReplaceIn": "Đổi vào", "knHingeDrop": "Rơi theo bản lề", "knLoopIn": "Vòng vào", "knPushIn": "Đẩy vào", "knInertia": "Phanh gấp", "knWordSpin": "Từ xoay", "knDiveIn": "Từ lao từ máy quay", "knStretchOut": "Kéo dài như băng", "tyKeyFirst": "Ký tự nhấn hiện trước", "tyLineWipe": "Quét từng dòng", "tyZoomOne": "Phóng từng chữ", "tyUnderLift": "Nâng từ gạch chân", "tyDotGrow": "Chấm thành chữ", "tyBracketOpen": "Mở ngoặc", "tyRetype": "Gõ lại", "tyRubyDrop": "Rơi từ chú âm", "ccPopBounce": "Bật nảy lò xo (CapCut)", "ccTypeBlink": "Máy đánh chữ có con trỏ (CapCut)", "ccSmoothSlideUp": "Trượt mượt từ dưới lên", "ccStompImpact": "Đập nện rung chuyển", "ccGlitchRGB": "Nhiễu điện tử RGB"}, "hold": {"still": "Đứng yên", "jitter": "Rung nhẹ", "drift": "Trôi", "breathe": "Nhịp thở", "wave": "Lượn sóng", "glitchtick": "Nhịp nhiễu", "float": "Lơ lửng", "sway": "Đung đưa", "pulse": "Nhịp đập", "shimmer": "Lung linh", "colorRun": "Màu chạy", "rotateSlow": "Xoay chậm", "trackBreathe": "Co giãn khoảng cách chữ", "skewWobble": "Lắc xiên", "beatHop": "Nảy theo nhịp", "hWave": "Sóng ngang", "heartbeat": "Nhịp tim", "orbitSmall": "Quỹ đạo nhỏ", "jelly": "Lắc đàn hồi", "scanBand": "Dải quét", "noiseDrift": "Nhiễu trôi", "tilt": "Nghiêng", "zoomSlow": "Tiến chậm", "stretchPulse": "Giãn theo nhịp", "glitchJump": "Nhảy nhiễu ngắt quãng", "echoTrail": "Vệt bóng chữ", "glowFlicker": "Ánh sáng chập chờn", "windGust": "Gió giật", "dangle": "Đung đưa treo", "eqBounce": "Nảy theo âm lượng", "flashBox": "Đảo màu theo nhịp", "glintSweep": "Vệt sáng lướt", "flipSwap": "Lật ngắt quãng", "shadowSway": "Bóng đung đưa", "magnetJiggle": "Rung nam châm", "typeRattle": "Rung máy đánh chữ", "focusRack": "Chuyển tiêu điểm", "pluckString": "Gảy dây", "hrTwitch": "Co giật", "hrStare": "Chữ nhìn chằm chằm", "hrLagOne": "Một chữ đến trễ", "hrFlickerLight": "Đèn sắp tắt", "knWordPulse": "Từ đập nhịp", "knCounterRock": "Nghiêng đối chiều", "knWordRide": "Từ lướt sóng", "knTickShift": "Dịch theo nhịp tích tắc", "knBeatLean": "Nghiêng theo nhịp", "knGapBreath": "Khoảng cách thở", "tyKeyPulse": "Ký tự nhấn đập nhịp", "tyReadCursor": "Con trỏ đọc", "tyOutlineBlink": "Viền chớp", "tyTrackStep": "Khoảng cách từng nấc", "ccPulseHeart": "Đập nhịp tim", "ccWaveSway": "Sóng nước bồng bềnh", "ccJitterBass": "Rung theo tiếng Bass"}, "exit": {"cut": "Cắt thẳng", "explode": "Nổ tung", "fall": "Vỡ rồi rơi", "drift": "Trôi đi", "slice": "Cắt lát", "wipe": "Quét", "shrink": "Thu nhỏ", "blur": "Làm mờ", "stretch": "Kéo giãn", "scatter": "Phân tán", "glitch": "Nhiễu", "sinkMask": "Chìm xuống", "riseOut": "Bay lên", "slideOutL": "Trượt sang trái", "slideOutR": "Trượt sang phải", "flipOutX": "Khép cửa", "flipOutY": "Lật xuống", "foldOut": "Gấp ra", "squash": "Ép bẹp", "trackOutWide": "Giãn rộng chữ", "collapse": "Co vào tâm", "zoomThrough": "Phóng xuyên", "zoomFar": "Lùi xa", "spinOut": "Xoay bay đi", "twist": "Xoắn", "waveOut": "Lượn sóng ra", "blurOutStagger": "Mờ lần lượt", "undraw": "Trở về nét viền", "outlineOut": "Nét đặc tan còn viền", "irisClose": "Khép khẩu độ", "diagWipeOut": "Quét chéo ra", "blindsClose": "Đóng rèm lá", "checkerOut": "Tan theo ô cờ", "splitApart": "Tách trên và dưới", "vSliceDrop": "Lát dọc rơi", "melt": "Tan chảy", "dissolve": "Tan vụn", "backspace": "Xóa lùi", "scrambleOut": "Biến thành ký hiệu", "glitchDissolve": "Tan thành khối nhiễu", "echoOut": "Bóng chữ tỏa ra", "whipOut": "Quất ra", "gravity": "Rơi theo trọng lực", "popOut": "Bật ra", "burn": "Cháy tan", "sweepCover": "Thanh quét che", "shatterLite": "Vỡ thành bốn", "peelOff": "Bóc nhãn", "crumpleOut": "Vò rồi ném", "tearOut": "Xé đi", "scorchOut": "Cháy sém", "overexposeOut": "Cháy trắng", "scanOut": "Xóa bằng dòng quét", "stripesOut": "Tan theo sọc", "halftoneOut": "Tan thành chấm in", "eraserOut": "Xóa bảng", "vacuumOut": "Hút về một điểm", "sandOut": "Tan như cát", "shredOut": "Cắt vụn", "dominoOut": "Đổ đô mi nô", "hingeOut": "Bản lề bung", "rocketOff": "Phóng như tên lửa", "bounceOff": "Nảy ra", "balloonOff": "Bay như bóng", "deflateOut": "Xẹp rồi bay", "hazeOut": "Tan trong sương", "glassBreak": "Vỡ như kính", "zipOut": "Kéo vụt ra", "clapShut": "Khép vào giữa", "lampOff": "Tắt đèn", "slotOut": "Cuộn ô số ra", "clockOut": "Quét vòng ra", "matrixOut": "Mưa số", "tornadoOut": "Lốc xoáy", "rollUpOut": "Cuộn lên", "snakeOut": "Rời theo hàng", "flutterOut": "Lả tả rơi", "rollOff": "Lăn đi", "fanClose": "Khép quạt", "rgbSplitOut": "Tách màu RGB", "shockOut": "Sóng xung kích", "floodOut": "Chìm ngập", "slashOut": "Chém đôi", "mosaicOut": "Tan ô khảm", "scribbleOut": "Nét nguệch ngoạc xóa", "candleOut": "Thổi tắt", "hrPulledDown": "Bị kéo xuống", "hrLookBack": "Một chữ còn lại", "hrTurnAway": "Quay mặt đi", "hrShiver": "Run rẩy biến mất", "hrSwallow": "Bị nuốt", "hrFlickerDie": "Chớp rồi tắt", "hrDrain": "Rút cạn", "knWordKick": "Đá từ ra", "knPushOut": "Đẩy ra", "knDiveGlyph": "Chui vào ký tự", "knLaunch": "Phóng đi", "knWordBlink": "Từ chớp tắt", "knCloseGap": "Khép khoảng cách", "knJumpCutOut": "Cắt nhảy ra", "knStackAway": "Chồng rồi rơi", "tyStrike": "Gạch xóa", "tyToDot": "Trở về chấm", "tyLineFeed": "Xuống dòng", "tyBracketClose": "Đóng ngoặc", "tyToIndex": "Biến thành số", "tyKeyLast": "Ký tự nhấn ở lại", "tyUnderSink": "Chìm vào gạch chân", "tyFoldVert": "Gấp thành dọc", "ccZoomThrough": "Phóng xuyên màn hình", "ccSmokeFade": "Tan biến như khói", "ccDropFall": "Rơi tự do trọng lực"}, "decor": {"brackets": "Dấu góc", "rings": "Vòng tọa độ", "dots": "Vòng chấm", "arrows": "Mũi tên", "slash": "Nét chéo", "sparks": "Tia lửa", "leaders": "Đường dẫn chú thích", "waveform": "Dạng sóng", "barcode": "Mã vạch", "grid": "Lưới", "stripes": "Sọc", "blobs": "Vết mực", "bars": "Dải thô", "shapes": "Hình học", "counter": "Số lớn", "crosshair": "Tâm ngắm", "cropMarks": "Dấu cắt", "reticle": "Vòng ngắm", "radar": "Ra đa", "progressRing": "Vòng tiến trình", "timecodeBar": "Thanh mã thời gian", "rulerEdge": "Viền thước", "dimension": "Kích thước", "indexNum": "Số thứ tự", "dateStamp": "Dấu ngày chụp", "qrBlock": "Khối kiểu QR", "glitchRects": "Ô nhiễu", "concentricSquares": "Vuông đồng tâm", "triangleSpin": "Tam giác xoay", "lineBurst": "Tia đường kẻ", "plusGrid": "Lưới dấu cộng", "guides": "Đường căn", "waveLine": "Đường sóng", "spiralLine": "Đường xoắn", "halftonePatch": "Mảng chấm in", "checkerStrip": "Dải ô cờ", "beatRing": "Vòng theo nhịp", "orbitDots": "Chấm quay quỹ đạo", "constellation": "Chòm sao", "confetti": "Giấy tung", "petals": "Cánh hoa", "rainStreaks": "Vệt mưa", "snow": "Tuyết", "lightLeak": "Lọt sáng", "bokeh": "Đốm sáng mờ", "speedCorner": "Đường tốc độ", "risingParticles": "Hạt bay lên", "twinkle": "Lấp lánh", "brushStroke": "Nét cọ", "tapePieces": "Băng dính giấy", "scribbleCircle": "Vòng vẽ tay", "scribbleUnder": "Gạch chân vẽ tay", "crossOut": "Dấu biên tập", "highlightMark": "Dấu nhấn", "heartsStars": "Tim và sao", "watermarkKanji": "Chữ chìm lớn", "verticalStrip": "Dải chữ dọc", "romajiLine": "Dòng phiên âm Latin", "bracketsJP": "Ngoặc góc Nhật", "seal": "Con dấu đỏ", "kamon": "Gia huy", "seigaiha": "Họa tiết sóng Nhật", "asanoha": "Họa tiết lá gai", "hanabi": "Pháo hoa", "chochin": "Đèn lồng giấy", "shimenawa": "Dây thừng thiêng", "sensu": "Quạt xếp", "tsukiKumo": "Trăng và mây", "momiji": "Lá phong", "namiGashira": "Đầu ngọn sóng", "kasumi": "Sương mờ", "hexGrid": "Lưới lục giác", "spectrumRing": "Vòng phổ âm", "dataColumns": "Cột dữ liệu", "spinner": "Vòng quay", "headingTape": "Dải tiêu đề", "glyphLock": "Khóa ký tự", "atomOrbit": "Quỹ đạo nguyên tử", "sonarArcs": "Cung sóng định vị", "circuit": "Mạch điện", "swatches": "Bảng mẫu màu", "ruledLines": "Trang vở kẻ", "registration": "Dấu căn bản in", "punchHoles": "Lỗ bấm", "staple": "Ghim bấm", "paperClip": "Kẹp giấy", "indexTabs": "Thẻ phân trang", "vines": "Dây leo", "cloudPuffs": "Cụm mây", "starField": "Bầu trời sao", "moonPhases": "Pha trăng", "sunRays": "Tia nắng", "rainRipples": "Gợn mưa", "bubbles": "Bong bóng", "smoke": "Khói", "dandelion": "Hạt bồ công anh", "fireflies": "Đom đóm", "memphis": "Hình học Memphis", "zigzagRibbon": "Ruy băng zíc zắc", "polkaPatch": "Mảng chấm bi", "stripeCircle": "Vòng tròn sọc", "decoCorners": "Góc trang trí", "halfCircles": "Nửa vòng tròn", "loopArrows": "Mũi tên vòng", "starburst": "Tia sao", "tally": "Vạch đếm", "cursorClick": "Con trỏ nhấp", "windowChrome": "Khung cửa sổ", "progressBar": "Thanh tiến trình", "toggleSwitch": "Công tắc", "notifBell": "Chuông thông báo", "likeCounter": "Đếm lượt thích", "mediaControls": "Điều khiển phát", "volumeBars": "Vạch âm lượng", "musicNotes": "Nốt nhạc", "hrScratches": "Vết móng cào", "hrSigil": "Ấn chú", "hrWatchEye": "Con mắt theo dõi", "hrStaticPatch": "Mảng nhiễu", "hrDustBeam": "Chùm sáng bụi", "hrDrips": "Mực nhỏ giọt", "hrCracks": "Vết nứt", "knSpeedTrail": "Vệt tốc độ", "knWordTicks": "Đếm từ", "tyColophon": "Thông tin ấn bản", "tyRunningHead": "Tiêu đề đầu trang và số trang", "tyGlyphBody": "Dòng thân chữ", "tyTextRule": "Đường kẻ chữ", "tyTypeScale": "Thang cỡ chữ", "tyBigPunct": "Ngoặc kép lớn"}, "treat": {"none": "Không", "hrInkBleed": "Mực loang", "hrEroded": "Mòn nét", "hrRedact": "Bôi đen", "hrDoubleExp": "Chồng ảnh", "knWordScale": "Từ lớn nhỏ", "knWordPlate": "Chữ khoét nền", "outline": "Chữ rỗng", "outlineFill": "Chữ có viền", "doubleOutline": "Viền kép", "extrude": "Chữ nổi", "longShadow": "Bóng dài", "hardShadow": "Bóng cứng", "softShadow": "Bóng mềm", "glow": "Phát sáng", "marker": "Tô dấu", "underline": "Gạch chân", "strike": "Gạch ngang", "boxed": "Chữ trong khung", "gradientV": "Chuyển sắc dọc", "splitColor": "Chia hai màu", "halftone": "Chấm in", "stripes": "Sọc", "hatch": "Nét gạch", "dotted": "Viền chấm", "alternate": "Màu xen kẽ", "italic": "In nghiêng", "wide": "Chữ rộng", "tall": "Chữ cao", "echoOutline": "Viền lặp bóng", "emphasisDots": "Chấm nhấn", "neonOutline": "Ống neon", "chrome": "Mạ crôm", "rainbow": "Cầu vồng", "glitchSplit": "Lệch bản màu", "shadowStack": "Chồng bóng", "stencilGap": "Khe khuôn chữ", "waterline": "Đường mặt nước", "karaoke": "Karaoke", "sizeWave": "Cỡ chữ theo nhịp", "rotateAlt": "Góc xoay xen kẽ", "baselineShift": "Đường chân so le", "fauxBold": "Tăng đậm", "circled": "Chữ khoanh tròn", "bracketsQuote": "Dấu trích dẫn", "reflection": "Phản chiếu", "inline": "Nét trong", "sticker": "Viền nhãn dán", "gradientSweep": "Quét chuyển sắc", "kerningWide": "Giãn chữ rộng", "monoGrid": "Lưới bản thảo", "outlineOffset": "Viền lệch", "toneShadow": "Bóng chấm in", "fadeChars": "Chữ mờ dần", "cutShift": "Lát cắt lệch", "focusPull": "Đổi tiêu điểm", "spotChar": "Nhấn sáng ký tự", "ransom": "Chữ cắt dán", "tyHollowKey": "Ký tự nhấn rỗng", "tyHeadRules": "Kẻ đầu và chân trang", "tyHeadBig": "Chữ đầu lớn", "tyIndexSup": "Số chỉ ký tự", "ccKaraokeActive": "Chữ Karaoke đổi màu", "ccHighlighter": "Tô bút dạ quang", "ccNeonGlowTube": "Đèn Neon phát sáng"}, "bg": {"none": "Màu nền đơn", "auroraRibbons": "Dải cực quang", "meshBlobs": "Mảng lưới màu", "duotoneSweep": "Quét hai tông", "horizonGlow": "Chân trời sáng", "seigaiha": "Họa tiết sóng Nhật", "asanoha": "Họa tiết lá gai", "houndstooth": "Họa tiết răng sói", "herringbone": "Họa tiết xương cá", "argyle": "Ô quả trám", "tartan": "Kẻ ca rô Scotland", "chevron": "Vạch chữ V", "isoCubes": "Khối lập phương đẳng phối", "hexGrid": "Lưới lục giác", "triTess": "Lát tam giác", "moire": "Nhiễu giao thoa", "squareTunnel": "Hầm vuông", "spiralArms": "Cánh xoắn", "topoLines": "Đường địa hình", "ridgePlot": "Dãy núi", "starfield": "Bầu trời sao", "nightMoon": "Đêm trăng", "skyline": "Đường chân trời đô thị", "sunsetSun": "Mặt trời hoàng hôn", "oceanWaves": "Sóng biển", "rainWindow": "Mưa trên cửa kính", "snowLayers": "Lớp tuyết", "fireworks": "Pháo hoa", "cloudLayers": "Lớp mây", "mountains": "Núi", "filmStrip": "Dải phim", "vhsBand": "Dải nhiễu VHS", "tornPaper": "Giấy rách", "godRays": "Chùm tia sáng", "vignettePulse": "Viền tối đập nhịp", "kaleidoscope": "Kính vạn hoa", "marble": "Vân đá", "paperCut": "Giấy cắt", "hrFailingLamp": "Đèn chập chờn", "hrCorridor": "Hành lang tối", "hrMold": "Vết mốc lan", "hrDeadTrees": "Rừng khô", "sunburst": "Tia mặt trời", "concentric": "Đồng tâm", "halftoneFade": "Chấm in tan dần", "bigStripes": "Sọc lớn", "splitV": "Chia màu dọc", "splitH": "Chia màu ngang", "splitDiag": "Chia màu chéo", "gradientSweep": "Quét chuyển sắc", "spotlight": "Đèn rọi", "tvBars": "Vạch màu tivi", "checker": "Ô bàn cờ", "bigChar": "Chữ khổng lồ", "speedLines": "Đường tốc độ", "scanBars": "Vạch quét", "dotGrid": "Lưới chấm", "retroGrid": "Lưới hoài cổ", "bokehBg": "Đốm sáng mờ", "particlesBg": "Hạt lơ lửng", "ripples": "Gợn sóng", "polka": "Chấm bi", "eqBars": "Vạch cân bằng âm", "borderFrame": "Khung viền", "letterbox": "Khung điện ảnh", "noiseField": "Nhiễu chuyển động"}, "cam": {"push": "Tiến chậm", "orbitDrift": "Trôi theo quỹ đạo", "barrelRoll": "Xoay vòng máy quay", "pendulumSway": "Lắc con lắc", "focusIn": "Lấy nét vào", "rackFocus": "Chuyển tiêu điểm", "earthquake": "Động đất", "floatNoise": "Máy quay lơ lửng", "vertigo": "Thu phóng phối cảnh", "tiltDown": "Nghiêng xuống", "spiralIn": "Phóng xoắn ốc", "snapPan": "Lia giật", "jelly": "Lắc đàn hồi", "hrNervous": "Cầm tay run sợ", "hrDutchSnap": "Nghiêng bất ngờ", "knReadPan": "Lia theo dòng đọc", "knTiltKick": "Nghiêng giật", "knCardFlip": "Lật thẻ", "knShearKick": "Xiên giật", "knJumpCut": "Cắt nhảy", "knRushIn": "Lao vào", "pullOut": "Lùi ra", "panL": "Lia trái", "panR": "Lia phải", "tiltUp": "Nghiêng lên", "dutch": "Góc máy nghiêng", "handheld": "Máy cầm tay", "beatPunch": "Phóng theo nhịp", "whipIn": "Lia vụt vào", "crashZoom": "Phóng gấp", "bounce": "Nảy", "roll": "Xoay trục", "driftDiag": "Trôi chéo", "shakeHard": "Rung mạnh", "dollyIn": "Di chuyển máy vào", "stepZoom": "Phóng từng nấc"}, "fx": {"chroma": "Nhảy lệch màu", "shake": "Rung", "slice": "Cắt lát", "block": "Nhiễu khối", "invert": "Đảo màu", "flash": "Chớp sáng", "zoom": "Phóng mờ", "mosaic": "Ô khảm", "radialChroma": "Viền màu hướng tâm", "bloomFlash": "Chớp quầng sáng", "bulge": "Méo mắt cá", "pixelSort": "Sắp xếp điểm ảnh", "interlace": "Quét xen kẽ", "macroBlock": "Khối nén", "halftone": "Chấm in", "duotone": "Hai tông màu", "ditherBit": "Nhiễu hạt 1 bit", "rotateSnap": "Xoay giật", "echoFrames": "Bóng khung hình", "kaleido": "Kính vạn hoa", "bandInvert": "Dải đảo màu", "lightRays": "Tia sáng", "anamorphic": "Lóe sáng điện ảnh", "heartbeat": "Nhịp tim", "tvStatic": "Nhiễu tivi", "dustScratches": "Vết xước phim", "filmAdvance": "Chạy khung phim", "perspectiveTilt": "Nghiêng phối cảnh", "ripple": "Gợn sóng", "focusLines": "Đường hội tụ", "speedLines": "Đường tốc độ", "starGlint": "Tia sao lóe", "colorBars": "Vạch màu", "zoomStutter": "Phóng giật", "negativeRing": "Vòng đảo màu", "edgeDetect": "Dò cạnh", "shatter": "Kính vỡ", "defocus": "Mất nét", "snapshot": "Chụp nhanh", "squash": "Ép bẹp", "scanBar": "Thanh quét", "loopScroll": "Cuộn vòng", "hrSubliminal": "Hình thoáng ẩn", "hrSignalLoss": "Mất tín hiệu", "hrPassingShadow": "Bóng lướt qua", "panelWipe": "Quét từng ô", "irisTrans": "Chuyển khẩu độ", "doors": "Cánh cửa", "blindsTrans": "Chuyển rèm lá", "rgbSplit": "Tách màu RGB", "smear": "Kéo nhòe", "vhsRoll": "Cuộn VHS", "trackingNoise": "Nhiễu bám hình", "mirrorFlash": "Chớp phản chiếu", "strobe": "Đèn chớp", "posterize": "Phân bậc màu", "hueShift": "Đổi sắc", "tileShift": "Dịch ô", "filmBurn": "Cháy phim", "whipBlur": "Lia nhòe", "blackFrame": "Khung đen", "whiteFrame": "Khung trắng", "gridRepeat": "Lặp ô lưới", "waveWarp": "Biến dạng sóng", "pixelDrift": "Điểm ảnh trôi", "zoomPunch": "Phóng giật mạnh", "lightSweep": "Quét sáng", "crtOff": "Tắt màn hình CRT", "splitSlide": "Tách trượt"}, "trans": {"hrStaticCut": "Cắt nhiễu", "hrBlink": "Chớp mắt", "knCornerSwing": "Vung từ góc", "knStutterCut": "Cắt giật nhịp", "knStripSlam": "Dải đập", "wipe": "Quét", "diagonalWipe": "Quét dải chéo", "clockWipe": "Quét kim đồng hồ", "irisOpen": "Mở khẩu độ", "pushSlide": "Đẩy cảnh", "cover": "Che phủ", "uncover": "Vén mở", "zoomThrough": "Phóng xuyên", "doorsOpen": "Hai cánh cửa", "blinds": "Rèm lá", "checker": "Ô bàn cờ", "blockDissolve": "Tan khối", "whipPan": "Lia vụt", "spinOut": "Xoay chuyển cảnh", "inkBlob": "Vết mực loang", "shatterTiles": "Ô gạch vỡ", "sliceShift": "Dải cắt trượt", "cubeTurn": "Xoay lập phương", "flashCross": "Cắt chớp", "pixelate": "Chuyển điểm ảnh", "tyRuleWipe": "Quét dòng kẻ", "tyGridCells": "Lấp ô lưới", "glBurn": "Cháy loang", "glDissolve": "Tan theo nhiễu", "glWater": "Giọt nước lan", "glWarp": "Xoắn chéo", "glMorph": "Biến hình", "glGlitch": "Nhiễu ký ức", "glZoom": "Phóng mờ xuyên tâm", "glDream": "Phóng xoay mơ màng"}};
 for (const [g, names] of Object.entries(parts)) {
  for (const [id, name] of Object.entries(names)) {
   const item = J.registry(g)[id]; if (item) item.name = name;
@@ -37387,7 +38387,9 @@ for (const [g, names] of Object.entries(extraViConcat)) {
 'use strict';
 if (!document.getElementById('app')) return;          // engine-only pages (tests)
 const $ = id => document.getElementById(id);
-const LS_KEY = 'jizura.project.v1';
+const LS_KEY = 'aura.project.v1';
+/* v0.11.0 moved storage from jizura.* to aura.* — copy each old key once, then drop it */
+function migrateLS() { try { for (const [nk, ok] of [['aura.project.v1', 'jizura.project.v1'], ['aura.previewVolume', 'jizura.previewVolume'], ['aura.mode', 'jizura.mode'], ['aura.mobileInit', 'jizura.mobileInit'], ['aura.tapOpts', 'jizura.tapOpts'], ['aura.tourDone', 'jizura.tourDone']]) { if (localStorage.getItem(nk) == null) { const v = localStorage.getItem(ok); if (v != null) { localStorage.setItem(nk, v); localStorage.removeItem(ok); } } } } catch (e) {} }
 const HUD_CHARS = '0123456789:./-_()【】·No.LYRICRECUNTITLEDXYlinebpminterlude—─／ ';
 const ICON = {
   dice: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="2" width="12" height="12" rx="2"/><circle cx="5.5" cy="5.5" r="1" fill="currentColor"/><circle cx="10.5" cy="10.5" r="1" fill="currentColor"/><circle cx="10.5" cy="5.5" r="1" fill="currentColor"/><circle cx="5.5" cy="10.5" r="1" fill="currentColor"/></svg>',
@@ -37395,6 +38397,8 @@ const ICON = {
   pen: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 13l1-3.5L11 2.5l2.5 2.5L6.5 12z"/><path d="M9.5 4l2.5 2.5"/></svg>',
   tap: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="2.2" fill="currentColor"/><circle cx="8" cy="8" r="5.5"/></svg>',
   range: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3v10M13 3v10"/><path d="M5.5 8h5M8.5 5.5L11 8l-2.5 2.5"/></svg>',
+  clock: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/></svg>',
+  x: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4l8 8M12 4l-8 8"/></svg>',
 };
 
 const S = { project: null, plan: null, audio: null, renderer: new J.Renderer(), playing: false, t: 0, t0: 0, loop: 'all', loopHold: null, need: true, exporting: null, tap: null, slow: false, lineEls: [], curLine: -2 };
@@ -37472,10 +38476,10 @@ const AP = {
 function initVolume() {
   const el = $('vol'), mb = $('btnMute'); if (!el || !mb) return;
   let v = 0.8, m = false;
-  try { const o = JSON.parse(localStorage.getItem('jizura.previewVolume') || 'null'); if (o) { v = +o.v; m = !!o.m; } } catch (e) {}
+  try { const o = JSON.parse(localStorage.getItem('aura.previewVolume') || 'null'); if (o) { v = +o.v; m = !!o.m; } } catch (e) {}
   if (!(v >= 0 && v <= 1)) v = 0.8;
   const show = () => { el.value = Math.round(AP.vol * 100); mb.textContent = AP.muted || AP.vol === 0 ? 'Tắt âm thanh' : 'Âm lượng'; mb.setAttribute('aria-pressed', String(AP.muted)); el.title = 'Âm lượng ' + Math.round(AP.vol * 100) + '%'; };
-  const save = () => { try { localStorage.setItem('jizura.previewVolume', JSON.stringify({ v: AP.vol, m: AP.muted })); } catch (e) {} };
+  const save = () => { try { localStorage.setItem('aura.previewVolume', JSON.stringify({ v: AP.vol, m: AP.muted })); } catch (e) {} };
   AP.setVol(v, m); show();
   el.addEventListener('input', () => { AP.setVol(el.value / 100, false); show(); save(); });
   mb.addEventListener('click', () => { AP.setVol(null, !AP.muted); show(); save(); });
@@ -37535,7 +38539,7 @@ function migrateOrder(o, p) {
 }
 const SET_UI = { horror: { name: 'Kinh dị', badge: 'H' }, typo: { name: 'Kiểu chữ', badge: 'T' }, kinetic: { name: 'Chuyển động chữ', badge: 'K' } };
 function setBadges(d) {
-  return (d && d.extra ? '<span class="set-badge ex" title="Đã thêm sau khi phát hành lần đầu">Mới</span>' : '') + (d && d.wa ? '<span class="set-badge" title="họa tiết nhật bản">JP</span>' : '')
+  return (d && d.extra ? '<span class="set-badge ex" title="Đã thêm sau khi phát hành lần đầu">Mới</span>' : '') + (d && d.wa ? '<span class="set-badge" title="họa tiết nhật bản">Nhật</span>' : '')
     + (d && d.set && SET_UI[d.set] ? `<span class="set-badge set-${d.set}" title="${SET_UI[d.set].name}">${SET_UI[d.set].badge}</span>` : '');
 }
 function loadLocal() { try { const s = localStorage.getItem(LS_KEY); if (s) return mergeProject(JSON.parse(s)); } catch (e) {} return mergeProject(null); }
@@ -37615,7 +38619,7 @@ async function ensureFonts() {
 // style thumbnails need two glyphs of every style's display face — fetched only once the style grid is actually shown
 function loadThumbFonts() {
   if (thumbFonts || !$('styleGrid').offsetParent) return;
-  thumbFonts = J.ensureFonts(document.documentElement.lang === 'vi' ? 'Lời ca' : 'JIZURA', [...new Set(J.STYLE_ORDER.map(k => J.STYLES[k].fonts.display[0]))]).then(() => drawStyleGrid()).catch(() => {});
+  thumbFonts = J.ensureFonts(document.documentElement.lang === 'vi' ? 'Lời ca' : 'AURA', [...new Set(J.STYLE_ORDER.map(k => J.STYLES[k].fonts.display[0]))]).then(() => drawStyleGrid()).catch(() => {});
 }
 function showMsg(m) { const el = $('viewMsg'); if (!m) { el.hidden = true; return; } el.textContent = m; el.hidden = false; }
 
@@ -37699,6 +38703,8 @@ function seek(t) {
 /* ---------------- timeline ---------------- */
 // zoomable view: [TL.off, TL.off + D / TL.z] seconds; line starts are draggable handles in the top band
 const layoutHue = k => (J.LAYOUT_ORDER.indexOf(k) * 37 + 30) % 360;
+// v0.16.0: timeline lanes (CSS px) — handle band on top, wave lane in the middle, cut lane at the bottom
+const TL_HANDLE_PX = 24, TL_WAVE_BOT_PX = 68;
 const TL = { z: 1, off: 0, hover: -1, drag: -1 };
 function tlView() {
   const D = Math.max(0.001, S.plan.duration), vd = D / TL.z;
@@ -37725,28 +38731,35 @@ function drawTimeline() {
   // follow the playhead while playing (zoomed in)
   if (TL.z > 1 && S.playing && TL.drag < 0 && (S.t < off || S.t > off + vd * 0.92)) { TL.off = S.t - vd * 0.1; ({ D, vd, off } = tlView()); }
   const x = c.getContext('2d'), X = t => (t - off) / vd * w, T = px => off + px / w * vd;
+  // v0.16.0 lanes (device px): handle band on top, wave lane in the middle, cut lane at the bottom
+  const handleH = TL_HANDLE_PX * dpr, waveTop = handleH, waveBot = TL_WAVE_BOT_PX * dpr;
+  const waveMid = (waveTop + waveBot) / 2, waveHalf = (waveBot - waveTop) / 2 - 2 * dpr;
+  const cutTop = waveBot, cutBot = h - 8 * dpr;
   x.fillStyle = '#131316'; x.fillRect(0, 0, w, h);
   if (S.audio && S.audio.peaks) {
+    // mirrored waveform, bright enough to read against the background (contrast ~5.6:1)
     const pk = S.audio.peaks, n = pk.length, sd = S.audio.duration;
-    x.fillStyle = '#2b2b33';
-    for (let i = 0; i < w; i += 2) { const t = T(i); if (t > sd) break; if (t < 0) continue; const v = pk[Math.min(n - 1, Math.floor(t / sd * n))]; const hh = v * h * 0.8; x.fillRect(i, h * 0.6 - hh / 2, 1.5, hh); }
+    x.fillStyle = '#8a8a99';
+    for (let i = 0; i < w; i += 2) { const t = T(i); if (t > sd) break; if (t < 0) continue; const v = pk[Math.min(n - 1, Math.floor(t / sd * n))]; const hh = v * waveHalf; if (hh > 0) x.fillRect(i, waveMid - hh, 1.5, hh * 2); }
+  } else {
+    // no audio: empty wave lane, just a faint centre line
+    x.fillStyle = 'rgba(255,255,255,0.08)'; x.fillRect(0, waveMid, w, 1);
   }
   const beats = S.plan.beats || [];
   x.fillStyle = '#3a3a44';
-  for (const b of beats) { if (b < off) continue; if (b > off + vd) break; x.fillRect(Math.round(X(b)), h - 6 * dpr, 1, 6 * dpr); }
-  const top = h * 0.3, bot = h - 8 * dpr;
+  for (const b of beats) { if (b < off) continue; if (b > off + vd) break; x.fillRect(Math.round(X(b)), h - 6 * dpr, 1, 6 * dpr); x.fillRect(Math.round(X(b)), waveBot - 5 * dpr, 1, 5 * dpr); }
   const R = exportRange();
   if (R) { x.fillStyle = 'rgba(245,165,12,0.10)'; x.fillRect(X(R.t0), 0, X(R.t1) - X(R.t0), h); }
   for (const cut of S.plan.cuts) {
     const x0 = X(cut.start), x1 = X(cut.end);
     if (x1 < 0 || x0 > w) continue;
     const hue = layoutHue(cut.layout);
-    x.fillStyle = `hsla(${hue},70%,58%,0.28)`; x.fillRect(x0, top, Math.max(1, x1 - x0 - 1), bot - top);
-    x.fillStyle = `hsla(${hue},80%,62%,0.95)`; x.fillRect(x0, top, Math.max(1, 2 * dpr), bot - top);
+    x.fillStyle = `hsla(${hue},70%,58%,0.28)`; x.fillRect(x0, cutTop, Math.max(1, x1 - x0 - 1), cutBot - cutTop);
+    x.fillStyle = `hsla(${hue},80%,62%,0.95)`; x.fillRect(x0, cutTop, Math.max(1, 2 * dpr), cutBot - cutTop);
     if (x1 - x0 > 34 * dpr) {
       x.fillStyle = 'rgba(236,231,225,0.85)'; x.font = `${10 * dpr}px ${getComputedStyle(document.body).getPropertyValue('--mono') || 'monospace'}`;
-      x.save(); x.beginPath(); x.rect(x0, top, x1 - x0 - 3, bot - top); x.clip();
-      x.fillText(TL.z > 3 && cut.text ? cut.text : ((J.LAYOUTS[cut.layout] || {}).name || cut.layout), x0 + 5 * dpr, top + 13 * dpr); x.restore();
+      x.save(); x.beginPath(); x.rect(x0, cutTop, x1 - x0 - 3, cutBot - cutTop); x.clip();
+      x.fillText(TL.z > 3 && cut.text ? cut.text : ((J.LAYOUTS[cut.layout] || {}).name || cut.layout), x0 + 5 * dpr, cutTop + 13 * dpr); x.restore();
     }
   }
   x.font = `${10 * dpr}px monospace`;
@@ -37755,7 +38768,7 @@ function drawTimeline() {
     const lx = X(ln.start);
     if (lx < -20 * dpr || lx > w + 2) continue;
     const on = ln.index === TL.drag || ln.index === TL.hover, man = LT[ln.index] != null;
-    x.fillStyle = on ? '#f5a50c' : man ? '#6fb7c8' : '#5d5a63'; x.fillRect(lx - (on ? dpr : 0), 0, on ? 2 * dpr : 1, top);
+    x.fillStyle = on ? '#f5a50c' : man ? '#6fb7c8' : '#5d5a63'; x.fillRect(lx - (on ? dpr : 0), 0, on ? 2 * dpr : 1, cutTop);
     // handle
     x.beginPath(); x.moveTo(lx - 5 * dpr, 0); x.lineTo(lx + 5 * dpr, 0); x.lineTo(lx, 7 * dpr); x.closePath(); x.fill();
     x.fillStyle = on ? '#f5a50c' : '#8e8a94'; x.fillText(String(ln.index + 1).padStart(2, '0') + (ln.interlude ? ' không lời' : ''), lx + 4 * dpr, 17 * dpr);
@@ -37777,10 +38790,10 @@ function tlTime(ev) {
   return off + J.clamp((ev.clientX - r.left) / r.width, 0, 1) * vd;
 }
 function timelineSeek(ev) { seek(tlTime(ev)); }
-/* the line whose start handle is under the pointer (top band, ±7px) */
+/* the line whose start handle is under the pointer (handle band only, ±7px) */
 function tlHandleAt(ev) {
   const c = $('timeline'), r = c.getBoundingClientRect(), { vd, off } = tlView();
-  if (ev.clientY - r.top > r.height * 0.45) return -1;
+  if (ev.clientY - r.top > TL_HANDLE_PX) return -1;
   let best = -1, bd = 8;
   for (const ln of S.plan.lines) { const d = Math.abs((ln.start - off) / vd * r.width - (ev.clientX - r.left)); if (d < bd) { bd = d; best = ln.index; } }
   return best;
@@ -38026,6 +39039,12 @@ function fillCutPick() {
 }
 
 /* ---------------- line list ---------------- */
+// word-time editor: which lines have their word rows open (renderLines rebuilds the rows on every replan)
+const wordEdOpen = new Set();
+function wordEditRows(ln, i) {
+  const rows = (ln.wordTimes || []).map((w, k) => `<span class="wrow"><span class="w">${escapeHtml(w.text || '')}</span><input class="wstart mono" type="number" step="0.01" min="0" value="${w.start.toFixed(2)}" data-k="${k}" title="Bắt đầu (giây)" aria-label="${i + 1}dòng目 ${escapeHtml(w.text || '')} の開始giây"><span class="wend mono">〜 ${w.end.toFixed(2)}</span></span>`).join('');
+  return `<span class="whead">Giờ từng từ</span>${rows}`;
+}
 function renderLines() {
   const ol = $('lineList'); ol.innerHTML = ''; S.lineEls = []; S.curLine = -2;
   const ov = S.project.overrides, R = exportRangeLines();
@@ -38041,7 +39060,8 @@ function renderLines() {
   const cutOpts = '<option value="">Vị trí: tự động</option>' + [1, 2, 3, 4, 5, 6].map(n => `<option value="${n}">Vị trí: ${n}</option>`).join('');
   S.plan.lines.forEach((ln, i) => {
     const o = ov[i] || {};
-    const li = document.createElement('li'); li.className = 'ln' + (ln.interlude ? ' is-inter' : '') + (R && i >= R.from && i <= R.to ? ' in-range' : '');
+    const hasWords = !ln.interlude && ln.wordTimes && ln.wordTimes.length > 0;
+    const li = document.createElement('li'); li.className = 'ln' + (ln.interlude ? ' is-inter' : '') + (R && i >= R.from && i <= R.to ? ' in-range' : '') + (hasWords ? ' has-wordtimes' : '');
     const manual = S.project.timing.lineTimes && S.project.timing.lineTimes[i] != null;
     const label = ln.interlude ? `[interlude${ln.secs ? ' ' + ln.secs + 's' : ''}]` : ln.text;
     li.innerHTML = `<span class="no">${String(i + 1).padStart(2, '0')}</span>
@@ -38050,13 +39070,15 @@ function renderLines() {
       <div class="meta"><span class="cuts"></span>
       <span class="tools">
         <button class="icon ghost edit" title="Chỉnh sửa lời bài hát" aria-label="Chỉnh sửa lời bài hát trên ${i + 1}">${ICON.pen}</button>
+        ${hasWords ? `<button class="icon ghost wtog" title="Giờ từng từ" aria-label="${i + 1}dòng目のGiờ từng từ" aria-pressed="${wordEdOpen.has(i) ? 'true' : 'false'}">${ICON.clock}</button><button class="icon ghost wdel" title="Xóa giờ từng từ của dòng này" aria-label="${i + 1}dòng目の単語時刻を消す">${ICON.x}</button>` : ''}
         ${ln.interlude ? '' : `<select class="ncut" aria-label="Số lần cắt trong hàng ${i + 1}">${cutOpts}</select>`}
         ${ln.interlude ? '' : `<select class="lay pro-only" aria-label="Chọn bố cục"></select>`}
         <button class="icon ghost tapfrom" title="Đặt lại điểm đánh dấu chuyển cảnh" aria-label="Đồng bộ hóa với các nhịp bắt đầu từ hàng ${i + 1}">${ICON.tap}</button>
         <button class="icon ghost rng" title="Tạo phạm vi xuất (Shift+nhấp để mở rộng phạm vi)" aria-pressed="${R && i >= R.from && i <= R.to ? 'true' : 'false'}" aria-label="Xuất hàng ${i + 1}">${ICON.range}</button>
         ${ln.interlude ? '' : `<button class="icon ghost dice" title="Sắp xếp lại hàng này">${ICON.dice}</button>`}
         ${ln.interlude ? '' : `<button class="icon ghost lock" title="Khóa cách sắp xếp hàng này" aria-pressed="${o.lock ? 'true' : 'false'}">${ICON.lock}</button>`}
-      </span></div>`;
+      </span></div>
+      ${hasWords && wordEdOpen.has(i) ? `<div class="wedit">${wordEditRows(ln, i)}</div>` : ''}`;
     const q = sel => li.querySelector(sel);
     if (q('.lay')) lazyLay(q('.lay'), o.layout || '');
     if (q('.ncut')) q('.ncut').value = o.cuts ? String(o.cuts) : '';
@@ -38080,6 +39102,47 @@ function renderLines() {
     q('.txt').addEventListener('click', () => seek(ln.start + 0.001));
     q('.txt').addEventListener('dblclick', () => editLine(li, ln));
     q('.edit').addEventListener('click', () => editLine(li, ln));
+    if (q('.wtog')) q('.wtog').addEventListener('click', () => { if (wordEdOpen.has(i)) wordEdOpen.delete(i); else wordEdOpen.add(i); renderLines(); });
+    if (q('.wdel')) q('.wdel').addEventListener('click', () => {
+      pushEdit();
+      if (S.project.timing.wordTimes) delete S.project.timing.wordTimes[i];
+      wordEdOpen.delete(i);
+      // the times came from the <mm:ss.xx> tags in the lyrics themselves: take the tags out of that row
+      if (ln.src != null) {
+        const rows = S.project.lyrics.replace(/\r/g, '').split('\n');
+        if (rows[ln.src] && /<\d+:\d+(?:[.:]\d+)?>/.test(rows[ln.src])) {
+          rows[ln.src] = rows[ln.src].replace(/<\d+:\d+(?:[.:]\d+)?>/g, '');
+          S.project.lyrics = rows.join('\n'); $('lyrics').value = S.project.lyrics;
+        }
+      }
+      replan(); flushSave();
+      toast('Đã xóa giờ từng từ của dòng này');
+    });
+    if (q('.wedit')) q('.wedit').addEventListener('change', e => {
+      const inp = e.target.closest('.wstart');
+      if (!inp) return;
+      const k = +inp.dataset.k, v = parseFloat(inp.value);
+      const planWt = S.plan.lines[i].wordTimes;
+      if (!planWt || !planWt[k]) return;
+      if (!isFinite(v)) { renderLines(); return; }   // empty = back to the plan value
+      pushEdit();
+      if (!S.project.timing.wordTimes) S.project.timing.wordTimes = {};
+      // first edit of an imported line copies the (validated) plan times into the editable store
+      if (!S.project.timing.wordTimes[i]) S.project.timing.wordTimes[i] = planWt.map(w => ({ start: w.start, end: w.end, text: w.text }));
+      const arr = S.project.timing.wordTimes[i], ln2 = S.plan.lines[i];
+      // the planner pushes a word's start to the previous word's END (no
+      // overlap), so clamp to that same bound — otherwise the toast promises
+      // a time the plan then silently overrides
+      const prevEnd = k > 0 ? (arr[k - 1].end != null ? arr[k - 1].end : arr[k - 1].start + 0.01) : ln2.start;
+      const lo = k > 0 ? Math.max(arr[k - 1].start + 0.01, prevEnd) : ln2.start;
+      const hi = k < arr.length - 1 ? arr[k + 1].start - 0.01 : ln2.end;
+      let w = v;
+      if (hi >= lo && (v < lo || v > hi)) { w = J.clamp(v, lo, hi); toast(`Đã đặt ${w.toFixed(2)} giây để giữ thứ tự các từ`); }
+      else w = Math.max(lo, Math.min(v, hi));
+      arr[k].start = +w.toFixed(3);
+      if (arr[k].end == null || arr[k].end <= arr[k].start) arr[k].end = +(arr[k].start + 0.1).toFixed(3);
+      replan();
+    });
     if (q('.lay')) q('.lay').addEventListener('change', e => { setOv(i, { layout: e.target.value || undefined }); replan(); });
     if (q('.ncut')) q('.ncut').addEventListener('change', e => { remember(); setOv(i, { cuts: +e.target.value || undefined, single: undefined }); replan(); commit(); seek(ln.start + 0.001); });
     q('.tapfrom').addEventListener('click', () => startTap(i));
@@ -38164,7 +39227,7 @@ function editLine(li, ln) {
 /* ---------------- 歌詞·タイミングの取り消し（Ctrl+Z） ---------------- */
 // separate from the ◀ ▶ history of looks: lyric edits, dragged / typed / tapped line times
 const ED = { undo: [], redo: [] };
-const edSnap = () => JSON.stringify({ lyrics: S.project.lyrics, lineTimes: S.project.timing.lineTimes || {} });
+const edSnap = () => JSON.stringify({ lyrics: S.project.lyrics, lineTimes: S.project.timing.lineTimes || {}, wordTimes: S.project.timing.wordTimes || {} });
 function pushEdit() { const s = edSnap(); if (ED.undo[ED.undo.length - 1] !== s) ED.undo.push(s); if (ED.undo.length > 60) ED.undo.shift(); ED.redo = []; updateEditBtns(); }
 function edGo(d) {
   const from = d < 0 ? ED.undo : ED.redo, to = d < 0 ? ED.redo : ED.undo;
@@ -38172,7 +39235,7 @@ function edGo(d) {
   const o = JSON.parse(from.pop()), cur = JSON.parse(edSnap());
   if ('ov' in o) { cur.ov = S.project.overrides; cur.range = S.project.exportRange || null; }   // clearLyrics() also cleared these
   to.push(JSON.stringify(cur));
-  S.project.lyrics = o.lyrics; S.project.timing.lineTimes = o.lineTimes; $('lyrics').value = o.lyrics;
+  S.project.lyrics = o.lyrics; S.project.timing.lineTimes = o.lineTimes || {}; S.project.timing.wordTimes = o.wordTimes || {}; $('lyrics').value = o.lyrics;
   if ('ov' in o) { S.project.overrides = o.ov || {}; S.project.exportRange = o.range || null; }
   replan(); flushSave(); updateEditBtns();
   toast(d < 0 ? 'Đã hoàn tác' : 'Đã làm lại');
@@ -38185,10 +39248,15 @@ function loadLrc(text) {
   ED.undo.push(JSON.stringify(snap)); if (ED.undo.length > 60) ED.undo.shift(); ED.redo = [];
   pause();
   P.lyrics = String(text).replace(/^\ufeff/, '').replace(/\r\n?/g, '\n').trim(); P.timing.lineTimes = {}; P.overrides = {}; P.exportRange = null;
+  // Enhanced LRC: the <mm:ss.xx> word tags become the line's word times (line-level tags still rule the lines)
+  const parsedLrc = J.parseLyrics(P.lyrics);
+  P.timing.wordTimes = {};
+  let nWords = 0;
+  parsedLrc.lines.forEach((l, i) => { if (l.words && l.words.length) { P.timing.wordTimes[i] = l.words.map(w => ({ start: +w.start.toFixed(3), end: w.end != null ? +w.end.toFixed(3) : null, text: w.text })); nWords += l.words.length; } });
   $('lyrics').value = P.lyrics;
   replan(); flushSave(); updateEditBtns(); seek(0);
-  const n = J.parseLyrics(P.lyrics).lines.filter(l => l.lrc != null).length;
-  toast(`Đã mở LRC (${n} dòng có thời gian · Hoàn tác để lấy lại)`);
+  const n = parsedLrc.lines.filter(l => l.lrc != null).length;
+  toast(nWords > 0 ? `Đã mở LRC (${n} dòng có thời gian · ${nWords} từ có giờ · Hoàn tác để lấy lại)` : `Đã mở LRC (${n} dòng có thời gian · Hoàn tác để lấy lại)`);
 }
 function saveLrc() {
   const R = exportRangeLines(), r = exportRange();
@@ -38203,7 +39271,7 @@ function clearLyrics() {
   const snap = JSON.parse(edSnap()); snap.ov = P.overrides || {}; snap.range = P.exportRange || null;
   ED.undo.push(JSON.stringify(snap)); if (ED.undo.length > 60) ED.undo.shift(); ED.redo = [];
   pause();
-  P.lyrics = ''; P.timing.lineTimes = {}; P.overrides = {}; P.exportRange = null; $('lyrics').value = '';
+  P.lyrics = ''; P.timing.lineTimes = {}; P.timing.wordTimes = {}; P.overrides = {}; P.exportRange = null; $('lyrics').value = '';
   replan(); flushSave(); updateEditBtns(); seek(0);
   toast('Lời bài hát đã bị xóa (Hoàn tác hoặc Ctrl+Z để khôi phục)');
 }
@@ -38325,9 +39393,9 @@ function drawStyleGrid() {
     st.schemes.slice(1, 4).forEach((s2, i) => { x.fillStyle = s2.bg; x.fillRect(192 - 14 * (i + 1), 0, 14, 10); });
     const f = st.fonts.display[0];
     x.font = J.fontCSS(f, 46); x.textAlign = 'center'; x.textBaseline = 'middle';
-    x.fillStyle = sc.ghostB; x.fillText(document.documentElement.lang === 'vi' ? 'Lời ca' : 'JIZURA', 96 - 3, 54 - 1);
-    x.fillStyle = sc.ghostA; x.fillText(document.documentElement.lang === 'vi' ? 'Lời ca' : 'JIZURA', 96 + 3, 54 + 2);
-    x.fillStyle = sc.fg; x.fillText(document.documentElement.lang === 'vi' ? 'Lời ca' : 'JIZURA', 96, 54);
+    x.fillStyle = sc.ghostB; x.fillText(document.documentElement.lang === 'vi' ? 'Lời ca' : 'AURA', 96 - 3, 54 - 1);
+    x.fillStyle = sc.ghostA; x.fillText(document.documentElement.lang === 'vi' ? 'Lời ca' : 'AURA', 96 + 3, 54 + 2);
+    x.fillStyle = sc.fg; x.fillText(document.documentElement.lang === 'vi' ? 'Lời ca' : 'AURA', 96, 54);
     x.fillStyle = sc.accent; x.fillRect(12, 90, 30, 4);
     x.font = J.fontCSS('mono', 9); x.textAlign = 'left'; x.fillStyle = sc.sub; x.fillText(k.toUpperCase(), 48, 93);
   });
@@ -38635,7 +39703,7 @@ function setMode(m) {
   $('modeMobile').setAttribute('aria-pressed', String(mobile));
   $('modeEasy').setAttribute('aria-pressed', String(S.mode === 'easy'));
   $('modePro').setAttribute('aria-pressed', String(S.mode === 'pro'));
-  try { localStorage.setItem('jizura.mode', S.mode); } catch (e) {}
+  try { localStorage.setItem('aura.mode', S.mode); } catch (e) {}
   if (mobile) mobileInit();
     if (easy) { showNow(); syncOut(); codecNoteSoon(); }
     if (easy) closeCutPick();
@@ -38647,7 +39715,7 @@ function setMode(m) {
 function mobileBar() { const b = document.querySelector('.bar'); if (b) document.documentElement.style.setProperty('--mbar', b.offsetHeight + 'px'); }
 function mobileInit() {
   mobileBar();
-  let first = true; try { first = localStorage.getItem('jizura.mobileInit') !== '1'; localStorage.setItem('jizura.mobileInit', '1'); } catch (e) {}
+  let first = true; try { first = localStorage.getItem('aura.mobileInit') !== '1'; localStorage.setItem('aura.mobileInit', '1'); } catch (e) {}
   if (first) {
     if ((S.project.res || 1080) > 720) { S.project.res = 720; syncOut(); autosave(); }
     const sec = $('lineList') && $('lineList').closest('.sec'); if (sec) sec.classList.add('fold');
@@ -38669,6 +39737,20 @@ function renderFx() {
     inp.addEventListener('input', () => { S.project.fx[k] = +inp.value; S.project.mood = null; out.textContent = Math.round(inp.value * 100); replanSoon(120); });
     box.appendChild(row);
   });
+  // v0.14.0: beat-synced motion — toggle + strength + beat interval (rebuilt with the other fx controls)
+  const bfx = S.project.fx;
+  const beatBox = document.createElement('div');
+  beatBox.innerHTML = `<label class="row" style="gap:6px"><input id="fxBeatSync" type="checkbox"${bfx.beatSync ? ' checked' : ''}> Nhảy theo phách nhạc</label>`
+    + `<div class="slider"><label for="fxBeatAmt">Độ mạnh theo phách</label><input id="fxBeatAmt" type="range" min="0" max="1" step="0.01" value="${bfx.beatAmt ?? 0.7}"><output>${Math.round((bfx.beatAmt ?? 0.7) * 100)}</output></div>`
+    + `<label class="field">Khoảng phách<select id="fxBeatEvery"><option value="1">Mỗi phách</option><option value="2">Mỗi 2 phách</option><option value="4">Mỗi 4 phách</option></select></label>`;
+  box.appendChild(beatBox);
+  const bSync = beatBox.querySelector('#fxBeatSync'), bAmt = beatBox.querySelector('#fxBeatAmt'), bAmtOut = beatBox.querySelector('output'), bEvery = beatBox.querySelector('#fxBeatEvery');
+  bEvery.value = String(bfx.beatEvery || 1);
+  const syncBeatDis = () => { bAmt.disabled = !bfx.beatSync; bEvery.disabled = !bfx.beatSync; };
+  syncBeatDis();
+  bSync.addEventListener('change', () => { bfx.beatSync = bSync.checked; syncBeatDis(); replan(); });
+  bAmt.addEventListener('input', () => { bfx.beatAmt = +bAmt.value; bAmtOut.textContent = Math.round(bAmt.value * 100); replanSoon(120); });
+  bEvery.addEventListener('change', () => { bfx.beatEvery = +bEvery.value; replan(); });
   lockBtn('flash', $('fxFlash').closest('label'));
   lockBtn('koma', $('fxKoma').closest('label'));
   $('fxFlash').checked = !!S.project.fx.flash;
@@ -38848,7 +39930,7 @@ async function codecNote() {
 const EXP_BTNS = ['btnMP4', 'btnPNG', 'btnPNGA', 'btnPNGL', 'eMP4', 'btnMP4File', 'eMP4File', 'ePNG', 'ePNGA', 'ePNGL'];
 function baseName() {
   const k = J.keyMode(S.project);
-  return ((S.project.title || 'jizura').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 60) || 'jizura') + (k ? (k === 'green' ? '_greenback' : '_blackback') : '');
+  return ((S.project.title || 'aura').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 60) || 'aura') + (k ? (k === 'green' ? '_greenback' : '_blackback') : '');
 }
 const canPickFile = () => typeof window.showSaveFilePicker === 'function' && !document.documentElement.classList.contains('cep') && typeof VideoEncoder !== 'undefined';
 async function runExport(kind) {
@@ -38957,12 +40039,12 @@ function startTap(from = 0) {
 }
 /* タップ同期の速さ·カウントダウン: remembered in this browser */
 function tapOpts() {
-  let o = null; try { o = JSON.parse(localStorage.getItem('jizura.tapOpts') || 'null'); } catch (e) {}
+  let o = null; try { o = JSON.parse(localStorage.getItem('aura.tapOpts') || 'null'); } catch (e) {}
   const rate = o && [1, 0.75, 0.5].includes(+o.rate) ? +o.rate : 1;
   return { rate, count: !!(o && o.count) };
 }
 function saveTapOpts() {
-  try { localStorage.setItem('jizura.tapOpts', JSON.stringify({ rate: +$('tapRate').value || 1, count: $('tapCount').checked })); } catch (e) {}
+  try { localStorage.setItem('aura.tapOpts', JSON.stringify({ rate: +$('tapRate').value || 1, count: $('tapCount').checked })); } catch (e) {}
 }
 function tapNow() {
   if (!S.tap || S.tap.counting) return;         // not during the countdown
@@ -39033,6 +40115,7 @@ function syncUI() {
   $('bpm').value = S.project.timing.bpm > 0 ? S.project.timing.bpm : '';
   $('bpm').placeholder = S.audio ? `Tự động ${S.audio.bpm}` : 'không có bất kỳ';
   $('offset').value = S.project.timing.offset ?? 0.4;
+  $('beatOffset').value = S.project.timing.beatOffset ?? 0;
   $('lineScale').value = S.project.timing.lineScale ?? 1;
   $('snap').checked = !!S.project.timing.snap;
   document.querySelectorAll('.wa-toggle').forEach(el => { el.checked = S.project.wa !== false; });
@@ -39085,6 +40168,7 @@ function bind() {
   $('btnSyntax').addEventListener('click', e => { const s = $('syntax'); s.hidden = !s.hidden; e.target.setAttribute('aria-expanded', String(!s.hidden)); });
   $('bpm').addEventListener('change', e => { S.project.timing.bpm = Math.max(0, parseFloat(e.target.value) || 0); replan(); });
   $('offset').addEventListener('change', e => { S.project.timing.offset = Math.max(0, parseFloat(e.target.value) || 0); replan(); });
+  $('beatOffset').addEventListener('change', e => { S.project.timing.beatOffset = J.clamp(parseFloat(e.target.value) || 0, -2, 2); replan(); });
   $('lineScale').addEventListener('change', e => { S.project.timing.lineScale = J.clamp(parseFloat(e.target.value) || 1, 0.3, 4); replan(); });
   $('snap').addEventListener('change', e => { S.project.timing.snap = e.target.checked; replan(); });
   $('btnResetTimes').addEventListener('click', () => { S.project.timing.lineTimes = {}; replan(); });
@@ -39179,6 +40263,7 @@ function bind() {
     });
   }
   $('btnTap').addEventListener('click', () => (S.tap ? stopTap() : startTap()));
+  $('btnWhisper').addEventListener('click', whisperRun);
   $('tapBtn').addEventListener('click', tapNow);
   $('tapRate').addEventListener('change', () => {
     saveTapOpts();
@@ -39343,7 +40428,7 @@ function bind() {
   const openTerms = () => { if (dlg.showModal) { if (!dlg.open) dlg.showModal(); } else dlg.setAttribute('open', ''); };
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
-  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.aura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '0.10.1' }), null, 1)));
+  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.aura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '0.17.0' }), null, 1)));
   $('btnAE').addEventListener('click', () => J.saveFile(baseName() + rangeSuffix() + '_ae.json', JSON.stringify(J.planForAE(S.plan, S.project, exportRange()), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
@@ -39354,12 +40439,30 @@ function bind() {
   }));
   $('fileLrc').addEventListener('change', async e => {
     const f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return;
-    if (f.size > 2e6) { toast('Tệp LRC quá lớn'); return; }
+    if (f.size > 2e6) { toast('Tệp quá lớn'); return; }
     let text = '';
     try { const buf = await f.arrayBuffer(); try { text = new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch (e2) { text = new TextDecoder('shift_jis').decode(buf); } }
-    catch (err) { toast('Không đọc được tệp LRC'); return; }
-    if (S.project.lyrics.trim() && !window.confirm('Thay lời hiện tại bằng nội dung LRC? (Thời gian từng dòng, thiết lập từng dòng và phạm vi xuất cũng bị xóa. Hoàn tác để lấy lại.)')) return;
+    catch (err) { toast('Không đọc được tệp'); return; }
+    if (!text.trim()) { toast('Tệp trống'); return; }
+    // SRT / VTT / SSA-ASS → standard LRC, then the same path as an LRC file:
+    // line times from the cue starts, word times from \k / timestamp tags
+    const fmt = J.detectSubsFormat ? J.detectSubsFormat(text) : 'txt';
+    let subs = null;
+    if (fmt === 'srt' || fmt === 'vtt' || fmt === 'ass') {
+      const lang = J.detectLang ? J.detectLang(text) : 'vi';
+      subs = J.parseSubs(text, lang);
+      if (!subs.cues.length) { toast('Không tìm thấy phụ đề nào (không có cue nào có thời gian)'); return; }
+      text = J.subsToLrc(subs);
+    }
+    if (S.project.lyrics.trim() && !window.confirm('Thay lời hiện tại bằng nội dung vừa mở? (Thời gian từng dòng, thiết lập từng dòng và phạm vi xuất cũng bị xóa. Hoàn tác để lấy lại.)')) return;
     loadLrc(text);
+    if (subs) {
+      // count the words the project actually got (parseLyrics interpolates
+      // times for untagged tokens between tags, e.g. VTT "new", so the
+      // parser's tagged-word count would under-report)
+      const nWords = Object.values(S.project.timing.wordTimes || {}).reduce((a, w) => a + (w ? w.length : 0), 0);
+      toast(`${fmt.toUpperCase()} đã mở (${subs.cues.length} dòng${nWords ? ` · ${nWords} từ có giờ` : ''}${subs.skipped ? ` · bỏ ${subs.skipped} cue` : ''} · Hoàn tác để lấy lại)`);
+    }
   });
   ['btnLRC', 'eLRC'].forEach(id => $(id).addEventListener('click', saveLrc));
   $('btnReset').addEventListener('click', () => {
@@ -39425,7 +40528,7 @@ async function loadAudioFile(f, restored) {
 /* ---------------- かんたんモードの案内ツアー ---------------- */
 const TOUR = [
   { t: () => $('lyrics'), title: '1. Nhập lời bài hát', text: 'Mỗi dòng là một câu. Dòng trống tạo khoảng dừng ngắn; [interlude 8] sẽ tạo đoạn nhạc nền 8 giây (chỉ hình nền và hiệu ứng).' },
-  { t: () => $('audioFile').closest('label') || $('audioFile'), title: '2. Chọn tệp âm thanh', text: 'Chọn tệp mp3 hoặc tệp tương tự: JIZURA nhận diện nhịp và căn chỉnh chuyển cảnh. Có thể làm không cần bài hát. “Đặt điểm chuyển cảnh” để đánh dấu bắt đầu của mỗi câu.' },
+  { t: () => $('audioFile').closest('label') || $('audioFile'), title: '2. Chọn tệp âm thanh', text: 'Chọn tệp mp3 hoặc tệp tương tự: AURA nhận diện nhịp và căn chỉnh chuyển cảnh. Có thể làm không cần bài hát. “Đặt điểm chuyển cảnh” để đánh dấu bắt đầu của mỗi câu.' },
   { t: () => $('btnOmakaseBig'), title: '3. Tạo ngẫu nhiên', text: 'Phong cách, bầu không khí, chuyển động, bảng màu và bố cục được chọn tự động. Mỗi lần bấm tạo biến thể mới; “◀ Biến thể trước” để quay lại.' },
   { t: () => $('btnPlay'), title: '4. Phát thử', text: 'Phát để xem trước. Trên dòng thời gian phía dưới, kéo thanh neo để chỉnh (＋− để phóng to).' },
   { t: () => $('lineList'), title: '5. Sửa từng câu', text: 'Mỗi câu: sửa lời (✎), đặt vị trí chuyển cảnh, đặt lại vị trí chuyển cảnh cho câu này (◎), hoặc tạo lại cho riêng câu này (ngẫu nhiên).' },
@@ -39465,7 +40568,7 @@ function tourStart() {
 }
 function tourEnd() {
   $('tour').hidden = true; TR.i = -1;
-  try { localStorage.setItem('jizura.tourDone', '1'); } catch (e) {}
+  try { localStorage.setItem('aura.tourDone', '1'); } catch (e) {}
 }
 function bindTour() {
   const el = $('tour');
@@ -39494,14 +40597,223 @@ async function restoreFonts() {
 }
 
 /* ---------------- boot ---------------- */
+/* ---------------- Whisper — 音声を聴いてdòngの開始時刻を合わせる ----------------
+   v0.12.0: @huggingface/transformers (Whisper tiny) をボタンを押したときだけ
+   読み込む。歌声を聴いて各dòngが実際に歌われる時刻を測り、一致したdòngだけ
+   S.project.timing.lineTimes に書き込む。歌詞のChữそのものは変えない。
+   すべてブラウザ内で動く (WASM/WebGPU) — 音声は外に出ない。
+   言語は歌詞の言語に従う (vi が既定。日本語·中国語·韓国語は1Chữずつ照合)。 */
+const WHISPER_CDN = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.2/dist/transformers.min.js';
+const WHISPER_MODEL = 'Xenova/whisper-tiny';
+const WHISPER_CJK = ['ja', 'zh', 'ko'];   // 分かち書きのない言語は1Chữずつ照合する
+let whisperState = { status: 'idle', progress: 0, note: '', modelLoaded: false, libLoaded: false, lastRun: null };
+let whisperPipe = null, whisperLib = null;
+function whisperLang() {
+  const l = J.resolveLang(S.project);
+  if (l === 'zh-Hant' || l === 'zh-Hans') return 'zh';
+  if (WHISPER_CJK.includes(l) || ['vi', 'en', 'id', 'fr', 'de', 'es', 'pt', 'ru', 'ar', 'hi', 'th'].includes(l)) return l;
+  return 'vi';
+}
+function whisperNorm(s, lang) {
+  const t = String(s || '');
+  if (WHISPER_CJK.includes(lang)) return t.normalize('NFC').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+  return t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function whisperWords(text, lang) {
+  const norm = whisperNorm(text, lang);
+  if (WHISPER_CJK.includes(lang)) return [...norm].map(ch => ({ text: ch, norm: ch }));
+  return norm.split(/\s+/).filter(Boolean).map(w => ({ text: w, norm: w }));
+}
+function whisperResample16k(mono, sr) {
+  if (!mono || !mono.length) return null;
+  if (sr === 16000) return Float32Array.from(mono);
+  const n = Math.max(1, Math.round(mono.length * 16000 / sr)), out = new Float32Array(n);
+  for (let i = 0; i < n; i++) { const pos = i * (sr / 16000), i0 = Math.floor(pos), frac = pos - i0, a = mono[Math.min(i0, mono.length - 1)], b = mono[Math.min(i0 + 1, mono.length - 1)]; out[i] = a + (b - a) * frac; }
+  return out;
+}
+function whisperGetAudio() {
+  if (!S.audio || !S.audio.buffer) return null;
+  const buf = S.audio.buffer, ch = buf.numberOfChannels, len = buf.length;
+  const mono = new Float32Array(len);
+  for (let c = 0; c < ch; c++) { const d = buf.getChannelData(c); for (let i = 0; i < len; i++) mono[i] += d[i] / ch; }
+  const data = whisperResample16k(mono, buf.sampleRate);
+  return data ? { data, dur: buf.duration } : null;
+}
+function whisperChunks(out, lang) {
+  const cs = (out && Array.isArray(out.chunks)) ? out.chunks : [];
+  const words = [];
+  cs.forEach(c => {
+    const ts = Array.isArray(c.timestamp) ? c.timestamp : null;
+    if (!ts || ts.length < 2) return;
+    const ws = whisperWords(c.text, lang);
+    if (!ws.length) return;
+    // v0.13.0: whisper-tiny already returns one word per chunk (verified in the browser on real
+    // Vietnamese speech, 2026-11-08: 18/18 chunks were single words) — use its times as they are.
+    if (ws.length === 1) { words.push({ text: ws[0].text, norm: ws[0].norm, start: ts[0], end: ts[1] }); return; }
+    const span = (ts[1] - ts[0]) / ws.length;   // a chunk holding several words (rare): split its span evenly
+    ws.forEach((w, i) => words.push({ text: w.text, norm: w.norm, start: ts[0] + i * span, end: ts[0] + (i + 1) * span }));
+  });
+  return words;
+}
+function whisperAlign(userLines, wWords, lang) {
+  // the flat list is built with J.wordTokens, so its indices are the ones whisperApply uses to read the
+  // user's own display words back (whisperWords only normalises; the tokens are identical)
+  const flat = [];
+  userLines.forEach(l => J.wordTokens(l.text, lang).forEach((w, k) => flat.push({ line: l.index, k, text: w.text, norm: w.norm })));
+  const n = flat.length, m = wWords.length, dp = [];
+  for (let i = 0; i <= n; i++) dp.push(new Array(m + 1).fill(0));
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) dp[i][j] = flat[i].norm === wWords[j].norm ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+  const pairs = [];
+  let i = 0, j = 0;
+  while (i < n && j < m) {
+    if (flat[i].norm === wWords[j].norm) { pairs.push({ u: i, w: j }); i++; j++; }
+    else if (dp[i + 1][j] >= dp[i][j + 1]) i++;
+    else j++;
+  }
+  const lines = userLines.map(l => {
+    const ws = flat.filter(f => f.line === l.index);
+    const matched = pairs.filter(p => flat[p.u].line === l.index);
+    const first = matched.length ? wWords[matched[0].w] : null;
+    const last = matched.length ? wWords[matched[matched.length - 1].w] : null;
+    return { index: l.index, text: l.text, start: first ? first.start : null, end: last ? last.end : null, matched: matched.length, total: ws.length };
+  });
+  return { lines, pairs, wWords, flat, matchedWords: pairs.length, totalWords: flat.length, unmatched: lines.filter(l => l.matched === 0).map(l => l.text) };
+}
+function whisperLyricLines() {
+  const parsed = J.parseLyrics(S.project.lyrics || '');
+  return parsed.lines.map((l, i) => ({ index: i, text: l.text || '', interlude: !!l.interlude })).filter(l => l.text && !l.interlude);
+}
+function whisperLoadErrorText(e) {
+  const m = (e && e.message) ? String(e.message) : String(e || '');
+  if (/Failed to fetch/i.test(m)) return 'không kết nối được tới CDN (kiểm tra mạng)';
+  if (/SyntaxError|Unexpected token|not a module|did not export pipeline/i.test(m)) return 'file thư viện không đúng định dạng';
+  return m ? m.slice(0, 120) : '不明なエラー';
+}
+function whisperLoadLib() {
+  if (whisperLib && whisperLib.pipeline) { whisperState.libLoaded = true; return Promise.resolve(whisperLib); }
+  return import(WHISPER_CDN).then(T => {
+    if (!T || !T.pipeline) throw new Error('transformers.js did not export pipeline');
+    try { if (T.env) { T.env.useBrowserCache = true; T.env.allowLocalModels = false; } } catch (e) {}
+    whisperLib = T; whisperState.libLoaded = true; return T;
+  });
+}
+function whisperSetStatus(status, note, progress) {
+  whisperState.status = status; whisperState.note = note || '';
+  if (typeof progress === 'number') whisperState.progress = progress;
+  whisperRenderUI();
+}
+function whisperRenderUI() {
+  const b = $('btnWhisper');
+  if (b) b.disabled = ['loading-lib', 'loading-model', 'transcribing', 'aligning'].includes(whisperState.status);
+  const st = $('whisperStatus');
+  if (st) st.textContent = whisperState.status === 'idle' ? 'Chưa chạy — cần audio thật + lời đã nhập.' : (whisperState.note || '');
+}
+function whisperApply(res) {
+  pushEdit();
+  if (!S.project.timing.lineTimes) S.project.timing.lineTimes = {};
+  if (!S.project.timing.wordTimes) S.project.timing.wordTimes = {};
+  const lt = S.project.timing.lineTimes, wt = S.project.timing.wordTimes, L = S.plan.lines;
+  const fix = j => (lt[j] != null && isFinite(+lt[j])) ? +lt[j] : (L[j] && L[j].lrc != null ? L[j].lrc : null);
+  const durMax = Math.max(0, (S.plan.duration || 0) - 0.2);
+  res.lines.forEach(rl => {
+    if (rl.matched <= 0 || rl.start == null) return;
+    let lo = 0, hi = Infinity;
+    for (let j = rl.index - 1; j >= 0; j--) { const f = fix(j); if (f != null) { lo = f + 0.05; break; } }
+    for (let j = rl.index + 1; j < L.length; j++) { const f = fix(j); if (f != null) { hi = f - 0.05; break; } }
+    if (hi < lo) return;                       // 前後の固定時刻に挟まれて入る余地がないdòngは触らない
+    let w = Math.max(lo, +rl.start.toFixed(3));
+    if (hi !== Infinity) w = Math.min(w, hi);
+    if (durMax >= lo) w = Math.min(w, durMax);
+    lt[rl.index] = +w.toFixed(3);
+  });
+  // word times, in the same edit (one Ctrl+Z takes both back): the matched words of each line, in the
+  // user's own words — never Whisper's spelling — clamped inside the line and kept in order
+  const lang = whisperLang();
+  res.lines.forEach(rl => {
+    const linePairs = res.pairs.filter(p => res.flat[p.u].line === rl.index);
+    if (!linePairs.length) return;
+    const toks = J.wordTokens(rl.text, lang);
+    const lineStart = lt[rl.index] != null ? +lt[rl.index] : (L[rl.index] ? L[rl.index].start : 0);
+    const lineEnd = L[rl.index] ? L[rl.index].end : lineStart + 5;
+    let prev = lineStart;
+    const clean = [];
+    linePairs.forEach(p => {
+      const u = res.flat[p.u], w = res.wWords[p.w];
+      if (!w || w.start == null || !isFinite(+w.start)) return;
+      const tok = toks[u.k];
+      let a = Math.max(lineStart, Math.min(+w.start, lineEnd));
+      let b = w.end != null && isFinite(+w.end) ? +w.end : a + 0.3;
+      if (a < prev) a = prev;
+      if (a >= lineEnd) return;
+      b = Math.max(b, a + 0.05); b = Math.min(b, lineEnd);
+      clean.push({ start: +a.toFixed(3), end: +b.toFixed(3), text: tok ? tok.text : u.text });
+      prev = b;
+    });
+    if (clean.length) wt[rl.index] = clean;
+  });
+  replan(); syncUI(); flushSave();
+}
+async function whisperRun() {
+  if (['loading-lib', 'loading-model', 'transcribing', 'aligning'].includes(whisperState.status)) return;
+  const lines = whisperLyricLines();
+  if (!lines.length) { toast('Chưa có lời bài hát — nhập lời trước đã.'); return; }
+  const audio = whisperGetAudio();
+  if (!audio) { toast('Chưa có audio thật — tải bài hát lên trước đã.'); return; }
+  const lang = whisperLang();
+  let T = null;
+  try {
+    whisperSetStatus('loading-lib', 'Đang tải thư viện Whisper…', 0);
+    T = await whisperLoadLib();
+  } catch (e) {
+    const reason = whisperLoadErrorText(e);
+    whisperSetStatus('error', 'Không tải được thư viện Whisper — ' + reason, 0);
+    toast('Không tải được thư viện Whisper — ' + reason);
+    return;
+  }
+  try {
+    whisperSetStatus('loading-model', 'Đang tải model Whisper tiny (lần đầu ~40MB, lần sau dùng bản đã lưu)…', 0);
+    if (!whisperPipe) whisperPipe = await T.pipeline('automatic-speech-recognition', WHISPER_MODEL, { progress_callback: p => { if (p && p.status === 'progress') { const pct = Math.min(100, Math.max(0, Math.round(p.progress || 0))); whisperSetStatus('loading-model', 'Đang tải model Whisper tiny — ' + pct + '% (lần đầu ~40MB, lần sau dùng bản đã lưu)', pct); } } });
+    whisperState.modelLoaded = true;
+  } catch (e) {
+    whisperSetStatus('error', 'Không tải được model Whisper tiny — cần mạng lần đầu để tải model (~40MB).', 0);
+    toast('Không tải được model Whisper tiny — cần mạng lần đầu để tải model (~40MB).');
+    return;
+  }
+  let out = null;
+  try {
+    whisperSetStatus('transcribing', 'Đang nghe audio và nhận dạng từng từ — chạy local trong trình duyệt, có thể mất vài phút với bài dài…', 0);
+    out = await whisperPipe(audio.data, { language: lang, return_timestamps: 'word', chunk_length_s: 30, stride_length_s: 5 });
+  } catch (e) {
+    whisperSetStatus('error', 'Whisper chạy lỗi: ' + (e && e.message ? e.message : e), 0);
+    toast('Whisper chạy lỗi — giữ nguyên thời gian lời hiện tại.');
+    return;
+  }
+  whisperSetStatus('aligning', 'Đang khớp từng từ Whisper nhận ra với lời của bạn…', 0);
+  const chunks = whisperChunks(out, lang);
+  const res = whisperAlign(lines, chunks, lang);
+  if (!chunks.length || res.matchedWords === 0) {
+    whisperState.lastRun = { matchedLines: 0, totalLines: lines.length, matchedWords: 0, totalWords: res.totalWords, unmatched: lines.map(l => l.text) };
+    whisperSetStatus('done', 'Whisper không nhận ra từ nào trong audio này — giữ nguyên thời gian lời hiện tại.', 0);
+    toast('Whisper không nhận ra từ nào trong audio này — giữ nguyên thời gian lời hiện tại.');
+    return;
+  }
+  whisperApply(res);
+  const okLines = res.lines.filter(l => l.matched > 0).length;
+  whisperState.lastRun = { matchedLines: okLines, totalLines: lines.length, matchedWords: res.matchedWords, totalWords: res.totalWords, unmatched: res.unmatched };
+  const msg = `Đã căn ${okLines}/${lines.length} dòng, ${res.matchedWords}/${res.totalWords} từ khớp. Kiểm tra và sửa tay nếu cần.` + (res.unmatched.length ? ` — chưa khớp: ${res.unmatched.slice(0, 3).join(' / ')}` : '');
+  whisperSetStatus('done', msg, 0);
+  toast(msg);
+}
+
 function boot() {
+  migrateLS();
   S.project = loadLocal();
   bind(); initVolume(); syncUI(); syncLoopBtn(); replan();
   restoreFonts(); restoreUserImage();
   // Always default to pro mode on desktop so all tabs, styles, effects and settings are immediately visible
   let mode = window.matchMedia && window.matchMedia('(max-width: 760px)').matches ? 'mobile' : 'pro';
   try {
-    const saved = localStorage.getItem('jizura.mode');
+    const saved = localStorage.getItem('aura.mode');
     if (saved === 'mobile') mode = 'mobile';
     else mode = 'pro';
   } catch (e) {}
@@ -39518,6 +40830,139 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 J.ui = S;
 // hooks for hosts that embed the app (the After Effects CEP panel)
 J.uiApi = { toast, replan, syncUI, pause, seek, flushSave, loadAudioFile, restartPreview, exportRange, exportRangeLines };
+})();
+
+/* AURA — WebGL host for the vendored gl-transitions shaders (src/11p_gltrans.js).
+   One shared context for every Renderer instance (Preview, technique-preview, export):
+   never create a context per Renderer. Plain WebGL1, no libraries, no CDN.
+   The context is alpha:true + premultipliedAlpha:false so transparent PNG export keeps
+   its alpha; opaque renders are unaffected (A/B are opaque there, so the shader
+   output alpha is 1). drawImage(webglCanvas) runs synchronously in the same task
+   right after the draw, so preserveDrawingBuffer:false is correct here. */
+(() => {
+'use strict';
+const VERT = [
+  'attribute vec2 aPos;',
+  'varying vec2 vUv;',
+  'void main(){ vUv = aPos * 0.5 + 0.5; gl_Position = vec4(aPos, 0.0, 1.0); }',
+].join('\n');
+/* host contract (gl-transitions spec v1): progress, ratio, getFromColor/getToColor.
+   uv origin is the bottom-left in gl-transitions, so textures are uploaded with
+   UNPACK_FLIP_Y_WEBGL (see ensure). */
+const HEAD = [
+  'precision highp float;',
+  'varying vec2 vUv;',
+  'uniform float progress;',
+  'uniform float ratio;',
+  'uniform sampler2D from;',
+  'uniform sampler2D to;',
+  'vec4 getFromColor(vec2 uv){ return texture2D(from, uv); }',
+  'vec4 getToColor(vec2 uv){ return texture2D(to, uv); }',
+].join('\n');
+const TAIL = 'void main(){ gl_FragColor = transition(vUv); }';
+
+const GL = {
+  canvas: null, gl: null, quad: null, tex: null, programs: {}, warned: false, _support: undefined,
+  ensure() {
+    if (this.gl) return this.gl;
+    if (this._support === false) return null;
+    try {
+      const c = document.createElement('canvas');
+      const gl = c.getContext('webgl', { alpha: true, premultipliedAlpha: false, preserveDrawingBuffer: false, antialias: false, depth: false, stencil: false })
+        || c.getContext('experimental-webgl', { alpha: true, premultipliedAlpha: false, preserveDrawingBuffer: false, antialias: false, depth: false, stencil: false });
+      if (!gl) { this._support = false; return null; }
+      this.canvas = c; this.gl = gl; this._support = true;
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      const buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+      this.quad = buf;
+      this.tex = [gl.createTexture(), gl.createTexture()];
+      for (const t of this.tex) {
+        gl.bindTexture(gl.TEXTURE_2D, t);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      }
+      return gl;
+    } catch (e) { this._support = false; return null; }
+  },
+  supported() { return !!this.ensure(); },
+  /* compile once per shader, cache the program + uniform locations (null = failed, do not retry) */
+  compile(name, glsl) {
+    if (name in this.programs) return this.programs[name];
+    const gl = this.gl;
+    const one = (type, src) => {
+      const sh = gl.createShader(type);
+      gl.shaderSource(sh, src);
+      gl.compileShader(sh);
+      if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+        const log = gl.getShaderInfoLog(sh);
+        gl.deleteShader(sh);
+        throw new Error('compile ' + name + ': ' + (log || 'unknown error'));
+      }
+      return sh;
+    };
+    try {
+      const vs = one(gl.VERTEX_SHADER, VERT);
+      const fs = one(gl.FRAGMENT_SHADER, HEAD + '\n' + glsl + '\n' + TAIL);
+      const pr = gl.createProgram();
+      gl.attachShader(pr, vs); gl.attachShader(pr, fs); gl.linkProgram(pr);
+      gl.deleteShader(vs); gl.deleteShader(fs);
+      if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) throw new Error('link ' + name + ': ' + (gl.getProgramInfoLog(pr) || 'unknown error'));
+      const P = { program: pr, loc: { progress: gl.getUniformLocation(pr, 'progress'), ratio: gl.getUniformLocation(pr, 'ratio'), from: gl.getUniformLocation(pr, 'from'), to: gl.getUniformLocation(pr, 'to'), aPos: gl.getAttribLocation(pr, 'aPos'), params: {} } };
+      this.programs[name] = P;
+      return P;
+    } catch (e) {
+      this.programs[name] = null;
+      if (!this.warned) { this.warned = true; console.warn('AURA gltrans: ' + (e && e.message ? e.message : e)); }
+      return null;
+    }
+  },
+  /* Render the transition into this.canvas; returns true on success, false on any
+     WebGL failure (caller falls back to a plain crossfade). Deterministic: progress
+     and params are pure functions of the plan time, no Math.random / Date.now here. */
+  render(name, glsl, A, B, p, params, cw, ch) {
+    const gl = this.ensure();
+    if (!gl || gl.isContextLost() || !A || !B || !cw || !ch) return false;
+    const P = this.compile(name, glsl);
+    if (!P) return false;
+    try {
+      if (this.canvas.width !== cw || this.canvas.height !== ch) { this.canvas.width = cw; this.canvas.height = ch; }
+      gl.viewport(0, 0, cw, ch);
+      gl.useProgram(P.program);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, this.tex[0]);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, A);
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, this.tex[1]);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, B);
+      gl.uniform1i(P.loc.from, 0);
+      gl.uniform1i(P.loc.to, 1);
+      gl.uniform1f(P.loc.progress, p);
+      gl.uniform1f(P.loc.ratio, cw / ch);
+      for (const k of Object.keys(params || {})) {
+        const v = params[k];
+        if (P.loc.params[k] === undefined) P.loc.params[k] = gl.getUniformLocation(P.program, k);
+        const loc = P.loc.params[k];
+        if (!loc) continue;
+        if (typeof v === 'number') gl.uniform1f(loc, v);
+        else if (Array.isArray(v) && v.length >= 3) gl.uniform3f(loc, v[0], v[1], v[2]);
+      }
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.quad);
+      gl.enableVertexAttribArray(P.loc.aPos);
+      gl.vertexAttribPointer(P.loc.aPos, 2, gl.FLOAT, false, 0, 0);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      gl.disableVertexAttribArray(P.loc.aPos);
+      return true;
+    } catch (e) {
+      if (!this.warned) { this.warned = true; console.warn('AURA gltrans render: ' + (e && e.message ? e.message : e)); }
+      return false;
+    }
+  },
+};
+J.gltrans = GL;
 })();
 
 </script>

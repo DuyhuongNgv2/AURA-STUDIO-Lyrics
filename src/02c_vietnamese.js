@@ -43,11 +43,17 @@ const extra={
   vi_baloo:['Baloo 2',700,'round','Baloo+2:wght@700'],
   vi_quicksand:['Quicksand',700,'round','Quicksand:wght@700']
 };
+/* families embedded locally (fonts/manifest.json, inlined by build.py) */
+const EMBEDDED_VI=new Set(['Be Vietnam Pro','Montserrat','Lexend','Noto Sans','Noto Serif','Oswald']);
 for(const [key,[family,weight,kind,gf]] of Object.entries(extra)) {
   const isSerif = kind==='mincho';
   const fb = isSerif ? fbSerif : fbSans;
   J.FONTS[key]={label:family+' '+weight,family:'"'+family+'"',weight,kind:kind||'gothic',fb,gf};
-  map[key]=F(family,weight,gf);
+  /* embedded families (fonts/manifest.json, inlined by build.py) must not carry gf:
+     otherwise ensureFonts fetches them from Google Fonts although they are already
+     local — and the vietnamese test asserts vi faces have no Google Fonts dependency.
+     Families not embedded keep their gf so they still load from Google Fonts. */
+  map[key]=EMBEDDED_VI.has(family)?F(family,weight):F(family,weight,gf);
 }
 J.LOCAL_FONT_FAMILIES=new Set(['Be Vietnam Pro','Montserrat','Lexend','Noto Sans','Noto Serif','Oswald','Dancing Script','Pacifico','Caveat','Sedgwick Ave','Charm','Playfair Display','Lora','Anton','Syne','Space Mono','Comfortaa','Baloo 2','Quicksand']);
 const originalLocale=J.segLocale;

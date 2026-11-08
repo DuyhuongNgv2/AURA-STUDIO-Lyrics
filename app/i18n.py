@@ -23,7 +23,7 @@ MODULES = {
 COMMUNITY = {'zh-Hant': ('app.chinese', 'app/chinese.js'), 'ko': ('app.korean', 'app/korean.js')}
 # part-name scripts for editions without a community glossary (after app/english.js and the edition's own names)
 PART_NAMES = {'zh-Hans': 'app/chinese_hans.js', 'vi': 'app/vietnamese.js'}
-BASE = 'https://DuyhuongNgv2.github.io/JIZURA-VI/'
+BASE = 'https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/'
 
 
 class _Merged:
@@ -87,10 +87,16 @@ def nav(code):
     """language menu (a select, so the editions fit the header), links relative to the edition's folder"""
     here = dict((c, f) for c, f, _, _ in EDITIONS)[code]
     up = '../' if here else ''
+    # the Vietnamese edition names every language in Vietnamese (100% vi UI);
+    # other editions keep the native names
+    vi_names = {'vi': 'VI · Tiếng Việt', 'en': 'EN · Tiếng Anh', 'ja': 'JA · Tiếng Nhật',
+                'zh-Hant': 'ZH-HANT · Tiếng Trung phồn thể', 'zh-Hans': 'ZH-HANS · Tiếng Trung giản thể',
+                'ko': 'KO · Tiếng Hàn', 'id': 'ID · Bahasa Indonesia'}
     opts = []
     for c, folder, hl, name in sorted(EDITIONS, key=lambda e: {'vi': 0, 'en': 1}.get(e[0], 2)):
         href = up + (folder + '/' if folder else '') + 'index.html'
-        opts.append(f'<option value="{href}" lang="{hl}"{" selected" if c == code else ""}>{name}</option>')
+        label = vi_names[c] if code == 'vi' else name
+        opts.append(f'<option value="{href}" lang="{hl}"{" selected" if c == code else ""}>{label}</option>')
     label = 'Bahasa' if code == 'id' else 'Ngôn ngữ' if code == 'vi' else 'Language'
     return (f'<label class="lang-switch"><span class="sr-only">{label}</span>'
             f'<select aria-label="{label}" onchange="if(this.value)location.href=this.value">' + ''.join(opts) + '</select></label>')

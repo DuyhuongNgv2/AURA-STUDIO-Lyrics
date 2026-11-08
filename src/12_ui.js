@@ -5,7 +5,9 @@
 'use strict';
 if (!document.getElementById('app')) return;          // engine-only pages (tests)
 const $ = id => document.getElementById(id);
-const LS_KEY = 'jizura.project.v1';
+const LS_KEY = 'aura.project.v1';
+/* v0.11.0 moved storage from jizura.* to aura.* — copy each old key once, then drop it */
+function migrateLS() { try { for (const [nk, ok] of [['aura.project.v1', 'jizura.project.v1'], ['aura.previewVolume', 'jizura.previewVolume'], ['aura.mode', 'jizura.mode'], ['aura.mobileInit', 'jizura.mobileInit'], ['aura.tapOpts', 'jizura.tapOpts'], ['aura.tourDone', 'jizura.tourDone']]) { if (localStorage.getItem(nk) == null) { const v = localStorage.getItem(ok); if (v != null) { localStorage.setItem(nk, v); localStorage.removeItem(ok); } } } } catch (e) {} }
 const HUD_CHARS = '0123456789:./-_()【】・No.LYRICRECUNTITLEDXYlinebpminterlude—─／ ';
 const ICON = {
   dice: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="2" width="12" height="12" rx="2"/><circle cx="5.5" cy="5.5" r="1" fill="currentColor"/><circle cx="10.5" cy="10.5" r="1" fill="currentColor"/><circle cx="10.5" cy="5.5" r="1" fill="currentColor"/><circle cx="5.5" cy="10.5" r="1" fill="currentColor"/></svg>',
@@ -13,6 +15,8 @@ const ICON = {
   pen: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 13l1-3.5L11 2.5l2.5 2.5L6.5 12z"/><path d="M9.5 4l2.5 2.5"/></svg>',
   tap: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="2.2" fill="currentColor"/><circle cx="8" cy="8" r="5.5"/></svg>',
   range: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3v10M13 3v10"/><path d="M5.5 8h5M8.5 5.5L11 8l-2.5 2.5"/></svg>',
+  clock: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/></svg>',
+  x: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4l8 8M12 4l-8 8"/></svg>',
 };
 
 const S = { project: null, plan: null, audio: null, renderer: new J.Renderer(), playing: false, t: 0, t0: 0, loop: 'all', loopHold: null, need: true, exporting: null, tap: null, slow: false, lineEls: [], curLine: -2 };
@@ -90,10 +94,10 @@ const AP = {
 function initVolume() {
   const el = $('vol'), mb = $('btnMute'); if (!el || !mb) return;
   let v = 0.8, m = false;
-  try { const o = JSON.parse(localStorage.getItem('jizura.previewVolume') || 'null'); if (o) { v = +o.v; m = !!o.m; } } catch (e) {}
+  try { const o = JSON.parse(localStorage.getItem('aura.previewVolume') || 'null'); if (o) { v = +o.v; m = !!o.m; } } catch (e) {}
   if (!(v >= 0 && v <= 1)) v = 0.8;
   const show = () => { el.value = Math.round(AP.vol * 100); mb.textContent = AP.muted || AP.vol === 0 ? '消音' : '音量'; mb.setAttribute('aria-pressed', String(AP.muted)); el.title = '音量 ' + Math.round(AP.vol * 100) + '%'; };
-  const save = () => { try { localStorage.setItem('jizura.previewVolume', JSON.stringify({ v: AP.vol, m: AP.muted })); } catch (e) {} };
+  const save = () => { try { localStorage.setItem('aura.previewVolume', JSON.stringify({ v: AP.vol, m: AP.muted })); } catch (e) {} };
   AP.setVol(v, m); show();
   el.addEventListener('input', () => { AP.setVol(el.value / 100, false); show(); save(); });
   mb.addEventListener('click', () => { AP.setVol(null, !AP.muted); show(); save(); });
@@ -317,6 +321,8 @@ function seek(t) {
 /* ---------------- timeline ---------------- */
 // zoomable view: [TL.off, TL.off + D / TL.z] seconds; line starts are draggable handles in the top band
 const layoutHue = k => (J.LAYOUT_ORDER.indexOf(k) * 37 + 30) % 360;
+// v0.16.0: timeline lanes (CSS px) — handle band on top, wave lane in the middle, cut lane at the bottom
+const TL_HANDLE_PX = 24, TL_WAVE_BOT_PX = 68;
 const TL = { z: 1, off: 0, hover: -1, drag: -1 };
 function tlView() {
   const D = Math.max(0.001, S.plan.duration), vd = D / TL.z;
@@ -343,28 +349,35 @@ function drawTimeline() {
   // follow the playhead while playing (zoomed in)
   if (TL.z > 1 && S.playing && TL.drag < 0 && (S.t < off || S.t > off + vd * 0.92)) { TL.off = S.t - vd * 0.1; ({ D, vd, off } = tlView()); }
   const x = c.getContext('2d'), X = t => (t - off) / vd * w, T = px => off + px / w * vd;
+  // v0.16.0 lanes (device px): handle band on top, wave lane in the middle, cut lane at the bottom
+  const handleH = TL_HANDLE_PX * dpr, waveTop = handleH, waveBot = TL_WAVE_BOT_PX * dpr;
+  const waveMid = (waveTop + waveBot) / 2, waveHalf = (waveBot - waveTop) / 2 - 2 * dpr;
+  const cutTop = waveBot, cutBot = h - 8 * dpr;
   x.fillStyle = '#131316'; x.fillRect(0, 0, w, h);
   if (S.audio && S.audio.peaks) {
+    // mirrored waveform, bright enough to read against the background (contrast ~5.6:1)
     const pk = S.audio.peaks, n = pk.length, sd = S.audio.duration;
-    x.fillStyle = '#2b2b33';
-    for (let i = 0; i < w; i += 2) { const t = T(i); if (t > sd) break; if (t < 0) continue; const v = pk[Math.min(n - 1, Math.floor(t / sd * n))]; const hh = v * h * 0.8; x.fillRect(i, h * 0.6 - hh / 2, 1.5, hh); }
+    x.fillStyle = '#8a8a99';
+    for (let i = 0; i < w; i += 2) { const t = T(i); if (t > sd) break; if (t < 0) continue; const v = pk[Math.min(n - 1, Math.floor(t / sd * n))]; const hh = v * waveHalf; if (hh > 0) x.fillRect(i, waveMid - hh, 1.5, hh * 2); }
+  } else {
+    // no audio: empty wave lane, just a faint centre line
+    x.fillStyle = 'rgba(255,255,255,0.08)'; x.fillRect(0, waveMid, w, 1);
   }
   const beats = S.plan.beats || [];
   x.fillStyle = '#3a3a44';
-  for (const b of beats) { if (b < off) continue; if (b > off + vd) break; x.fillRect(Math.round(X(b)), h - 6 * dpr, 1, 6 * dpr); }
-  const top = h * 0.3, bot = h - 8 * dpr;
+  for (const b of beats) { if (b < off) continue; if (b > off + vd) break; x.fillRect(Math.round(X(b)), h - 6 * dpr, 1, 6 * dpr); x.fillRect(Math.round(X(b)), waveBot - 5 * dpr, 1, 5 * dpr); }
   const R = exportRange();
   if (R) { x.fillStyle = 'rgba(245,165,12,0.10)'; x.fillRect(X(R.t0), 0, X(R.t1) - X(R.t0), h); }
   for (const cut of S.plan.cuts) {
     const x0 = X(cut.start), x1 = X(cut.end);
     if (x1 < 0 || x0 > w) continue;
     const hue = layoutHue(cut.layout);
-    x.fillStyle = `hsla(${hue},70%,58%,0.28)`; x.fillRect(x0, top, Math.max(1, x1 - x0 - 1), bot - top);
-    x.fillStyle = `hsla(${hue},80%,62%,0.95)`; x.fillRect(x0, top, Math.max(1, 2 * dpr), bot - top);
+    x.fillStyle = `hsla(${hue},70%,58%,0.28)`; x.fillRect(x0, cutTop, Math.max(1, x1 - x0 - 1), cutBot - cutTop);
+    x.fillStyle = `hsla(${hue},80%,62%,0.95)`; x.fillRect(x0, cutTop, Math.max(1, 2 * dpr), cutBot - cutTop);
     if (x1 - x0 > 34 * dpr) {
       x.fillStyle = 'rgba(236,231,225,0.85)'; x.font = `${10 * dpr}px ${getComputedStyle(document.body).getPropertyValue('--mono') || 'monospace'}`;
-      x.save(); x.beginPath(); x.rect(x0, top, x1 - x0 - 3, bot - top); x.clip();
-      x.fillText(TL.z > 3 && cut.text ? cut.text : ((J.LAYOUTS[cut.layout] || {}).name || cut.layout), x0 + 5 * dpr, top + 13 * dpr); x.restore();
+      x.save(); x.beginPath(); x.rect(x0, cutTop, x1 - x0 - 3, cutBot - cutTop); x.clip();
+      x.fillText(TL.z > 3 && cut.text ? cut.text : ((J.LAYOUTS[cut.layout] || {}).name || cut.layout), x0 + 5 * dpr, cutTop + 13 * dpr); x.restore();
     }
   }
   x.font = `${10 * dpr}px monospace`;
@@ -373,7 +386,7 @@ function drawTimeline() {
     const lx = X(ln.start);
     if (lx < -20 * dpr || lx > w + 2) continue;
     const on = ln.index === TL.drag || ln.index === TL.hover, man = LT[ln.index] != null;
-    x.fillStyle = on ? '#f5a50c' : man ? '#6fb7c8' : '#5d5a63'; x.fillRect(lx - (on ? dpr : 0), 0, on ? 2 * dpr : 1, top);
+    x.fillStyle = on ? '#f5a50c' : man ? '#6fb7c8' : '#5d5a63'; x.fillRect(lx - (on ? dpr : 0), 0, on ? 2 * dpr : 1, cutTop);
     // handle
     x.beginPath(); x.moveTo(lx - 5 * dpr, 0); x.lineTo(lx + 5 * dpr, 0); x.lineTo(lx, 7 * dpr); x.closePath(); x.fill();
     x.fillStyle = on ? '#f5a50c' : '#8e8a94'; x.fillText(String(ln.index + 1).padStart(2, '0') + (ln.interlude ? ' 間奏' : ''), lx + 4 * dpr, 17 * dpr);
@@ -395,10 +408,10 @@ function tlTime(ev) {
   return off + J.clamp((ev.clientX - r.left) / r.width, 0, 1) * vd;
 }
 function timelineSeek(ev) { seek(tlTime(ev)); }
-/* the line whose start handle is under the pointer (top band, ±7px) */
+/* the line whose start handle is under the pointer (handle band only, ±7px) */
 function tlHandleAt(ev) {
   const c = $('timeline'), r = c.getBoundingClientRect(), { vd, off } = tlView();
-  if (ev.clientY - r.top > r.height * 0.45) return -1;
+  if (ev.clientY - r.top > TL_HANDLE_PX) return -1;
   let best = -1, bd = 8;
   for (const ln of S.plan.lines) { const d = Math.abs((ln.start - off) / vd * r.width - (ev.clientX - r.left)); if (d < bd) { bd = d; best = ln.index; } }
   return best;
@@ -644,6 +657,12 @@ function fillCutPick() {
 }
 
 /* ---------------- line list ---------------- */
+// word-time editor: which lines have their word rows open (renderLines rebuilds the rows on every replan)
+const wordEdOpen = new Set();
+function wordEditRows(ln, i) {
+  const rows = (ln.wordTimes || []).map((w, k) => `<span class="wrow"><span class="w">${escapeHtml(w.text || '')}</span><input class="wstart mono" type="number" step="0.01" min="0" value="${w.start.toFixed(2)}" data-k="${k}" title="開始（秒）" aria-label="${i + 1}行目 ${escapeHtml(w.text || '')} の開始秒"><span class="wend mono">〜 ${w.end.toFixed(2)}</span></span>`).join('');
+  return `<span class="whead">単語の時刻</span>${rows}`;
+}
 function renderLines() {
   const ol = $('lineList'); ol.innerHTML = ''; S.lineEls = []; S.curLine = -2;
   const ov = S.project.overrides, R = exportRangeLines();
@@ -659,7 +678,8 @@ function renderLines() {
   const cutOpts = '<option value="">カット 自動</option>' + [1, 2, 3, 4, 5, 6].map(n => `<option value="${n}">カット ${n}</option>`).join('');
   S.plan.lines.forEach((ln, i) => {
     const o = ov[i] || {};
-    const li = document.createElement('li'); li.className = 'ln' + (ln.interlude ? ' is-inter' : '') + (R && i >= R.from && i <= R.to ? ' in-range' : '');
+    const hasWords = !ln.interlude && ln.wordTimes && ln.wordTimes.length > 0;
+    const li = document.createElement('li'); li.className = 'ln' + (ln.interlude ? ' is-inter' : '') + (R && i >= R.from && i <= R.to ? ' in-range' : '') + (hasWords ? ' has-wordtimes' : '');
     const manual = S.project.timing.lineTimes && S.project.timing.lineTimes[i] != null;
     const label = ln.interlude ? `〔間奏${ln.secs ? ' ' + ln.secs + '秒' : ''}〕` : ln.text;
     li.innerHTML = `<span class="no">${String(i + 1).padStart(2, '0')}</span>
@@ -668,13 +688,15 @@ function renderLines() {
       <div class="meta"><span class="cuts"></span>
       <span class="tools">
         <button class="icon ghost edit" title="この行の歌詞を直す" aria-label="${i + 1}行目の歌詞を直す">${ICON.pen}</button>
+        ${hasWords ? `<button class="icon ghost wtog" title="単語ごとの時刻" aria-label="${i + 1}行目の単語の時刻" aria-pressed="${wordEdOpen.has(i) ? 'true' : 'false'}">${ICON.clock}</button><button class="icon ghost wdel" title="この行の単語時刻を消す" aria-label="${i + 1}行目の単語時刻を消す">${ICON.x}</button>` : ''}
         ${ln.interlude ? '' : `<select class="ncut" aria-label="${i + 1}行目のカット数">${cutOpts}</select>`}
         ${ln.interlude ? '' : `<select class="lay pro-only" aria-label="レイアウト指定"></select>`}
         <button class="icon ghost tapfrom" title="この行からタップで同期し直す" aria-label="${i + 1}行目からタップ">${ICON.tap}</button>
         <button class="icon ghost rng" title="書き出す範囲にする（Shift+クリックで範囲を広げる）" aria-pressed="${R && i >= R.from && i <= R.to ? 'true' : 'false'}" aria-label="${i + 1}行目を書き出す範囲に">${ICON.range}</button>
         ${ln.interlude ? '' : `<button class="icon ghost dice" title="この行を再抽選">${ICON.dice}</button>`}
         ${ln.interlude ? '' : `<button class="icon ghost lock" title="この行の構成をロック" aria-pressed="${o.lock ? 'true' : 'false'}">${ICON.lock}</button>`}
-      </span></div>`;
+      </span></div>
+      ${hasWords && wordEdOpen.has(i) ? `<div class="wedit">${wordEditRows(ln, i)}</div>` : ''}`;
     const q = sel => li.querySelector(sel);
     if (q('.lay')) lazyLay(q('.lay'), o.layout || '');
     if (q('.ncut')) q('.ncut').value = o.cuts ? String(o.cuts) : '';
@@ -698,6 +720,47 @@ function renderLines() {
     q('.txt').addEventListener('click', () => seek(ln.start + 0.001));
     q('.txt').addEventListener('dblclick', () => editLine(li, ln));
     q('.edit').addEventListener('click', () => editLine(li, ln));
+    if (q('.wtog')) q('.wtog').addEventListener('click', () => { if (wordEdOpen.has(i)) wordEdOpen.delete(i); else wordEdOpen.add(i); renderLines(); });
+    if (q('.wdel')) q('.wdel').addEventListener('click', () => {
+      pushEdit();
+      if (S.project.timing.wordTimes) delete S.project.timing.wordTimes[i];
+      wordEdOpen.delete(i);
+      // the times came from the <mm:ss.xx> tags in the lyrics themselves: take the tags out of that row
+      if (ln.src != null) {
+        const rows = S.project.lyrics.replace(/\r/g, '').split('\n');
+        if (rows[ln.src] && /<\d+:\d+(?:[.:]\d+)?>/.test(rows[ln.src])) {
+          rows[ln.src] = rows[ln.src].replace(/<\d+:\d+(?:[.:]\d+)?>/g, '');
+          S.project.lyrics = rows.join('\n'); $('lyrics').value = S.project.lyrics;
+        }
+      }
+      replan(); flushSave();
+      toast('この行の単語時刻を消しました');
+    });
+    if (q('.wedit')) q('.wedit').addEventListener('change', e => {
+      const inp = e.target.closest('.wstart');
+      if (!inp) return;
+      const k = +inp.dataset.k, v = parseFloat(inp.value);
+      const planWt = S.plan.lines[i].wordTimes;
+      if (!planWt || !planWt[k]) return;
+      if (!isFinite(v)) { renderLines(); return; }   // empty = back to the plan value
+      pushEdit();
+      if (!S.project.timing.wordTimes) S.project.timing.wordTimes = {};
+      // first edit of an imported line copies the (validated) plan times into the editable store
+      if (!S.project.timing.wordTimes[i]) S.project.timing.wordTimes[i] = planWt.map(w => ({ start: w.start, end: w.end, text: w.text }));
+      const arr = S.project.timing.wordTimes[i], ln2 = S.plan.lines[i];
+      // the planner pushes a word's start to the previous word's END (no
+      // overlap), so clamp to that same bound — otherwise the toast promises
+      // a time the plan then silently overrides
+      const prevEnd = k > 0 ? (arr[k - 1].end != null ? arr[k - 1].end : arr[k - 1].start + 0.01) : ln2.start;
+      const lo = k > 0 ? Math.max(arr[k - 1].start + 0.01, prevEnd) : ln2.start;
+      const hi = k < arr.length - 1 ? arr[k + 1].start - 0.01 : ln2.end;
+      let w = v;
+      if (hi >= lo && (v < lo || v > hi)) { w = J.clamp(v, lo, hi); toast(`前後の単語と順番が入れ替わらないよう ${w.toFixed(2)} 秒にしました`); }
+      else w = Math.max(lo, Math.min(v, hi));
+      arr[k].start = +w.toFixed(3);
+      if (arr[k].end == null || arr[k].end <= arr[k].start) arr[k].end = +(arr[k].start + 0.1).toFixed(3);
+      replan();
+    });
     if (q('.lay')) q('.lay').addEventListener('change', e => { setOv(i, { layout: e.target.value || undefined }); replan(); });
     if (q('.ncut')) q('.ncut').addEventListener('change', e => { remember(); setOv(i, { cuts: +e.target.value || undefined, single: undefined }); replan(); commit(); seek(ln.start + 0.001); });
     q('.tapfrom').addEventListener('click', () => startTap(i));
@@ -782,7 +845,7 @@ function editLine(li, ln) {
 /* ---------------- 歌詞・タイミングの取り消し（Ctrl+Z） ---------------- */
 // separate from the ◀ ▶ history of looks: lyric edits, dragged / typed / tapped line times
 const ED = { undo: [], redo: [] };
-const edSnap = () => JSON.stringify({ lyrics: S.project.lyrics, lineTimes: S.project.timing.lineTimes || {} });
+const edSnap = () => JSON.stringify({ lyrics: S.project.lyrics, lineTimes: S.project.timing.lineTimes || {}, wordTimes: S.project.timing.wordTimes || {} });
 function pushEdit() { const s = edSnap(); if (ED.undo[ED.undo.length - 1] !== s) ED.undo.push(s); if (ED.undo.length > 60) ED.undo.shift(); ED.redo = []; updateEditBtns(); }
 function edGo(d) {
   const from = d < 0 ? ED.undo : ED.redo, to = d < 0 ? ED.redo : ED.undo;
@@ -790,7 +853,7 @@ function edGo(d) {
   const o = JSON.parse(from.pop()), cur = JSON.parse(edSnap());
   if ('ov' in o) { cur.ov = S.project.overrides; cur.range = S.project.exportRange || null; }   // clearLyrics() also cleared these
   to.push(JSON.stringify(cur));
-  S.project.lyrics = o.lyrics; S.project.timing.lineTimes = o.lineTimes; $('lyrics').value = o.lyrics;
+  S.project.lyrics = o.lyrics; S.project.timing.lineTimes = o.lineTimes || {}; S.project.timing.wordTimes = o.wordTimes || {}; $('lyrics').value = o.lyrics;
   if ('ov' in o) { S.project.overrides = o.ov || {}; S.project.exportRange = o.range || null; }
   replan(); flushSave(); updateEditBtns();
   toast(d < 0 ? '元に戻しました' : 'やり直しました');
@@ -803,10 +866,15 @@ function loadLrc(text) {
   ED.undo.push(JSON.stringify(snap)); if (ED.undo.length > 60) ED.undo.shift(); ED.redo = [];
   pause();
   P.lyrics = String(text).replace(/^\ufeff/, '').replace(/\r\n?/g, '\n').trim(); P.timing.lineTimes = {}; P.overrides = {}; P.exportRange = null;
+  // Enhanced LRC: the <mm:ss.xx> word tags become the line's word times (line-level tags still rule the lines)
+  const parsedLrc = J.parseLyrics(P.lyrics);
+  P.timing.wordTimes = {};
+  let nWords = 0;
+  parsedLrc.lines.forEach((l, i) => { if (l.words && l.words.length) { P.timing.wordTimes[i] = l.words.map(w => ({ start: +w.start.toFixed(3), end: w.end != null ? +w.end.toFixed(3) : null, text: w.text })); nWords += l.words.length; } });
   $('lyrics').value = P.lyrics;
   replan(); flushSave(); updateEditBtns(); seek(0);
-  const n = J.parseLyrics(P.lyrics).lines.filter(l => l.lrc != null).length;
-  toast(`LRC を読み込みました（時刻付き ${n} 行・「元に戻す」で戻せます）`);
+  const n = parsedLrc.lines.filter(l => l.lrc != null).length;
+  toast(nWords > 0 ? `LRC を読み込みました（時刻付き ${n} 行・単語 ${nWords} 語・「元に戻す」で戻せます）` : `LRC を読み込みました（時刻付き ${n} 行・「元に戻す」で戻せます）`);
 }
 function saveLrc() {
   const R = exportRangeLines(), r = exportRange();
@@ -821,7 +889,7 @@ function clearLyrics() {
   const snap = JSON.parse(edSnap()); snap.ov = P.overrides || {}; snap.range = P.exportRange || null;
   ED.undo.push(JSON.stringify(snap)); if (ED.undo.length > 60) ED.undo.shift(); ED.redo = [];
   pause();
-  P.lyrics = ''; P.timing.lineTimes = {}; P.overrides = {}; P.exportRange = null; $('lyrics').value = '';
+  P.lyrics = ''; P.timing.lineTimes = {}; P.timing.wordTimes = {}; P.overrides = {}; P.exportRange = null; $('lyrics').value = '';
   replan(); flushSave(); updateEditBtns(); seek(0);
   toast('歌詞を消しました（「元に戻す」か Ctrl+Z で戻せます）');
 }
@@ -1253,7 +1321,7 @@ function setMode(m) {
   $('modeMobile').setAttribute('aria-pressed', String(mobile));
   $('modeEasy').setAttribute('aria-pressed', String(S.mode === 'easy'));
   $('modePro').setAttribute('aria-pressed', String(S.mode === 'pro'));
-  try { localStorage.setItem('jizura.mode', S.mode); } catch (e) {}
+  try { localStorage.setItem('aura.mode', S.mode); } catch (e) {}
   if (mobile) mobileInit();
     if (easy) { showNow(); syncOut(); codecNoteSoon(); }
     if (easy) closeCutPick();
@@ -1265,7 +1333,7 @@ function setMode(m) {
 function mobileBar() { const b = document.querySelector('.bar'); if (b) document.documentElement.style.setProperty('--mbar', b.offsetHeight + 'px'); }
 function mobileInit() {
   mobileBar();
-  let first = true; try { first = localStorage.getItem('jizura.mobileInit') !== '1'; localStorage.setItem('jizura.mobileInit', '1'); } catch (e) {}
+  let first = true; try { first = localStorage.getItem('aura.mobileInit') !== '1'; localStorage.setItem('aura.mobileInit', '1'); } catch (e) {}
   if (first) {
     if ((S.project.res || 1080) > 720) { S.project.res = 720; syncOut(); autosave(); }
     const sec = $('lineList') && $('lineList').closest('.sec'); if (sec) sec.classList.add('fold');
@@ -1287,6 +1355,20 @@ function renderFx() {
     inp.addEventListener('input', () => { S.project.fx[k] = +inp.value; S.project.mood = null; out.textContent = Math.round(inp.value * 100); replanSoon(120); });
     box.appendChild(row);
   });
+  // v0.14.0: beat-synced motion — toggle + strength + beat interval (rebuilt with the other fx controls)
+  const bfx = S.project.fx;
+  const beatBox = document.createElement('div');
+  beatBox.innerHTML = `<label class="row" style="gap:6px"><input id="fxBeatSync" type="checkbox"${bfx.beatSync ? ' checked' : ''}> 拍に合わせて動く</label>`
+    + `<div class="slider"><label for="fxBeatAmt">拍の強さ</label><input id="fxBeatAmt" type="range" min="0" max="1" step="0.01" value="${bfx.beatAmt ?? 0.7}"><output>${Math.round((bfx.beatAmt ?? 0.7) * 100)}</output></div>`
+    + `<label class="field">拍の間隔<select id="fxBeatEvery"><option value="1">毎拍</option><option value="2">2拍ごと</option><option value="4">4拍ごと</option></select></label>`;
+  box.appendChild(beatBox);
+  const bSync = beatBox.querySelector('#fxBeatSync'), bAmt = beatBox.querySelector('#fxBeatAmt'), bAmtOut = beatBox.querySelector('output'), bEvery = beatBox.querySelector('#fxBeatEvery');
+  bEvery.value = String(bfx.beatEvery || 1);
+  const syncBeatDis = () => { bAmt.disabled = !bfx.beatSync; bEvery.disabled = !bfx.beatSync; };
+  syncBeatDis();
+  bSync.addEventListener('change', () => { bfx.beatSync = bSync.checked; syncBeatDis(); replan(); });
+  bAmt.addEventListener('input', () => { bfx.beatAmt = +bAmt.value; bAmtOut.textContent = Math.round(bAmt.value * 100); replanSoon(120); });
+  bEvery.addEventListener('change', () => { bfx.beatEvery = +bEvery.value; replan(); });
   lockBtn('flash', $('fxFlash').closest('label'));
   lockBtn('koma', $('fxKoma').closest('label'));
   $('fxFlash').checked = !!S.project.fx.flash;
@@ -1466,7 +1548,7 @@ async function codecNote() {
 const EXP_BTNS = ['btnMP4', 'btnPNG', 'btnPNGA', 'btnPNGL', 'eMP4', 'btnMP4File', 'eMP4File', 'ePNG', 'ePNGA', 'ePNGL'];
 function baseName() {
   const k = J.keyMode(S.project);
-  return ((S.project.title || 'jizura').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 60) || 'jizura') + (k ? (k === 'green' ? '_greenback' : '_blackback') : '');
+  return ((S.project.title || 'aura').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 60) || 'aura') + (k ? (k === 'green' ? '_greenback' : '_blackback') : '');
 }
 const canPickFile = () => typeof window.showSaveFilePicker === 'function' && !document.documentElement.classList.contains('cep') && typeof VideoEncoder !== 'undefined';
 async function runExport(kind) {
@@ -1575,12 +1657,12 @@ function startTap(from = 0) {
 }
 /* タップ同期の速さ・カウントダウン: remembered in this browser */
 function tapOpts() {
-  let o = null; try { o = JSON.parse(localStorage.getItem('jizura.tapOpts') || 'null'); } catch (e) {}
+  let o = null; try { o = JSON.parse(localStorage.getItem('aura.tapOpts') || 'null'); } catch (e) {}
   const rate = o && [1, 0.75, 0.5].includes(+o.rate) ? +o.rate : 1;
   return { rate, count: !!(o && o.count) };
 }
 function saveTapOpts() {
-  try { localStorage.setItem('jizura.tapOpts', JSON.stringify({ rate: +$('tapRate').value || 1, count: $('tapCount').checked })); } catch (e) {}
+  try { localStorage.setItem('aura.tapOpts', JSON.stringify({ rate: +$('tapRate').value || 1, count: $('tapCount').checked })); } catch (e) {}
 }
 function tapNow() {
   if (!S.tap || S.tap.counting) return;         // not during the countdown
@@ -1651,6 +1733,7 @@ function syncUI() {
   $('bpm').value = S.project.timing.bpm > 0 ? S.project.timing.bpm : '';
   $('bpm').placeholder = S.audio ? `自動 ${S.audio.bpm}` : 'なし';
   $('offset').value = S.project.timing.offset ?? 0.4;
+  $('beatOffset').value = S.project.timing.beatOffset ?? 0;
   $('lineScale').value = S.project.timing.lineScale ?? 1;
   $('snap').checked = !!S.project.timing.snap;
   document.querySelectorAll('.wa-toggle').forEach(el => { el.checked = S.project.wa !== false; });
@@ -1703,6 +1786,7 @@ function bind() {
   $('btnSyntax').addEventListener('click', e => { const s = $('syntax'); s.hidden = !s.hidden; e.target.setAttribute('aria-expanded', String(!s.hidden)); });
   $('bpm').addEventListener('change', e => { S.project.timing.bpm = Math.max(0, parseFloat(e.target.value) || 0); replan(); });
   $('offset').addEventListener('change', e => { S.project.timing.offset = Math.max(0, parseFloat(e.target.value) || 0); replan(); });
+  $('beatOffset').addEventListener('change', e => { S.project.timing.beatOffset = J.clamp(parseFloat(e.target.value) || 0, -2, 2); replan(); });
   $('lineScale').addEventListener('change', e => { S.project.timing.lineScale = J.clamp(parseFloat(e.target.value) || 1, 0.3, 4); replan(); });
   $('snap').addEventListener('change', e => { S.project.timing.snap = e.target.checked; replan(); });
   $('btnResetTimes').addEventListener('click', () => { S.project.timing.lineTimes = {}; replan(); });
@@ -1797,6 +1881,7 @@ function bind() {
     });
   }
   $('btnTap').addEventListener('click', () => (S.tap ? stopTap() : startTap()));
+  $('btnWhisper').addEventListener('click', whisperRun);
   $('tapBtn').addEventListener('click', tapNow);
   $('tapRate').addEventListener('change', () => {
     saveTapOpts();
@@ -1972,12 +2057,30 @@ function bind() {
   }));
   $('fileLrc').addEventListener('change', async e => {
     const f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return;
-    if (f.size > 2e6) { toast('LRC ファイルが大きすぎます'); return; }
+    if (f.size > 2e6) { toast('ファイルが大きすぎます'); return; }
     let text = '';
     try { const buf = await f.arrayBuffer(); try { text = new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch (e2) { text = new TextDecoder('shift_jis').decode(buf); } }
-    catch (err) { toast('LRC を読み込めませんでした'); return; }
-    if (S.project.lyrics.trim() && !window.confirm('今の歌詞を LRC の内容に置き換えます（行ごとの時刻・指定・書き出す範囲も消えます。「元に戻す」で戻せます）。よろしいですか？')) return;
+    catch (err) { toast('ファイルを読み込めませんでした'); return; }
+    if (!text.trim()) { toast('ファイルが空です'); return; }
+    // SRT / VTT / SSA-ASS → standard LRC, then the same path as an LRC file:
+    // line times from the cue starts, word times from \k / timestamp tags
+    const fmt = J.detectSubsFormat ? J.detectSubsFormat(text) : 'txt';
+    let subs = null;
+    if (fmt === 'srt' || fmt === 'vtt' || fmt === 'ass') {
+      const lang = J.detectLang ? J.detectLang(text) : 'vi';
+      subs = J.parseSubs(text, lang);
+      if (!subs.cues.length) { toast('字幕が見つかりませんでした（時刻付きのキューがありません）'); return; }
+      text = J.subsToLrc(subs);
+    }
+    if (S.project.lyrics.trim() && !window.confirm('今の歌詞を読み込んだ内容に置き換えます（行ごとの時刻・指定・書き出す範囲も消えます。「元に戻す」で戻せます）。よろしいですか？')) return;
     loadLrc(text);
+    if (subs) {
+      // count the words the project actually got (parseLyrics interpolates
+      // times for untagged tokens between tags, e.g. VTT "new", so the
+      // parser's tagged-word count would under-report)
+      const nWords = Object.values(S.project.timing.wordTimes || {}).reduce((a, w) => a + (w ? w.length : 0), 0);
+      toast(`${fmt.toUpperCase()} を読み込みました（${subs.cues.length} 行${nWords ? `・単語 ${nWords} 語` : ''}${subs.skipped ? `・${subs.skipped} キューをスキップ` : ''}・「元に戻す」で戻せます）`);
+    }
   });
   ['btnLRC', 'eLRC'].forEach(id => $(id).addEventListener('click', saveLrc));
   $('btnReset').addEventListener('click', () => {
@@ -2083,7 +2186,7 @@ function tourStart() {
 }
 function tourEnd() {
   $('tour').hidden = true; TR.i = -1;
-  try { localStorage.setItem('jizura.tourDone', '1'); } catch (e) {}
+  try { localStorage.setItem('aura.tourDone', '1'); } catch (e) {}
 }
 function bindTour() {
   const el = $('tour');
@@ -2112,14 +2215,223 @@ async function restoreFonts() {
 }
 
 /* ---------------- boot ---------------- */
+/* ---------------- Whisper — 音声を聴いて行の開始時刻を合わせる ----------------
+   v0.12.0: @huggingface/transformers (Whisper tiny) をボタンを押したときだけ
+   読み込む。歌声を聴いて各行が実際に歌われる時刻を測り、一致した行だけ
+   S.project.timing.lineTimes に書き込む。歌詞の文字そのものは変えない。
+   すべてブラウザ内で動く (WASM/WebGPU) — 音声は外に出ない。
+   言語は歌詞の言語に従う (vi が既定。日本語・中国語・韓国語は1文字ずつ照合)。 */
+const WHISPER_CDN = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.2/dist/transformers.min.js';
+const WHISPER_MODEL = 'Xenova/whisper-tiny';
+const WHISPER_CJK = ['ja', 'zh', 'ko'];   // 分かち書きのない言語は1文字ずつ照合する
+let whisperState = { status: 'idle', progress: 0, note: '', modelLoaded: false, libLoaded: false, lastRun: null };
+let whisperPipe = null, whisperLib = null;
+function whisperLang() {
+  const l = J.resolveLang(S.project);
+  if (l === 'zh-Hant' || l === 'zh-Hans') return 'zh';
+  if (WHISPER_CJK.includes(l) || ['vi', 'en', 'id', 'fr', 'de', 'es', 'pt', 'ru', 'ar', 'hi', 'th'].includes(l)) return l;
+  return 'vi';
+}
+function whisperNorm(s, lang) {
+  const t = String(s || '');
+  if (WHISPER_CJK.includes(lang)) return t.normalize('NFC').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+  return t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function whisperWords(text, lang) {
+  const norm = whisperNorm(text, lang);
+  if (WHISPER_CJK.includes(lang)) return [...norm].map(ch => ({ text: ch, norm: ch }));
+  return norm.split(/\s+/).filter(Boolean).map(w => ({ text: w, norm: w }));
+}
+function whisperResample16k(mono, sr) {
+  if (!mono || !mono.length) return null;
+  if (sr === 16000) return Float32Array.from(mono);
+  const n = Math.max(1, Math.round(mono.length * 16000 / sr)), out = new Float32Array(n);
+  for (let i = 0; i < n; i++) { const pos = i * (sr / 16000), i0 = Math.floor(pos), frac = pos - i0, a = mono[Math.min(i0, mono.length - 1)], b = mono[Math.min(i0 + 1, mono.length - 1)]; out[i] = a + (b - a) * frac; }
+  return out;
+}
+function whisperGetAudio() {
+  if (!S.audio || !S.audio.buffer) return null;
+  const buf = S.audio.buffer, ch = buf.numberOfChannels, len = buf.length;
+  const mono = new Float32Array(len);
+  for (let c = 0; c < ch; c++) { const d = buf.getChannelData(c); for (let i = 0; i < len; i++) mono[i] += d[i] / ch; }
+  const data = whisperResample16k(mono, buf.sampleRate);
+  return data ? { data, dur: buf.duration } : null;
+}
+function whisperChunks(out, lang) {
+  const cs = (out && Array.isArray(out.chunks)) ? out.chunks : [];
+  const words = [];
+  cs.forEach(c => {
+    const ts = Array.isArray(c.timestamp) ? c.timestamp : null;
+    if (!ts || ts.length < 2) return;
+    const ws = whisperWords(c.text, lang);
+    if (!ws.length) return;
+    // v0.13.0: whisper-tiny already returns one word per chunk (verified in the browser on real
+    // Vietnamese speech, 2026-11-08: 18/18 chunks were single words) — use its times as they are.
+    if (ws.length === 1) { words.push({ text: ws[0].text, norm: ws[0].norm, start: ts[0], end: ts[1] }); return; }
+    const span = (ts[1] - ts[0]) / ws.length;   // a chunk holding several words (rare): split its span evenly
+    ws.forEach((w, i) => words.push({ text: w.text, norm: w.norm, start: ts[0] + i * span, end: ts[0] + (i + 1) * span }));
+  });
+  return words;
+}
+function whisperAlign(userLines, wWords, lang) {
+  // the flat list is built with J.wordTokens, so its indices are the ones whisperApply uses to read the
+  // user's own display words back (whisperWords only normalises; the tokens are identical)
+  const flat = [];
+  userLines.forEach(l => J.wordTokens(l.text, lang).forEach((w, k) => flat.push({ line: l.index, k, text: w.text, norm: w.norm })));
+  const n = flat.length, m = wWords.length, dp = [];
+  for (let i = 0; i <= n; i++) dp.push(new Array(m + 1).fill(0));
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) dp[i][j] = flat[i].norm === wWords[j].norm ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+  const pairs = [];
+  let i = 0, j = 0;
+  while (i < n && j < m) {
+    if (flat[i].norm === wWords[j].norm) { pairs.push({ u: i, w: j }); i++; j++; }
+    else if (dp[i + 1][j] >= dp[i][j + 1]) i++;
+    else j++;
+  }
+  const lines = userLines.map(l => {
+    const ws = flat.filter(f => f.line === l.index);
+    const matched = pairs.filter(p => flat[p.u].line === l.index);
+    const first = matched.length ? wWords[matched[0].w] : null;
+    const last = matched.length ? wWords[matched[matched.length - 1].w] : null;
+    return { index: l.index, text: l.text, start: first ? first.start : null, end: last ? last.end : null, matched: matched.length, total: ws.length };
+  });
+  return { lines, pairs, wWords, flat, matchedWords: pairs.length, totalWords: flat.length, unmatched: lines.filter(l => l.matched === 0).map(l => l.text) };
+}
+function whisperLyricLines() {
+  const parsed = J.parseLyrics(S.project.lyrics || '');
+  return parsed.lines.map((l, i) => ({ index: i, text: l.text || '', interlude: !!l.interlude })).filter(l => l.text && !l.interlude);
+}
+function whisperLoadErrorText(e) {
+  const m = (e && e.message) ? String(e.message) : String(e || '');
+  if (/Failed to fetch/i.test(m)) return 'CDNに接続できませんでした（ネットワークを確認してください）';
+  if (/SyntaxError|Unexpected token|not a module|did not export pipeline/i.test(m)) return 'ライブラリの形式が正しくありません';
+  return m ? m.slice(0, 120) : '不明なエラー';
+}
+function whisperLoadLib() {
+  if (whisperLib && whisperLib.pipeline) { whisperState.libLoaded = true; return Promise.resolve(whisperLib); }
+  return import(WHISPER_CDN).then(T => {
+    if (!T || !T.pipeline) throw new Error('transformers.js did not export pipeline');
+    try { if (T.env) { T.env.useBrowserCache = true; T.env.allowLocalModels = false; } } catch (e) {}
+    whisperLib = T; whisperState.libLoaded = true; return T;
+  });
+}
+function whisperSetStatus(status, note, progress) {
+  whisperState.status = status; whisperState.note = note || '';
+  if (typeof progress === 'number') whisperState.progress = progress;
+  whisperRenderUI();
+}
+function whisperRenderUI() {
+  const b = $('btnWhisper');
+  if (b) b.disabled = ['loading-lib', 'loading-model', 'transcribing', 'aligning'].includes(whisperState.status);
+  const st = $('whisperStatus');
+  if (st) st.textContent = whisperState.status === 'idle' ? '未実行 — 本物の音声と歌詞が必要です' : (whisperState.note || '');
+}
+function whisperApply(res) {
+  pushEdit();
+  if (!S.project.timing.lineTimes) S.project.timing.lineTimes = {};
+  if (!S.project.timing.wordTimes) S.project.timing.wordTimes = {};
+  const lt = S.project.timing.lineTimes, wt = S.project.timing.wordTimes, L = S.plan.lines;
+  const fix = j => (lt[j] != null && isFinite(+lt[j])) ? +lt[j] : (L[j] && L[j].lrc != null ? L[j].lrc : null);
+  const durMax = Math.max(0, (S.plan.duration || 0) - 0.2);
+  res.lines.forEach(rl => {
+    if (rl.matched <= 0 || rl.start == null) return;
+    let lo = 0, hi = Infinity;
+    for (let j = rl.index - 1; j >= 0; j--) { const f = fix(j); if (f != null) { lo = f + 0.05; break; } }
+    for (let j = rl.index + 1; j < L.length; j++) { const f = fix(j); if (f != null) { hi = f - 0.05; break; } }
+    if (hi < lo) return;                       // 前後の固定時刻に挟まれて入る余地がない行は触らない
+    let w = Math.max(lo, +rl.start.toFixed(3));
+    if (hi !== Infinity) w = Math.min(w, hi);
+    if (durMax >= lo) w = Math.min(w, durMax);
+    lt[rl.index] = +w.toFixed(3);
+  });
+  // word times, in the same edit (one Ctrl+Z takes both back): the matched words of each line, in the
+  // user's own words — never Whisper's spelling — clamped inside the line and kept in order
+  const lang = whisperLang();
+  res.lines.forEach(rl => {
+    const linePairs = res.pairs.filter(p => res.flat[p.u].line === rl.index);
+    if (!linePairs.length) return;
+    const toks = J.wordTokens(rl.text, lang);
+    const lineStart = lt[rl.index] != null ? +lt[rl.index] : (L[rl.index] ? L[rl.index].start : 0);
+    const lineEnd = L[rl.index] ? L[rl.index].end : lineStart + 5;
+    let prev = lineStart;
+    const clean = [];
+    linePairs.forEach(p => {
+      const u = res.flat[p.u], w = res.wWords[p.w];
+      if (!w || w.start == null || !isFinite(+w.start)) return;
+      const tok = toks[u.k];
+      let a = Math.max(lineStart, Math.min(+w.start, lineEnd));
+      let b = w.end != null && isFinite(+w.end) ? +w.end : a + 0.3;
+      if (a < prev) a = prev;
+      if (a >= lineEnd) return;
+      b = Math.max(b, a + 0.05); b = Math.min(b, lineEnd);
+      clean.push({ start: +a.toFixed(3), end: +b.toFixed(3), text: tok ? tok.text : u.text });
+      prev = b;
+    });
+    if (clean.length) wt[rl.index] = clean;
+  });
+  replan(); syncUI(); flushSave();
+}
+async function whisperRun() {
+  if (['loading-lib', 'loading-model', 'transcribing', 'aligning'].includes(whisperState.status)) return;
+  const lines = whisperLyricLines();
+  if (!lines.length) { toast('歌詞がありません — 歌詞を入力してから実行してください'); return; }
+  const audio = whisperGetAudio();
+  if (!audio) { toast('音声がありません — 曲を読み込んでから実行してください'); return; }
+  const lang = whisperLang();
+  let T = null;
+  try {
+    whisperSetStatus('loading-lib', 'ライブラリを読み込んでいます…', 0);
+    T = await whisperLoadLib();
+  } catch (e) {
+    const reason = whisperLoadErrorText(e);
+    whisperSetStatus('error', 'ライブラリを読み込めませんでした — ' + reason, 0);
+    toast('ライブラリを読み込めませんでした — ' + reason);
+    return;
+  }
+  try {
+    whisperSetStatus('loading-model', 'モデルを読み込んでいます（初回は約40MB、次回からは保存済みを使います）…', 0);
+    if (!whisperPipe) whisperPipe = await T.pipeline('automatic-speech-recognition', WHISPER_MODEL, { progress_callback: p => { if (p && p.status === 'progress') { const pct = Math.min(100, Math.max(0, Math.round(p.progress || 0))); whisperSetStatus('loading-model', 'モデルを読み込んでいます — ' + pct + '%（初回は約40MB、次回からは保存済みを使います）', pct); } } });
+    whisperState.modelLoaded = true;
+  } catch (e) {
+    whisperSetStatus('error', 'モデルを読み込めませんでした — ネットワークを確認して、もう一度お試しください', 0);
+    toast('モデルを読み込めませんでした — ネットワークを確認して、もう一度お試しください');
+    return;
+  }
+  let out = null;
+  try {
+    whisperSetStatus('transcribing', '音声を聴いて、1語ずつ認識しています — ブラウザ内で実行中です。長い曲は数分かかることがあります…', 0);
+    out = await whisperPipe(audio.data, { language: lang, return_timestamps: 'word', chunk_length_s: 30, stride_length_s: 5 });
+  } catch (e) {
+    whisperSetStatus('error', 'Whisperでエラーが発生しました: ' + (e && e.message ? e.message : e), 0);
+    toast('Whisperでエラーが発生しました — 今のタイミングをそのまま残します');
+    return;
+  }
+  whisperSetStatus('aligning', '単語を歌詞と照合しています…', 0);
+  const chunks = whisperChunks(out, lang);
+  const res = whisperAlign(lines, chunks, lang);
+  if (!chunks.length || res.matchedWords === 0) {
+    whisperState.lastRun = { matchedLines: 0, totalLines: lines.length, matchedWords: 0, totalWords: res.totalWords, unmatched: lines.map(l => l.text) };
+    whisperSetStatus('done', 'Whisperはこの音声から単語を認識できませんでした — 今のタイミングをそのまま残します', 0);
+    toast('Whisperはこの音声から単語を認識できませんでした — 今のタイミングをそのまま残します');
+    return;
+  }
+  whisperApply(res);
+  const okLines = res.lines.filter(l => l.matched > 0).length;
+  whisperState.lastRun = { matchedLines: okLines, totalLines: lines.length, matchedWords: res.matchedWords, totalWords: res.totalWords, unmatched: res.unmatched };
+  const msg = `行のタイミングを合わせました — ${okLines}/${lines.length}行、${res.matchedWords}/${res.totalWords}語が一致しました。手で修正もできます。` + (res.unmatched.length ? ` — 未一致: ${res.unmatched.slice(0, 3).join(' / ')}` : '');
+  whisperSetStatus('done', msg, 0);
+  toast(msg);
+}
+
 function boot() {
+  migrateLS();
   S.project = loadLocal();
   bind(); initVolume(); syncUI(); syncLoopBtn(); replan();
   restoreFonts(); restoreUserImage();
   // Always default to pro mode on desktop so all tabs, styles, effects and settings are immediately visible
   let mode = window.matchMedia && window.matchMedia('(max-width: 760px)').matches ? 'mobile' : 'pro';
   try {
-    const saved = localStorage.getItem('jizura.mode');
+    const saved = localStorage.getItem('aura.mode');
     if (saved === 'mobile') mode = 'mobile';
     else mode = 'pro';
   } catch (e) {}

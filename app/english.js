@@ -193,7 +193,10 @@
       doorsOpen: 'Double doors', checker: 'Checkerboard',
       blockDissolve: 'Block dissolve', inkBlob: 'Ink blot',
       shatterTiles: 'Shattering tiles', sliceShift: 'Sliding strips',
-      cubeTurn: 'Cube turn', flashCross: 'Flash cut', pixelate: 'Pixel transition'
+      cubeTurn: 'Cube turn', flashCross: 'Flash cut', pixelate: 'Pixel transition',
+      glBurn: 'Burn through', glDissolve: 'Noise dissolve', glWater: 'Water drop',
+      glWarp: 'Cross warp', glMorph: 'Morph', glGlitch: 'Glitch memories',
+      glZoom: 'Cross zoom', glDream: 'Dreamy zoom'
     }
   };
   const acronym = { rgb: 'RGB', crt: 'CRT', vhs: 'VHS', qr: 'QR', tv: 'TV', led: 'LED', hud: 'HUD', jp: 'JP' };

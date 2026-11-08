@@ -62,9 +62,13 @@ J.analyzeAudio = async (file) => {
   const p95 = sorted[Math.floor(sorted.length * 0.95)] || 1;
   const energyN = new Float32Array(n);
   for (let f = 0; f < n; f++) energyN[f] = Math.min(1, energy[f] / p95);
-  // waveform peaks for the timeline
-  const bins = 1600, peaks = new Float32Array(bins), per = Math.max(1, Math.floor(len / bins));
+  // waveform peaks for the timeline (v0.16.0: 8192 bins, normalised to the 95th percentile like energyN,
+  // so quiet songs still show a readable wave and loud/clipped ones never flatten past 1.0)
+  const bins = 8192, peaks = new Float32Array(bins), per = Math.max(1, Math.floor(len / bins));
   for (let b = 0; b < bins; b++) { let m = 0; for (let i = b * per, e = Math.min(len, (b + 1) * per); i < e; i += 4) { const v = Math.abs(mono[i]); if (v > m) m = v; } peaks[b] = m; }
+  const psorted = Array.from(peaks).sort((a, b) => a - b);
+  const pp95 = psorted[Math.floor(psorted.length * 0.95)] || 1;
+  for (let b = 0; b < bins; b++) peaks[b] = Math.min(1, peaks[b] / pp95);
   return {
     name: file.name, duration: audioBuffer.duration, sampleRate: sr, buffer: audioBuffer,
     bpm: Math.round(60 / period * 10) / 10, beats, energy: energyN, energyRate: rate, peaks,
@@ -92,11 +96,31 @@ J.audioWav = (buffer, duration, offset = 0) => {
 
 /* the last song, kept in this browser (IndexedDB) so a reload does not silently drop the audio from exports */
 const IDB = { db: null };
+/* v0.11.0 moved the song store from 'jizura' to 'aura' — copy every record once, then drop the old db */
 IDB.open = () => IDB.db || (IDB.db = new Promise((res, rej) => {
   if (typeof indexedDB === 'undefined') return rej(new Error('no IndexedDB'));
-  const r = indexedDB.open('jizura', 1);
+  const r = indexedDB.open('aura', 1);
   r.onupgradeneeded = () => { r.result.createObjectStore('files'); };
-  r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  r.onsuccess = async () => {
+    const db = r.result;
+    try {
+      if (localStorage.getItem('aura.idbMigrated') !== '1') {
+        const old = await new Promise((rs) => { const ro = indexedDB.open('jizura', 1); ro.onsuccess = () => rs(ro.result); ro.onerror = () => rs(null); });
+        if (old && old.objectStoreNames.contains('files')) {
+          const keys = await new Promise((rs, rj) => { const q = old.transaction('files', 'readonly').objectStore('files').getAllKeys(); q.onsuccess = () => rs(q.result || []); q.onerror = () => rj(q.error); });
+          for (const k of keys) {
+            const rec = await new Promise((rs, rj) => { const q = old.transaction('files', 'readonly').objectStore('files').get(k); q.onsuccess = () => rs(q.result); q.onerror = () => rj(q.error); });
+            if (rec !== undefined) await new Promise((rs, rj) => { const tx = db.transaction('files', 'readwrite'); tx.objectStore('files').put(rec, k); tx.oncomplete = rs; tx.onerror = () => rj(tx.error); });
+          }
+          try { indexedDB.deleteDatabase('jizura'); } catch (e) {}
+        }
+        try { old && old.close(); } catch (e) {}
+        try { localStorage.setItem('aura.idbMigrated', '1'); } catch (e) {}
+      }
+    } catch (e) {}
+    res(db);
+  };
+  r.onerror = () => rej(r.error);
 }));
 J.saveSong = async (file) => {
   try {

@@ -389,6 +389,6 @@ MOODS = {
 
 SAMPLE = '我還記得/黎明的顏色\n散開的聲音在遠方響起\n欸，現在還來得及嗎\n不能就這樣*透明*地結束!'
 
-TITLE = 'JIZURA — 動態歌詞影片製作工具'
+TITLE = 'AURA Motion Lyrics — 動態歌詞影片製作工具'
 
 DESCRIPTION = '在瀏覽器中把歌詞做成動態歌詞影片，並匯出 MP4。'

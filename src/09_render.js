@@ -285,9 +285,11 @@ class Renderer {
       if (ev.type === 'chroma') spike += ev.amp * Math.pow(0.55, dt);
       else if (ev.type === 'shake') shake += ev.amp * Math.pow(0.62, dt);
     }
-    if (plan.beats && plan.beats.length) {
-      const b = prevBeat(plan.beats, t);
-      if (b != null && t - b < 0.25) beatPulse = 0.9 * Math.exp(-(t - b) * 16);
+    // v0.14.0: the beat chroma pulse is gated behind fx.beatSync — OFF means truly OFF
+    if (fx.beatSync && plan.beats && plan.beats.length) {
+      const bi = beatAt(plan.beats, t);
+      const bEvery = fx.beatEvery || 1;
+      if (bi && bi.since < 0.25 && bi.index % bEvery === 0) beatPulse = 0.9 * (fx.beatAmt ?? 0.7) * Math.exp(-bi.since * 16);
     }
     const chroma = (fx.chroma ?? 0.7) * (st.ghost ?? 1) * (1 + spike + beatPulse);
     const step = Math.floor(tq / clock + 1e-6);
@@ -611,6 +613,7 @@ class Renderer {
   post(ctx, plan, t, tq, step, sc, scale, opt, allowFilter) {
     const cw = ctx.canvas.width, ch = ctx.canvas.height;
     const fx = plan.fx, st = plan.style;
+    const postBeat = plan.beats && plan.beats.length ? beatAt(plan.beats, t) : null;   // v0.14.0: screen effects may pulse on the beat
     const active = plan.events.filter(ev => t >= ev.t && t < ev.t + Math.max(ev.dur, 1 / plan.fps));
     const needScratch = active.some(ev => ['slice', 'block', 'zoom', 'mosaic'].includes(ev.type) || (J.FXE[ev.type] && J.FXE[ev.type].scratch)) || (!opt.fast && (st.glow || 0) > 0);
     const S = needScratch ? this.ensure(this.scratch, cw, ch) : null;
@@ -627,7 +630,7 @@ class Renderer {
       if (D && D.draw) {
         if (D.scratch) copy();
         try {
-          D.draw(ctx, ev, k, { cw, ch, S, sc, st: plan.style, step: st2, t, scale, renderer: this, allowFilter, opt, transparent: !!opt.transparent, tmp: (w, h) => this.ensure(this.tiny, w, h), tmp2: (w, h) => this.ensure(this.small2 || (this.small2 = mk(2, 2)), w, h) });
+          D.draw(ctx, ev, k, { cw, ch, S, sc, st: plan.style, step: st2, t, scale, renderer: this, allowFilter, opt, transparent: !!opt.transparent, beat: postBeat, tmp: (w, h) => this.ensure(this.tiny, w, h), tmp2: (w, h) => this.ensure(this.small2 || (this.small2 = mk(2, 2)), w, h) });
         } catch (e) { console.warn('fx', ev.type, e); }
         ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.filter = 'none'; ctx.imageSmoothingEnabled = true;
         if (guard) guard.end();

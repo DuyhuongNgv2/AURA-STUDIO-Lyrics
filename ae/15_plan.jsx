@@ -292,7 +292,7 @@ function jzMakePlan(o) {
     // 中央を空ける: cuts laid out in side bands (left / right, or top / bottom on tall frames), alternating per line
     var zones = o.centerFree ? jzSideZones(W, H, o.centerDir) : null;
     if (zones && en.bg) en.bg.bigChar = false;
-    var plan = { version: 2, generator: 'JIZURA-AE', title: title, artist: artist, W: W, H: H, width: W, height: H, fps: o.fps, duration: duration, style: st, styleKey: o.style, fx: fx, lines: [], cuts: [], events: [], hud: fx.hud,
+    var plan = { version: 2, generator: 'AURA-AE', title: title, artist: artist, W: W, H: H, width: W, height: H, fps: o.fps, duration: duration, style: st, styleKey: o.style, fx: fx, lines: [], cuts: [], events: [], hud: fx.hud,
         lang: (o.lang && o.lang !== 'auto') ? o.lang : jzDetectLangText(o.lyrics + ' ' + title), centerFree: !!zones, zones: zones };
     jzSetLang(plan.lang);
     var hist = [], bgHist = [], fxHist = [], schemeIdx = 0, nS = st.schemes.length;
