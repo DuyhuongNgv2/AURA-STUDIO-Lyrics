@@ -251,7 +251,12 @@ J.drawItem = (env, it) => {
     if (ext && !outlineOnly) {
       ctx.fillStyle = ext.color || '#000';
       const ea = ext.a ?? 1;
-      for (let k = ext.n; k >= 1; k--) { ctx.globalAlpha = a * ea * (ext.fade ? 1 - (k - 1) / ext.n * 0.85 : 1); ctx.fillText(ch, ext.dx * k / ext.n / csx, ext.dy * k / ext.n / csy); }
+      for (let k = ext.n; k >= 1; k--) {
+        ctx.globalAlpha = a * ea * (ext.fade ? 1 - (k - 1) / ext.n * 0.85 : 1);
+        // v0.19.0 khoi3d: per-layer colour ramp front -> back (side faces shade)
+        if (ext.shade) ctx.fillStyle = J.mix(ext.shade[0], ext.shade[1], k / ext.n);
+        ctx.fillText(ch, ext.dx * k / ext.n / csx, ext.dy * k / ext.n / csy);
+      }
       ctx.globalAlpha = a;
     }
     if (fill && !outlineOnly && fillA > 0.002 && dash == null) { ctx.globalAlpha = a * fillA; ctx.fillStyle = grad || gcol; ctx.fillText(ch, 0, 0); ctx.globalAlpha = a; }

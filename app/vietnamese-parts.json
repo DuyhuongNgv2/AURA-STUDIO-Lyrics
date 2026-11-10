@@ -315,7 +315,8 @@
     "ccTypeBlink": "Máy đánh chữ có con trỏ (CapCut)",
     "ccSmoothSlideUp": "Trượt mượt từ dưới lên",
     "ccStompImpact": "Đập nện rung chuyển",
-    "ccGlitchRGB": "Nhiễu điện tử RGB"
+    "ccGlitchRGB": "Nhiễu điện tử RGB",
+    "textFlip3d": "Lật 3D"
   },
   "hold": {
     "still": "Đứng yên",
@@ -372,7 +373,8 @@
     "tyTrackStep": "Khoảng cách từng nấc",
     "ccPulseHeart": "Đập nhịp tim",
     "ccWaveSway": "Sóng nước bồng bềnh",
-    "ccJitterBass": "Rung theo tiếng Bass"
+    "ccJitterBass": "Rung theo tiếng Bass",
+    "spin3d": "Xoay 3D"
   },
   "exit": {
     "cut": "Cắt thẳng",
@@ -687,7 +689,8 @@
     "ccHighlighter": "Tô bút dạ quang",
     "ccNeonGlowTube": "Đèn Neon phát sáng",
     "ccCyberpunk": "Cyberpunk (Neon Cyan/Tím)",
-    "ccVhs": "VHS Retro (Băng từ & Scanline)"
+    "ccVhs": "VHS Retro (Băng từ & Scanline)",
+    "khoi3d": "Khối 3D"
   },
   "bg": {
     "none": "Màu nền đơn",
@@ -793,7 +796,9 @@
     "driftDiag": "Trôi chéo",
     "shakeHard": "Rung mạnh",
     "dollyIn": "Di chuyển máy vào",
-    "stepZoom": "Phóng từng nấc"
+    "stepZoom": "Phóng từng nấc",
+    "dolly3d": "Dolly 3D",
+    "orbit3d": "Quỹ đạo 3D"
   },
   "fx": {
     "chroma": "Nhảy lệch màu",

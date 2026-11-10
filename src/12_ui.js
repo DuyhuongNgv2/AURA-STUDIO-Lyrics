@@ -297,6 +297,7 @@ function updateTimeUI() {
   $('timeNow').textContent = J.fmtTime(S.t);
   $('timeDur').textContent = J.fmtTime(S.plan.duration);
   if (!S.scrubbing) $('scrub').value = String(Math.round(S.t / Math.max(0.001, S.plan.duration) * 10000));
+  updateKfPanelPose(); // P2 v0.20.0 K1: live pose readout + panel rebuild when the active cut changes
 }
 // タップ同期の速さ (0.5× / 0.75×): only while tapping — the song's own time is what gets stored
 const playRate = () => (S.tap && S.tap.rate > 0 ? S.tap.rate : 1);
@@ -391,6 +392,40 @@ function drawTimeline() {
     x.beginPath(); x.moveTo(lx - 5 * dpr, 0); x.lineTo(lx + 5 * dpr, 0); x.lineTo(lx, 7 * dpr); x.closePath(); x.fill();
     x.fillStyle = on ? '#f5a50c' : '#8e8a94'; x.fillText(String(ln.index + 1).padStart(2, '0') + (ln.interlude ? ' 間奏' : ''), lx + 4 * dpr, 17 * dpr);
   }
+  // P3 v0.21.0 — word-boundary markers on the wave lane: one thin tick per
+  // word start, a bolder tick at the last word's end. All visible lines faint,
+  // the line under the playhead bright + word labels at TL.z > 3 (same
+  // threshold as cut.text). The dragged boundary draws live from WD.t in
+  // orange. Drawn before the playhead so it stays on top.
+  const acCut = S.plan.cuts.length ? J.cutAt(S.plan, S.t) : null;
+  const acLine = acCut ? acCut.line : -1;
+  const wdTick = (t, bold, color) => {
+    const mx = X(t);
+    if (mx < -2 || mx > w + 2) return;
+    x.fillStyle = color;
+    x.fillRect(mx - (bold ? dpr : 0.75 * dpr), waveTop, (bold ? 2 : 1.5) * dpr, waveBot - waveTop);
+  };
+  for (const ln of S.plan.lines) {
+    const wt = ln.wordTimes;
+    if (!wt || !wt.length) continue;
+    const active = ln.index === acLine;
+    const col = active ? '#6fb7c8' : 'rgba(111,183,200,0.45)';
+    for (let k = 0; k < wt.length; k++) {
+      const w = wt[k];
+      const isDragged = WD.drag >= 0 && ln.index === WD.line && k === WD.word;
+      const st = (isDragged && (WD.edge === 'start' || WD.edge === 'whole')) ? WD.t : w.start; // live position while dragging
+      wdTick(st, active, (isDragged && (WD.edge === 'start' || WD.edge === 'whole')) ? '#f5a50c' : col);
+      if (isDragged && WD.edge === 'whole' && k !== wt.length - 1) wdTick(WD.t + WD.dur, true, '#f5a50c'); // P4 v0.22.0: the dragged word's end moves too (non-last words have no end tick otherwise)
+      if (active && TL.z > 3 && w.text) {
+        const lx = X(st);
+        if (lx > -2 && lx < w + 2) { x.fillStyle = '#cfe8ee'; x.font = `${9 * dpr}px monospace`; x.fillText(w.text, lx + 3 * dpr, waveTop + 10 * dpr); }
+      }
+      if (k === wt.length - 1) { // the last word's end is draggable; a null end (ELRC default) means "runs to the line end"
+        const et = (isDragged && WD.edge === 'end') ? WD.t : (isDragged && WD.edge === 'whole') ? WD.t + WD.dur : (w.end != null ? w.end : ln.end);
+        wdTick(et, true, (isDragged && (WD.edge === 'end' || WD.edge === 'whole')) ? '#f5a50c' : col);
+      }
+    }
+  }
   if (TL.z > 1) {                                          // where the view sits in the whole song
     x.fillStyle = 'rgba(255,255,255,0.18)'; x.fillRect(0, h - 2 * dpr, w, 2 * dpr);
     x.fillStyle = '#f5a50c'; x.fillRect(off / D * w, h - 2 * dpr, Math.max(4, vd / D * w), 2 * dpr);
@@ -400,8 +435,21 @@ function drawTimeline() {
     x.fillStyle = 'rgba(245,165,12,0.16)';
     x.fillRect(X(r.start), 0, Math.max(2 * dpr, X(r.end) - X(r.start)), h);
   }
+  // P2 v0.20.0 K1: keyframe diamonds on the bottom edge of the ACTIVE cut's block (selected = white)
+  const ac = S.plan.cuts.length ? J.cutAt(S.plan, S.t) : null;
+  if (ac && ac.keyframes && ac.keyframes.length) {
+    const ky = cutBot - 5 * dpr, kr = 5 * dpr;
+    for (let ki = 0; ki < ac.keyframes.length; ki++) {
+      const kx = X(ac.start + ac.keyframes[ki].t);
+      if (kx < 0 || kx > w) continue;
+      x.beginPath(); x.moveTo(kx, ky - kr); x.lineTo(kx + kr, ky); x.lineTo(kx, ky + kr); x.lineTo(kx - kr, ky); x.closePath();
+      x.fillStyle = ki === KF.sel ? '#ffffff' : '#f5a50c'; x.fill();
+      if (ki === KF.sel) { x.strokeStyle = '#f5a50c'; x.lineWidth = 2 * dpr; x.stroke(); }
+    }
+  }
   const px = X(S.t);
   x.fillStyle = '#f5a50c'; x.fillRect(Math.round(px) - dpr, 0, 2 * dpr, h);
+  syncWdHint(); // P3 v0.21.0: cached — only writes when the hint text changes
 }
 function tlTime(ev) {
   const r = $('timeline').getBoundingClientRect(), { vd, off } = tlView();
@@ -415,6 +463,68 @@ function tlHandleAt(ev) {
   let best = -1, bd = 8;
   for (const ln of S.plan.lines) { const d = Math.abs((ln.start - off) / vd * r.width - (ev.clientX - r.left)); if (d < bd) { bd = d; best = ln.index; } }
   return best;
+}
+/* P2 v0.20.0 K1: the keyframe diamond under the pointer (active cut's block only, ±9px) */
+function tlKeyAt(ev) {
+  const cut = kfActiveCut();
+  if (!cut || !cut.keyframes || !cut.keyframes.length) return -1;
+  const c = $('timeline'), r = c.getBoundingClientRect(), { vd, off } = tlView();
+  const y = ev.clientY - r.top;
+  if (y < TL_WAVE_BOT_PX || y > c.clientHeight) return -1; // cut lane only
+  let best = -1, bd = 9;
+  for (let ki = 0; ki < cut.keyframes.length; ki++) {
+    const kx = (cut.start + cut.keyframes[ki].t - off) / vd * r.width;
+    const d = Math.abs(kx - (ev.clientX - r.left));
+    if (d < bd) { bd = d; best = ki; }
+  }
+  return best;
+}
+/* P3 v0.21.0 — the word boundary under the pointer (wave lane only, ±8px).
+   Start edge of every word; end edge only of a line's LAST word (other words'
+   ends abut the next word's start, so dragging them would overlap).
+   Returns {line, word, edge} or null. */
+function tlWordAt(ev) {
+  const c = $('timeline'), r = c.getBoundingClientRect(), { vd, off } = tlView();
+  const y = ev.clientY - r.top;
+  if (y < TL_HANDLE_PX || y > TL_WAVE_BOT_PX) return null;
+  const px = ev.clientX - r.left;
+  let best = null, bd = 8;
+  for (const ln of S.plan.lines) {
+    const wt = ln.wordTimes;
+    if (!wt || !wt.length) continue;
+    for (let k = 0; k < wt.length; k++) {
+      const w = wt[k];
+      const ds = Math.abs((w.start - off) / vd * r.width - px);
+      if (ds < bd) { bd = ds; best = { line: ln.index, word: k, edge: 'start' }; }
+      if (k === wt.length - 1) { // a null end (ELRC default) means "runs to the line end"
+        const epos = w.end != null ? w.end : ln.end;
+        const de = Math.abs((epos - off) / vd * r.width - px);
+        if (de < bd) { bd = de; best = { line: ln.index, word: k, edge: 'end' }; }
+      }
+    }
+  }
+  return best;
+}
+/* P4 v0.22.0 — the word BODY under the pointer (wave lane only): inside a
+   word's span but outside the ±8px edge zones (those stay edge drags, checked
+   first). A body narrower than 16px on screen has no body zone — edge drag
+   still works there. Returns {line, word, edge:'whole'} or null. */
+function tlWordWholeAt(ev) {
+  const c = $('timeline'), r = c.getBoundingClientRect(), { vd, off } = tlView();
+  const y = ev.clientY - r.top;
+  if (y < TL_HANDLE_PX || y > TL_WAVE_BOT_PX) return null;
+  const px = ev.clientX - r.left;
+  for (const ln of S.plan.lines) {
+    const wt = ln.wordTimes;
+    if (!wt || !wt.length) continue;
+    for (let k = 0; k < wt.length; k++) {
+      const w = wt[k];
+      const epos = w.end != null ? w.end : ln.end;
+      const x0 = (w.start - off) / vd * r.width, x1 = (epos - off) / vd * r.width;
+      if (px > x0 + 8 && px < x1 - 8) return { line: ln.index, word: k, edge: 'whole' };
+    }
+  }
+  return null;
 }
 function tlDragTo(i, ev) {
   let t = tlTime(ev);
@@ -765,10 +875,10 @@ function renderLines() {
     if (q('.ncut')) q('.ncut').addEventListener('change', e => { remember(); setOv(i, { cuts: +e.target.value || undefined, single: undefined }); replan(); commit(); seek(ln.start + 0.001); });
     q('.tapfrom').addEventListener('click', () => startTap(i));
     q('.rng').addEventListener('click', e => setExportRange(i, e.shiftKey));
-    if (q('.dice')) q('.dice').addEventListener('click', () => { const cur = ov[i] || {}; setOv(i, { seed: (cur.seed | 0) + 1, lock: false, lockedSeed: undefined, lockedCuts: undefined }); replan(); seek(ln.start + 0.001); });
+    if (q('.dice')) q('.dice').addEventListener('click', () => { const cur = ov[i] || {}; if (cur.lock && !kfConfirmDropKeys(i)) return; setOv(i, { seed: (cur.seed | 0) + 1, lock: false, lockedSeed: undefined, lockedCuts: undefined }); replan(); seek(ln.start + 0.001); });
     if (q('.lock')) q('.lock').addEventListener('click', () => {
       const cur = ov[i] || {};
-      if (cur.lock) setOv(i, { lock: false, lockedSeed: undefined, lockedCuts: undefined });
+      if (cur.lock) { if (!kfConfirmDropKeys(i)) return; setOv(i, { lock: false, lockedSeed: undefined, lockedCuts: undefined }); } // P2 v0.20.0 K1: unlocking drops the line's keyframes — warn first
       else setOv(i, { lock: true, lockedSeed: ln.seed, lockedCuts: J.lineSnapshot(S.plan, i) || undefined });
       replan();
     });
@@ -857,6 +967,328 @@ function edGo(d) {
   if ('ov' in o) { S.project.overrides = o.ov || {}; S.project.exportRange = o.range || null; }
   replan(); flushSave(); updateEditBtns();
   toast(d < 0 ? '元に戻しました' : 'やり直しました');
+}
+// ---------------- P2 v0.20.0 K1: Keyframe Editor ----------------
+// Keyframes live on LOCKED cuts (the lock snapshot is the persistence path:
+// lineSnapshot -> overrides.lockedCuts -> planLine restores them). Every
+// keyframe mutation goes: pushEditOv() (undo snapshot WITH overrides) ->
+// mutate the live cut -> kfCommit() (fresh lock snapshot + replan + save).
+// During a drag only the live cut is mutated (no replan per tick); the
+// commit on release refreshes the snapshot, so a replan never reverts it.
+let KF = { sel: -1, drag: -1, dragCut: null };
+let KF_lastCut = '';
+// P3 v0.21.0 — Word-drag: drag a word's start/end boundary on the wave lane.
+// State lives apart from KF (keyframe drag): the two never share a pointer —
+// markers sit in the wave lane (y 24–68px), diamonds in the cut lane below.
+// One drag = one pushEdit() snapshot at dragstart (edSnap already covers
+// wordTimes), one replan()+flushSave() at commit; no replan per tick.
+let WD = { snap: true, drag: -1, line: -1, word: -1, edge: '', t: 0, dur: 0, grabOff: 0, liveText: '', hintCache: '' }; // P4 v0.22.0: dur = dragged word's duration (whole-word drag keeps it); grabOff = pointer time minus word start at grab (QA-029 fix, keeps the word moving by the pointer delta)
+function pushEditOv() { // undo snapshot that ALSO carries overrides (edSnap excludes them); edGo already restores 'ov'
+  const snap = JSON.parse(edSnap());
+  snap.ov = JSON.parse(JSON.stringify(S.project.overrides || {}));
+  snap.range = S.project.exportRange || null;
+  const s = JSON.stringify(snap);
+  if (ED.undo[ED.undo.length - 1] !== s) ED.undo.push(s);
+  if (ED.undo.length > 60) ED.undo.shift();
+  ED.redo = []; updateEditBtns();
+}
+function kfActiveCut() { return S.plan && S.plan.cuts ? J.cutAt(S.plan, S.t) : null; }
+function kfHasKeys(li) { // any keyframes on line li (live plan or its lock spec)
+  if (li == null || li < 0) return false;
+  for (const c of S.plan.cuts) if (c.line === li && c.keyframes && c.keyframes.length) return true;
+  const ov = (S.project.overrides || {})[li];
+  if (ov && ov.lockedCuts) for (const s of ov.lockedCuts) if (s.keyframes && s.keyframes.length) return true;
+  return false;
+}
+function kfConfirmDropKeys(li) { // true = proceed (keys are dropped); false = cancel
+  if (!kfHasKeys(li)) return true;
+  return window.confirm('ロックを外すとこの行のキーフレームが消えます。続けますか？');
+}
+function kfCommit(cut) { // refresh the lock snapshot with the live cut's keys, then replan + save
+  const li = cut ? cut.line : -1;
+  if (li < 0) return;
+  const ln = S.plan.lines[li];
+  setOv(li, { lock: true, lockedSeed: ln ? ln.seed : undefined, lockedCuts: J.lineSnapshot(S.plan, li) || undefined });
+  replan(); flushSave();
+}
+function kfAddKey() {
+  const cut = kfActiveCut();
+  if (!cut || S.tap || S.exporting) return;
+  const wasLocked = !!((S.project.overrides || {})[cut.line] || {}).lock;
+  pushEditOv();
+  const lt0 = J.clamp(S.t - cut.start, 0, cut.dur);
+  if (!Array.isArray(cut.keyframes)) cut.keyframes = [];
+  const pose = J.keyframePoseAt(cut, lt0); // a new key captures the pose already evaluated here, so the picture does not jump
+  const nk = { t: +lt0.toFixed(3), x: +pose.x.toFixed(1), y: +pose.y.toFixed(1), rot: +pose.rot.toFixed(1), scale: +pose.scale.toFixed(2), opacity: +pose.opacity.toFixed(2), rotY: +pose.rotY.toFixed(1), rotX: +pose.rotX.toFixed(1), dolly: +pose.dolly.toFixed(2), orbit: +pose.orbit.toFixed(1) };
+  const dup = cut.keyframes.findIndex(k => Math.abs(k.t - nk.t) < 0.001);
+  if (dup >= 0) { cut.keyframes[dup] = nk; KF.sel = dup; }
+  else { cut.keyframes.push(nk); cut.keyframes.sort((a, b) => a.t - b.t); KF.sel = cut.keyframes.indexOf(nk); }
+  kfCommit(cut);
+  drawTimeline(); renderKfPanel();
+  toast(wasLocked ? 'キーフレームを追加しました' : 'キーフレームを追加しました（行をロックしました）');
+}
+function kfDeleteKey(idx) {
+  const cut = kfActiveCut();
+  if (!cut || !cut.keyframes || idx < 0 || idx >= cut.keyframes.length) return;
+  pushEditOv();
+  cut.keyframes.splice(idx, 1);
+  KF.sel = -1;
+  kfCommit(cut);
+  drawTimeline(); renderKfPanel();
+  toast('キーフレームを削除しました');
+}
+function kfSetKey(idx, prop, value) { // one field of one key, from the panel (change event = one undo step)
+  const cut = kfActiveCut();
+  if (!cut || !cut.keyframes || idx < 0 || idx >= cut.keyframes.length) return;
+  const k = cut.keyframes[idx];
+  pushEditOv();
+  if (prop === 't') { k.t = +J.clamp(+value || 0, 0, cut.dur).toFixed(3); cut.keyframes.sort((a, b) => a.t - b.t); KF.sel = cut.keyframes.indexOf(k); }
+  else if (prop === 'scale') k.scale = Math.max(0.05, +value || 1);
+  else if (prop === 'opacity') k.opacity = J.clamp(+value || 0, 0, 1);
+  else if (prop === 'dolly') k.dolly = J.clamp(+value || 0, -1, 2); // K2: dolly-out to strong dolly-in
+  else k[prop] = +value || 0;
+  kfCommit(cut);
+  drawTimeline(); renderKfPanel();
+}
+function kfDragStart(idx) { // pointerdown on a diamond: undo snapshot first, then live moves
+  const cut = kfActiveCut();
+  if (!cut || !cut.keyframes || idx < 0 || idx >= cut.keyframes.length) return false;
+  KF.drag = idx; KF.sel = idx; KF.dragCut = cut;
+  pushEditOv();
+  return true;
+}
+function kfDragTo(ev) { // live move, no replan per tick — the live cut renders the new pose at once
+  const cut = KF.dragCut;
+  if (!cut || KF.drag < 0 || !S.plan.cuts.includes(cut)) { KF.drag = -1; KF.dragCut = null; return; }
+  const k = cut.keyframes[KF.drag];
+  if (!k) return;
+  const lt = J.clamp(tlTime(ev) - cut.start, 0, cut.dur);
+  k.t = +(Math.round(lt / 0.05) * 0.05).toFixed(2); // 0.05s snap
+  S.need = true; drawTimeline(); updateKfPanelPose();
+}
+function kfDragEnd() { // commit on release: sort, refresh the lock snapshot, replan + save
+  const cut = KF.dragCut;
+  if (!cut || KF.drag < 0) { KF.drag = -1; KF.dragCut = null; return; }
+  const k = cut.keyframes[KF.drag];
+  KF.drag = -1; KF.dragCut = null;
+  if (!k || !S.plan.cuts.includes(cut)) { drawTimeline(); renderKfPanel(); return; }
+  cut.keyframes.sort((a, b) => a.t - b.t);
+  KF.sel = cut.keyframes.indexOf(k);
+  kfCommit(cut);
+  drawTimeline(); renderKfPanel();
+}
+/* P3 v0.21.0 — word-drag snap: the toggle (default ON) + Shift (fine 0.01s)
+   + beat snap (nearest beat within 0.12s, tlDragTo's rule). Toggle OFF = raw. */
+function wdSnapTo(t, ev) {
+  if (!WD.snap) return +t.toFixed(3);
+  if (ev && ev.shiftKey) return +(Math.round(t / 0.01) * 0.01).toFixed(3);
+  if (S.plan.beats && S.plan.beats.length) {
+    let bt = null, bd = 0.12;
+    for (const b of S.plan.beats) { const d = Math.abs(b - t); if (d < bd) { bd = d; bt = b; } if (b > t + 0.2) break; }
+    if (bt != null) return +bt.toFixed(3);
+  }
+  return +(Math.round(t / 0.05) * 0.05).toFixed(3);
+}
+/* Bounds for a word edge, mirroring the .wstart handler's clamp so the drag
+   can never promise a time the plan then overrides. Start: lo from the
+   previous word's end (or the line start), hi from the next word's start
+   (or the line end). End (last word only): [start+0.01, line.end]. */
+function wdBoundsFor(arr, ln, k, edge) {
+  if (edge === 'end') return { lo: arr[k].start + 0.01, hi: ln.end };
+  if (edge === 'whole') { // P4 v0.22.0: move start+end together, duration fixed — never push the neighbours
+    const dur = Math.max(0.05, (arr[k].end != null ? arr[k].end : ln.end) - arr[k].start);
+    const prevEnd = k > 0 ? (arr[k - 1].end != null ? arr[k - 1].end : arr[k - 1].start + 0.01) : ln.start;
+    const lo = k > 0 ? Math.max(arr[k - 1].start + 0.01, prevEnd) : ln.start;
+    const hi = k < arr.length - 1 ? arr[k + 1].start - 0.01 - dur : ln.end - dur;
+    return { lo, hi };
+  }
+  const prevEnd = k > 0 ? (arr[k - 1].end != null ? arr[k - 1].end : arr[k - 1].start + 0.01) : ln.start;
+  const lo = k > 0 ? Math.max(arr[k - 1].start + 0.01, prevEnd) : ln.start;
+  const hi = k < arr.length - 1 ? arr[k + 1].start - 0.01 : ln.end;
+  return { lo, hi };
+}
+function wdDragStart(hit, ev) { // pointerdown on a word boundary: undo snapshot first, then live moves
+  if (!hit || S.tap || S.exporting) return false;
+  const ln = S.plan.lines[hit.line];
+  if (!ln || !ln.wordTimes || !ln.wordTimes[hit.word]) return false;
+  WD.drag = hit.word; WD.line = hit.line; WD.word = hit.word; WD.edge = hit.edge;
+  const w = ln.wordTimes[hit.word];
+  WD.t = hit.edge === 'end' ? (w.end != null ? w.end : ln.end) : w.start; // a null end (ELRC default) means "runs to the line end"
+  WD.dur = Math.max(0.05, (w.end != null ? w.end : ln.end) - w.start); // P4 v0.22.0: whole-word drag keeps this duration
+  WD.grabOff = (hit.edge === 'whole' && ev) ? tlTime(ev) - w.start : 0; // QA-029 fix: remember where inside the word the pointer grabbed, so the word moves by the pointer delta instead of jumping so its start lands under the cursor (edges grab at the edge itself, offset 0)
+  pushEdit();
+  return true;
+}
+function wdDragTo(ev) { // live move, no replan per tick — the marker + playhead follow at once
+  if (WD.drag < 0) return;
+  const ln = S.plan.lines[WD.line];
+  if (!ln || !ln.wordTimes || !ln.wordTimes[WD.word]) { WD.drag = -1; return; }
+  const bounds = wdBoundsFor(ln.wordTimes, ln, WD.word, WD.edge);
+  const w0 = ln.wordTimes[WD.word];
+  // P4 v0.22.0: a whole word with no room between its neighbours (hi < lo) stays put
+  // QA-029 fix: for a whole-word drag the start is the pointer time minus the
+  // grab offset, so the word translates by the pointer delta (snap still applies to the start)
+  const t = (WD.edge === 'whole' && bounds.hi < bounds.lo) ? w0.start : J.clamp(wdSnapTo(tlTime(ev) - (WD.edge === 'whole' ? (WD.grabOff || 0) : 0), ev), bounds.lo, Math.max(bounds.lo, bounds.hi));
+  WD.t = +t.toFixed(3);
+  const w = ln.wordTimes[WD.word];
+  WD.liveText = WD.edge === 'start'
+    ? `単語「${w.text}」 開始 ${WD.t.toFixed(2)}秒`
+    : WD.edge === 'end'
+    ? `単語「${w.text}」 終了 ${WD.t.toFixed(2)}秒`
+    : `単語「${w.text}」 ${WD.t.toFixed(2)}〜${(WD.t + WD.dur).toFixed(2)}秒`; // P4 v0.22.0: whole-word readout shows the moved range
+  seek(WD.t);
+  drawTimeline(); syncWdHint();
+}
+function wdDragEnd() { // commit on release: clamp like .wstart, write the store, replan + save
+  if (WD.drag < 0) return;
+  const line = WD.line, k = WD.word, edge = WD.edge, t = WD.t;
+  WD.drag = -1; WD.liveText = '';
+  const ln = S.plan.lines[line];
+  if (!ln || !ln.wordTimes || !ln.wordTimes[k]) { drawTimeline(); syncWdHint(); return; }
+  const planWt = ln.wordTimes;
+  if (!S.project.timing.wordTimes) S.project.timing.wordTimes = {};
+  // first edit of a line copies the (validated) plan times into the editable store
+  if (!S.project.timing.wordTimes[line]) S.project.timing.wordTimes[line] = planWt.map(w => ({ start: w.start, end: w.end, text: w.text }));
+  const arr = S.project.timing.wordTimes[line];
+  const bounds = wdBoundsFor(arr, ln, k, edge);
+  let w = t, clamped = false;
+  if (edge === 'whole') { // P4 v0.22.0: move start+end together, duration fixed
+    if (bounds.hi < bounds.lo) w = arr[k].start; // no room between the neighbours: stay put
+    else if (w < bounds.lo || w > bounds.hi) { w = J.clamp(w, bounds.lo, bounds.hi); clamped = true; }
+    w = +w.toFixed(3);
+    arr[k].start = w;
+    arr[k].end = +(w + Math.max(0.05, WD.dur)).toFixed(3);
+  } else {
+    if (bounds.hi >= bounds.lo && (w < bounds.lo || w > bounds.hi)) { w = J.clamp(w, bounds.lo, bounds.hi); clamped = true; }
+    else w = Math.max(bounds.lo, Math.min(w, bounds.hi));
+    w = +w.toFixed(3);
+    if (edge === 'start') {
+      arr[k].start = w;
+      if (arr[k].end == null || arr[k].end <= arr[k].start) arr[k].end = +(arr[k].start + 0.1).toFixed(3);
+    } else {
+      arr[k].end = w;
+    }
+  }
+  if (clamped) toast(`前後の単語と順番が入れ替わらないよう ${w.toFixed(2)} 秒にしました`);
+  replan(); flushSave(); renderLines(); seek(w + 0.001); drawTimeline(); syncWdHint();
+}
+function syncWdSnapBtn() { // toggle state: aria-pressed is styled by style.css (:197)
+  const b = $('btnWdSnap');
+  if (!b) return;
+  b.setAttribute('aria-pressed', String(WD.snap));
+}
+function syncWdHint() { // usage hint / live readout / no-audio note; cached — cheap to call from drawTimeline
+  const el = $('wdHint');
+  if (!el) return;
+  let txt;
+  if (WD.drag >= 0) txt = WD.liveText;
+  else txt = (WD.snap
+    ? '波形の上の単語をドラッグで動かせます：区切りで端だけ、真ん中で単語ごと（Shiftで0.01秒・スナップ0.05秒オン）' // P4 v0.22.0: hint now covers the whole-word drag too
+    : '波形の上の単語をドラッグで動かせます：区切りで端だけ、真ん中で単語ごと（Shiftで0.01秒・スナップオフ）')
+    + (S.audio ? '' : '（音声なし：時間で合わせられます）');
+  if (WD.hintCache !== txt) { WD.hintCache = txt; el.textContent = txt; }
+}
+function kfPoseText(cut) { // live readout for the playhead position
+  if (!cut) return '';
+  const p = J.keyframePoseAt(cut, J.clamp(S.t - cut.start, 0, cut.dur));
+  const f = v => (v >= 0 ? '+' : '') + (+v).toFixed(1);
+  let s = `再生位置の姿勢： X ${f(p.x)} · Y ${f(p.y)} · 回転 ${f(p.rot)}° · 拡大 ${p.scale.toFixed(2)} · 不透明度 ${p.opacity.toFixed(2)}`;
+  if (p.rotY || p.rotX || p.dolly || p.orbit) { // K2: show the 3D/camera part only when any of it is active
+    s += ` · 3D回転Y ${f(p.rotY)}° · 3D回転X ${f(p.rotX)}° · ドリー ${f(p.dolly)} · オービット ${f(p.orbit)}°`;
+  }
+  return s;
+}
+function updateKfPanelPose() { // called from updateTimeUI: cheap text update, full rebuild only when the active cut changes
+  const el = $('kfPanel');
+  if (!el) return;
+  const cut = kfActiveCut();
+  const key = cut ? cut.line + ':' + cut.start.toFixed(3) : '';
+  if (key !== KF_lastCut) { KF_lastCut = key; KF.sel = -1; renderKfPanel(); return; }
+  const live = $('kfLive');
+  if (live) live.textContent = kfPoseText(cut);
+}
+function renderKfPanel() { // full rebuild: header + live pose + key rows + add button
+  const el = $('kfPanel');
+  if (!el) return;
+  el.textContent = '';
+  const cut = kfActiveCut();
+  const head = document.createElement('div');
+  head.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:4px 0 2px';
+  const title = document.createElement('strong');
+  title.textContent = 'キーフレーム';
+  head.appendChild(title);
+  const cutLbl = document.createElement('span');
+  cutLbl.className = 'muted';
+  cutLbl.textContent = cut ? `${cut.line + 1}行目・${J.fmtTime(cut.start)}〜${J.fmtTime(cut.end)}` : '（カットなし）';
+  head.appendChild(cutLbl);
+  const addBtn = document.createElement('button');
+  addBtn.className = 'ghost small';
+  addBtn.textContent = '＋ 再生位置に追加';
+  addBtn.disabled = !cut;
+  addBtn.addEventListener('click', kfAddKey);
+  head.appendChild(addBtn);
+  el.appendChild(head);
+  const live = document.createElement('div');
+  live.id = 'kfLive';
+  live.className = 'muted';
+  live.style.cssText = 'padding:1px 0 3px;font-size:12px';
+  live.textContent = kfPoseText(cut);
+  el.appendChild(live);
+  if (!cut) return;
+  const keys = cut.keyframes || [];
+  if (!keys.length) {
+    const empty = document.createElement('div');
+    empty.className = 'muted';
+    empty.style.cssText = 'padding:2px 0;font-size:12px';
+    empty.textContent = 'このカットにはキーフレームがありません。「＋ 再生位置に追加」で追加します。';
+    el.appendChild(empty);
+    return;
+  }
+  const list = document.createElement('div');
+  keys.forEach((k, idx) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:5px;align-items:center;flex-wrap:wrap;padding:2px 4px;border-radius:4px' + (idx === KF.sel ? ';background:rgba(245,165,12,0.14)' : '');
+    row.addEventListener('click', e => { if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return; KF.sel = idx; drawTimeline(); renderKfPanel(); });
+    const dot = document.createElement('span');
+    dot.textContent = '◆ ' + (idx + 1);
+    dot.style.cssText = 'color:#f5a50c;font-size:12px;min-width:26px';
+    row.appendChild(dot);
+    const fields = [ // [label, prop, value, step, min, max, width]
+      ['t', 't', k.t, 0.05, 0, cut.dur, 70],
+      ['X', 'x', k.x, 1, null, null, 64],
+      ['Y', 'y', k.y, 1, null, null, 64],
+      ['rot', 'rot', k.rot, 1, null, null, 64],
+      ['×', 'scale', k.scale, 0.05, 0.05, null, 60],
+      ['α', 'opacity', k.opacity, 0.05, 0, 1, 60],
+      ['rotY', 'rotY', k.rotY ?? 0, 1, null, null, 64], // K2: 3D text rotation (degrees)
+      ['rotX', 'rotX', k.rotX ?? 0, 1, null, null, 64],
+      ['dolly', 'dolly', k.dolly ?? 0, 0.05, -1, 2, 60], // K2: camera dolly (0..1, negative = dolly-out)
+      ['orbit', 'orbit', k.orbit ?? 0, 1, null, null, 64], // K2: camera orbit (degrees)
+    ];
+    for (const [label, prop, val, step, min, max, w] of fields) {
+      const lb = document.createElement('span');
+      lb.className = 'muted';
+      lb.style.cssText = 'font-size:11px';
+      lb.textContent = label;
+      row.appendChild(lb);
+      const inp = document.createElement('input');
+      inp.type = 'number'; inp.step = String(step); inp.value = String(val);
+      if (min != null) inp.min = String(min);
+      if (max != null) inp.max = String(max);
+      inp.style.cssText = `width:${w}px;padding:2px 4px`;
+      inp.setAttribute('aria-label', `キー${idx + 1} ${label}`);
+      inp.addEventListener('change', e => { const v = parseFloat(e.target.value); if (isFinite(v)) kfSetKey(idx, prop, v); else renderKfPanel(); });
+      inp.addEventListener('click', () => { KF.sel = idx; drawTimeline(); });
+      row.appendChild(inp);
+    }
+    const del = document.createElement('button');
+    del.className = 'ghost small';
+    del.textContent = 'キーを削除';
+    del.addEventListener('click', () => kfDeleteKey(idx));
+    row.appendChild(del);
+    list.appendChild(row);
+  });
+  el.appendChild(list);
 }
 // LRC を読み込む: replaces the lyrics (and everything tied to line numbers, like 歌詞を消す); undoable
 function loadLrc(text) {
@@ -1369,6 +1801,39 @@ function renderFx() {
   bSync.addEventListener('change', () => { bfx.beatSync = bSync.checked; syncBeatDis(); replan(); });
   bAmt.addEventListener('input', () => { bfx.beatAmt = +bAmt.value; bAmtOut.textContent = Math.round(bAmt.value * 100); replanSoon(120); });
   bEvery.addEventListener('change', () => { bfx.beatEvery = +bEvery.value; replan(); });
+  // v0.19.0: 3D text — toggle + depth + mode + shadow (built like the beatSync block above)
+  const tfx = S.project.fx;
+  const tBox = document.createElement('div');
+  tBox.innerHTML = `<label class="row" style="gap:6px"><input id="fxThreeD" type="checkbox"${tfx.threeD ? ' checked' : ''}> 3Dテキスト</label>`
+    + `<div class="slider"><label for="fxThreeDepth">3Dの深さ</label><input id="fxThreeDepth" type="range" min="0" max="1" step="0.01" value="${tfx.threeDepth ?? 0.7}"><output>${Math.round((tfx.threeDepth ?? 0.7) * 100)}</output></div>`
+    + `<label class="field">3Dモード<select id="fxThreeMode"><option value="plane">平面3D</option><option value="block">立体ブロック</option></select></label>`
+    + `<label class="row" style="gap:6px"><input id="fxThreeShadow" type="checkbox"${tfx.threeShadow ? ' checked' : ''}> 影をつける</label>`;
+  box.appendChild(tBox);
+  const tOn = tBox.querySelector('#fxThreeD'), tDepth = tBox.querySelector('#fxThreeDepth'), tDepthOut = tBox.querySelector('output'),
+    tMode = tBox.querySelector('#fxThreeMode'), tShadow = tBox.querySelector('#fxThreeShadow');
+  tMode.value = tfx.threeMode || 'plane';
+  const syncThreeDis = () => {
+    tDepth.disabled = !tfx.threeD; tMode.disabled = !tfx.threeD;
+    tShadow.disabled = !tfx.threeD || (tfx.threeMode || 'plane') !== 'block';
+  };
+  syncThreeDis();
+  tOn.addEventListener('change', () => {
+    tfx.threeD = tOn.checked; syncThreeDis();
+    if (tfx.threeD && J.text3d) J.text3d.load().then(ok => { if (!ok) toast('3Dの読み込みに失敗しました。2D表示のままです'); replan(); });
+    replan();
+  });
+  tDepth.addEventListener('input', () => { tfx.threeDepth = +tDepth.value; tDepthOut.textContent = Math.round(tDepth.value * 100); replanSoon(120); });
+  tMode.addEventListener('change', () => {
+    tfx.threeMode = tMode.value; syncThreeDis();
+    if (tfx.threeMode === 'block') {
+      // M2: parse the font subsets now so the block layer is ready (a miss
+      // just falls back to the plane for the first frames — never a fake)
+      if (J.text3d) J.text3d._loadFonts();
+      toast('立体ブロック：Be Vietnam Pro 400/700のベトナム語のみ。日本語や他のフォントは平面3Dで表示します');
+    }
+    replan();
+  });
+  tShadow.addEventListener('change', () => { tfx.threeShadow = tShadow.checked; replanSoon(120); });
   lockBtn('flash', $('fxFlash').closest('label'));
   lockBtn('koma', $('fxKoma').closest('label'));
   $('fxFlash').checked = !!S.project.fx.flash;
@@ -1882,6 +2347,42 @@ function bind() {
   }
   $('btnTap').addEventListener('click', () => (S.tap ? stopTap() : startTap()));
   $('btnWhisper').addEventListener('click', whisperRun);
+  $('btnAlign1Click').addEventListener('click', whisperRun);
+  $('btnWhisperCancel').addEventListener('click', () => { whisperState.cancel = true; whisperSetStatus('cancelling', '中止しています…', 0); });
+  $('whisperModel').addEventListener('change', e => {
+    whisperModel = e.target.value in WHISPER_MODELS ? e.target.value : 'tiny';
+    whisperPipe = null; whisperState.modelLoaded = false;
+    whisperSetStatus('done', `モデル「${whisperModel}」を次回から使います`, 0);
+  });
+  whisperInitModelSelect();
+  // review dialog: 'apply' reads the checkboxes + edited starts and applies them in one edit;
+  // anything else (skip / Esc / backdrop) applies nothing.
+  $('whisperReviewDlg').addEventListener('close', () => {
+    const wasListening = whisperState.listening;
+    whisperStopListen();
+    if (wasListening && S.playing) { pause(); whisperState.listening = false; }
+    const dlg = $('whisperReviewDlg');
+    if (dlg.returnValue === 'apply' && whisperReview) {
+      const rows = whisperReview.rows.map(r => {
+        const cb = dlg.querySelector('input[type=checkbox][data-index="' + r.index + '"]');
+        const inp = dlg.querySelector('input[type=number][data-index="' + r.index + '"]');
+        const edited = inp && inp.value !== '' && isFinite(+inp.value) ? +inp.value : null;
+        return { ...r, checked: !!(cb && cb.checked), editedStart: edited };
+      });
+      const n = whisperApply(whisperReview.res, rows);
+      if (n > 0) {
+        const msg = `選択した ${n}行のタイミングを適用しました。手で修正もできます。`;
+        whisperSetStatus('done', msg, 0);
+        toast(msg);
+      } else {
+        whisperSetStatus('done', '適用する行がありません — チェックと開始時刻を確認してください', 0);
+        toast('適用する行がありません — チェックと開始時刻を確認してください');
+      }
+    } else if (whisperReview) {
+      whisperSetStatus('done', '確認画面を閉じました — タイミングは変更しませんでした', 0);
+    }
+    whisperReview = null;
+  });
   $('tapBtn').addEventListener('click', tapNow);
   $('tapRate').addEventListener('change', () => {
     saveTapOpts();
@@ -1910,19 +2411,29 @@ function bind() {
   sc.addEventListener('input', () => { S.scrubbing = true; seek(sc.value / 10000 * S.plan.duration); });
   sc.addEventListener('change', () => { S.scrubbing = false; });
   const tl = $('timeline');
-  let drag = false, raf = 0;
+  let drag = false, raf = 0, wdRaf = 0, wdLastEv = null; // P3 v0.21.0: WD keeps its own rAF so pointerup can flush the last move
   tl.addEventListener('pointerdown', e => {
     tl.setPointerCapture(e.pointerId);
+    const ki = S.tap || S.exporting ? -1 : tlKeyAt(e); // P2 v0.20.0 K1: diamonds first — they sit inside the cut lane
+    if (ki >= 0) { if (kfDragStart(ki)) { pause(); tl.style.cursor = 'ew-resize'; drawTimeline(); renderKfPanel(); } return; }
+    const wd = S.tap || S.exporting ? null : tlWordAt(e); // P3 v0.21.0: word boundary next — wave lane only, never a diamond
+    if (wd && wdDragStart(wd, e)) { wdLastEv = null; pause(); tl.style.cursor = 'ew-resize'; drawTimeline(); syncWdHint(); return; }
+    const ww = S.tap || S.exporting ? null : tlWordWholeAt(e); // P4 v0.22.0: word body next — drag the whole word, duration fixed
+    if (ww && wdDragStart(ww, e)) { wdLastEv = null; pause(); tl.style.cursor = 'grabbing'; drawTimeline(); syncWdHint(); return; }
     const h = S.tap || S.exporting ? -1 : tlHandleAt(e);
     if (h >= 0) { pushEdit(); TL.drag = h; pause(); tl.style.cursor = 'ew-resize'; return; }
     drag = true; timelineSeek(e);
   });
   tl.addEventListener('pointermove', e => {
+    if (KF.drag >= 0) { const ev = { clientX: e.clientX, clientY: e.clientY }; cancelAnimationFrame(raf); raf = requestAnimationFrame(() => kfDragTo(ev)); return; } // P2 v0.20.0 K1
+    if (WD.drag >= 0) { const ev = { clientX: e.clientX, clientY: e.clientY, shiftKey: e.shiftKey }; wdLastEv = ev; cancelAnimationFrame(wdRaf); wdRaf = requestAnimationFrame(() => wdDragTo(ev)); return; } // P3 v0.21.0
     if (TL.drag >= 0) { const ev = { clientX: e.clientX, clientY: e.clientY, shiftKey: e.shiftKey }; cancelAnimationFrame(raf); raf = requestAnimationFrame(() => tlDragTo(TL.drag, ev)); return; }
     if (drag) { timelineSeek(e); return; }
-    const hv = tlHandleAt(e); if (hv !== TL.hover) { TL.hover = hv; tl.style.cursor = hv >= 0 ? 'ew-resize' : 'pointer'; drawTimeline(); }
+    const hv = tlHandleAt(e), wv = WD.drag < 0 ? tlWordAt(e) : null, wWhole = (WD.drag < 0 && !wv) ? tlWordWholeAt(e) : null; // P3 v0.21.0: ew-resize over a word boundary too; P4 v0.22.0: grab over a word body
+    if (hv !== TL.hover) { TL.hover = hv; tl.style.cursor = (hv >= 0 || wv) ? 'ew-resize' : wWhole ? 'grab' : 'pointer'; drawTimeline(); }
+    else tl.style.cursor = (hv >= 0 || wv) ? 'ew-resize' : wWhole ? 'grab' : 'pointer';
   });
-  const endDrag = () => { if (TL.drag >= 0) { TL.drag = -1; flushSave(); renderLines(); drawTimeline(); } drag = false; };
+  const endDrag = () => { if (KF.drag >= 0) { kfDragEnd(); tl.style.cursor = 'pointer'; } if (WD.drag >= 0) { cancelAnimationFrame(wdRaf); if (wdLastEv) wdDragTo(wdLastEv); wdDragEnd(); tl.style.cursor = 'pointer'; } if (TL.drag >= 0) { TL.drag = -1; flushSave(); renderLines(); drawTimeline(); } drag = false; }; // P2 v0.20.0 K1: key drag commits on release; P3 v0.21.0: flush the last deferred WD move so a fast flick+release cannot lose the final pixel
   tl.addEventListener('pointerup', endDrag); tl.addEventListener('pointercancel', endDrag);
   tl.addEventListener('pointerleave', () => { if (TL.hover >= 0 && TL.drag < 0) { TL.hover = -1; drawTimeline(); } });
   tl.addEventListener('wheel', e => {
@@ -1934,6 +2445,8 @@ function bind() {
   $('tlIn').addEventListener('click', () => tlZoom(1.6));
   $('tlOut').addEventListener('click', () => tlZoom(1 / 1.6));
   $('tlFit').addEventListener('click', () => { TL.z = 1; TL.off = 0; drawTimeline(); });
+  $('btnWdSnap').addEventListener('click', () => { WD.snap = !WD.snap; syncWdSnapBtn(); syncWdHint(); }); // P3 v0.21.0: word-drag snap toggle (in-memory; defaults ON on reload)
+  $('btnKeyframe').addEventListener('click', kfAddKey); // P2 v0.20.0 K1: add a key at the playhead
   $('btnUndoEdit').addEventListener('click', () => edGo(-1));
   $('tapBack').addEventListener('click', tapBack);
   bindRangeUI();
@@ -2222,10 +2735,18 @@ async function restoreFonts() {
    すべてブラウザ内で動く (WASM/WebGPU) — 音声は外に出ない。
    言語は歌詞の言語に従う (vi が既定。日本語・中国語・韓国語は1文字ずつ照合)。 */
 const WHISPER_CDN = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.2/dist/transformers.min.js';
-const WHISPER_MODEL = 'Xenova/whisper-tiny';
+/* v0.18.0: model choice — sizes are the quantized ONNX downloads on first run (then browser-cached):
+   tiny ~40MB, base ~70MB, small ~220MB */
+const WHISPER_MODELS = {
+  tiny: { id: 'Xenova/whisper-tiny', size: '40MB' },
+  base: { id: 'Xenova/whisper-base', size: '70MB' },
+  small: { id: 'Xenova/whisper-small', size: '220MB' },
+};
+let whisperModel = 'tiny';
 const WHISPER_CJK = ['ja', 'zh', 'ko'];   // 分かち書きのない言語は1文字ずつ照合する
-let whisperState = { status: 'idle', progress: 0, note: '', modelLoaded: false, libLoaded: false, lastRun: null };
+let whisperState = { status: 'idle', progress: 0, note: '', modelLoaded: false, libLoaded: false, lastRun: null, model: 'tiny', cancel: false, vad: null, listenTimer: 0, listening: false };
 let whisperPipe = null, whisperLib = null;
+let whisperReview = null;
 function whisperLang() {
   const l = J.resolveLang(S.project);
   if (l === 'zh-Hant' || l === 'zh-Hans') return 'zh';
@@ -2321,63 +2842,191 @@ function whisperSetStatus(status, note, progress) {
   whisperRenderUI();
 }
 function whisperRenderUI() {
+  const busy = ['loading-lib', 'loading-model', 'transcribing', 'aligning', 'vad', 'cancelling'].includes(whisperState.status);
   const b = $('btnWhisper');
-  if (b) b.disabled = ['loading-lib', 'loading-model', 'transcribing', 'aligning'].includes(whisperState.status);
+  if (b) b.disabled = busy;
+  const a = $('btnAlign1Click');
+  if (a) a.disabled = busy;
+  const c = $('btnWhisperCancel');
+  if (c) c.hidden = !busy;
   const st = $('whisperStatus');
-  if (st) st.textContent = whisperState.status === 'idle' ? '未実行 — 本物の音声と歌詞が必要です' : (whisperState.note || '');
+  if (st) st.textContent = whisperState.note || '未実行 — 本物の音声と歌詞が必要です';
 }
-function whisperApply(res) {
+function whisperApply(res, rows) {
+  // apply only the review rows the user checked, in one edit (one Ctrl+Z takes it all back).
+  // a row's start is the review input if the user edited it, otherwise Whisper's match.
+  const sel = (rows || []).filter(r => r && r.checked && r.index != null);
+  if (!sel.length) return 0;
   pushEdit();
   if (!S.project.timing.lineTimes) S.project.timing.lineTimes = {};
   if (!S.project.timing.wordTimes) S.project.timing.wordTimes = {};
   const lt = S.project.timing.lineTimes, wt = S.project.timing.wordTimes, L = S.plan.lines;
   const fix = j => (lt[j] != null && isFinite(+lt[j])) ? +lt[j] : (L[j] && L[j].lrc != null ? L[j].lrc : null);
   const durMax = Math.max(0, (S.plan.duration || 0) - 0.2);
-  res.lines.forEach(rl => {
-    if (rl.matched <= 0 || rl.start == null) return;
+  const byIndex = {};
+  res.lines.forEach(rl => { byIndex[rl.index] = rl; });
+  let applied = 0;
+  sel.forEach(r => {
+    const rl = byIndex[r.index];
+    if (!rl) return;
+    let proposed = (r.editedStart != null && isFinite(+r.editedStart)) ? +r.editedStart : rl.start;
+    if (proposed == null || !isFinite(proposed)) return;   // no start at all: nothing to write
     let lo = 0, hi = Infinity;
-    for (let j = rl.index - 1; j >= 0; j--) { const f = fix(j); if (f != null) { lo = f + 0.05; break; } }
-    for (let j = rl.index + 1; j < L.length; j++) { const f = fix(j); if (f != null) { hi = f - 0.05; break; } }
+    for (let j = r.index - 1; j >= 0; j--) { const f = fix(j); if (f != null) { lo = f + 0.05; break; } }
+    for (let j = r.index + 1; j < L.length; j++) { const f = fix(j); if (f != null) { hi = f - 0.05; break; } }
     if (hi < lo) return;                       // 前後の固定時刻に挟まれて入る余地がない行は触らない
-    let w = Math.max(lo, +rl.start.toFixed(3));
+    let w = Math.max(lo, +proposed.toFixed(3));
     if (hi !== Infinity) w = Math.min(w, hi);
     if (durMax >= lo) w = Math.min(w, durMax);
-    lt[rl.index] = +w.toFixed(3);
+    lt[r.index] = +w.toFixed(3);
+    applied++;
   });
-  // word times, in the same edit (one Ctrl+Z takes both back): the matched words of each line, in the
-  // user's own words — never Whisper's spelling — clamped inside the line and kept in order
+  // word times, in the same edit: the matched words of each applied line, in the user's own words —
+  // never Whisper's spelling — clamped inside the NEW line span (J.whisperLineEnd / J.whisperClampWords).
+  // v0.18.0: the old code clamped against the OLD plan's lineEnd, which dropped every word whenever the
+  // new line start had moved past the old (estimated) end — the QA-018 bug (0 wordTimes on a real song).
   const lang = whisperLang();
-  res.lines.forEach(rl => {
-    const linePairs = res.pairs.filter(p => res.flat[p.u].line === rl.index);
+  sel.forEach(r => {
+    const rl = byIndex[r.index];
+    if (!rl || lt[r.index] == null) return;
+    const linePairs = res.pairs.filter(p => res.flat[p.u].line === r.index);
     if (!linePairs.length) return;
     const toks = J.wordTokens(rl.text, lang);
-    const lineStart = lt[rl.index] != null ? +lt[rl.index] : (L[rl.index] ? L[rl.index].start : 0);
-    const lineEnd = L[rl.index] ? L[rl.index].end : lineStart + 5;
-    let prev = lineStart;
-    const clean = [];
-    linePairs.forEach(p => {
-      const u = res.flat[p.u], w = res.wWords[p.w];
-      if (!w || w.start == null || !isFinite(+w.start)) return;
-      const tok = toks[u.k];
-      let a = Math.max(lineStart, Math.min(+w.start, lineEnd));
-      let b = w.end != null && isFinite(+w.end) ? +w.end : a + 0.3;
-      if (a < prev) a = prev;
-      if (a >= lineEnd) return;
-      b = Math.max(b, a + 0.05); b = Math.min(b, lineEnd);
-      clean.push({ start: +a.toFixed(3), end: +b.toFixed(3), text: tok ? tok.text : u.text });
-      prev = b;
-    });
-    if (clean.length) wt[rl.index] = clean;
+    const lineStart = +lt[r.index];
+    const lineEnd = J.whisperLineEnd(lt, L, r.index, durMax);
+    if (!(lineEnd > lineStart)) return;
+    const clean = J.whisperClampWords(linePairs, res.flat, res.wWords, toks, lineStart, lineEnd);
+    if (clean.length) wt[r.index] = clean;
   });
   replan(); syncUI(); flushSave();
+  return applied;
+}
+function whisperLoadModel(T) {
+  const tryLoad = async key => {
+    const spec = WHISPER_MODELS[key];
+    whisperSetStatus('loading-model', `モデル「${key}」を読み込んでいます（初回は約${spec.size}、次回からは保存済みを使います）…`, 0);
+    whisperPipe = await T.pipeline('automatic-speech-recognition', spec.id, { progress_callback: p => {
+      if (p && p.status === 'progress') {
+        const pct = Math.min(100, Math.max(0, Math.round(p.progress || 0)));
+        whisperSetStatus('loading-model', `モデル「${key}」を読み込んでいます — ${pct}%（初回は約${spec.size}、次回からは保存済みを使います）`, pct);
+      }
+    } });
+    whisperState.modelLoaded = true; whisperState.model = key;
+  };
+  return (async () => {
+    try { await tryLoad(whisperModel); return true; }
+    catch (e) {
+      if (whisperModel !== 'tiny') {
+        whisperSetStatus('loading-model', `モデル「${whisperModel}」を読み込めませんでした — tiny で続けます…`, 0);
+        whisperModel = 'tiny'; whisperPipe = null;
+        const sel = $('whisperModel'); if (sel) sel.value = 'tiny';
+        try { await tryLoad('tiny'); return true; } catch (e2) { return false; }
+      }
+      return false;
+    }
+  })();
+}
+function whisperCancelDone() {
+  whisperState.cancel = false;
+  whisperSetStatus('done', '中止しました — タイミングは変更しませんでした', 0);
+  toast('中止しました — タイミングは変更しませんでした');
+}
+function whisperInitModelSelect() {
+  const sel = $('whisperModel');
+  if (!sel) return;
+  sel.innerHTML = '';
+  for (const k of Object.keys(WHISPER_MODELS)) {
+    const o = document.createElement('option');
+    o.value = k;
+    o.textContent = k + ' (' + WHISPER_MODELS[k].size + ')';
+    sel.appendChild(o);
+  }
+  sel.value = whisperModel;
+}
+/* review screen: one row per lyric line — checkbox, text, matched/total, status, listen, editable start.
+   rows are built with the DOM API (textContent) so user lyrics can never inject HTML. */
+function whisperOpenReview(res, rows, stats) {
+  whisperReview = { res, rows };
+  const dlg = $('whisperReviewDlg');
+  if (!dlg) return;
+  $('whisperReviewSummary').textContent = `「${stats.good}行がよく一致、${stats.check}行は要確認、${stats.novoice}行は声なし — ${stats.matchedWords}/${stats.totalWords}語」`;
+  $('whisperReviewHint').textContent = '要確認の行は適用されません。聴いて、開始時刻を直して、チェックを付けてから適用できます。正確なタイミングが要るときは、lyric-align（外部ツール）の Enhanced LRC を読み込んでください。';
+  const box = $('whisperReviewRows');
+  box.innerHTML = '';
+  rows.forEach(r => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line);';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.checked = r.checked; cb.dataset.index = String(r.index);
+    cb.setAttribute('aria-label', 'この行を適用');
+    const txt = document.createElement('span');
+    txt.style.cssText = 'flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+    txt.textContent = r.text;
+    const meta = document.createElement('span');
+    meta.className = 'muted mono';
+    meta.textContent = r.matched + '/' + r.total + ' · ' + (r.total ? Math.round(r.matched / r.total * 100) : 0) + '%';
+    const badge = document.createElement('span');
+    badge.className = 'muted';
+    badge.textContent = r.status === 'good' ? '一致が良い' : r.status === 'novoice' ? '声なし' : '要確認';
+    const playBtn = document.createElement('button');
+    playBtn.type = 'button'; playBtn.className = 'ghost small'; playBtn.dataset.listen = '1';
+    playBtn.textContent = '聴く';
+    playBtn.addEventListener('click', () => whisperPlayRow(r, playBtn));
+    const startIn = document.createElement('input');
+    startIn.type = 'number'; startIn.step = 'any'; startIn.min = '0';   // step="any": Whisper times have 3 decimals (0.417) — a fixed step would make the input invalid and block the dialog's Apply button (QA-020)
+    startIn.dataset.index = String(r.index);
+    startIn.style.width = '76px';
+    startIn.value = r.start != null ? r.start.toFixed(2) : '';
+    startIn.placeholder = '—';
+    startIn.setAttribute('aria-label', '開始時刻（秒）');
+    row.append(cb, txt, meta, badge, playBtn, startIn);
+    box.appendChild(row);
+  });
+  dlg.showModal();
+}
+/* listen to one review row: seek to its start, play, stop at its end (or when the user pauses) */
+function whisperPlayRow(r, btn) {
+  whisperStopListen();
+  const dlg = $('whisperReviewDlg');
+  const startIn = dlg ? dlg.querySelector('input[type=number][data-index="' + r.index + '"]') : null;
+  let t0 = r.start;
+  if (startIn && startIn.value !== '' && isFinite(+startIn.value)) t0 = +startIn.value;
+  if (t0 == null || !isFinite(t0)) t0 = 0;
+  let t1 = r.end != null ? r.end : t0 + 5;
+  if (S.plan.duration) t1 = Math.min(t1, S.plan.duration);
+  if (t1 <= t0) t1 = t0 + 1;
+  seek(t0); play();
+  whisperState.listening = true;
+  if (btn) btn.textContent = '停止';
+  whisperState.listenTimer = setInterval(() => {
+    if (!S.playing || S.t >= t1) { pause(); whisperStopListen(); }
+  }, 100);
+}
+function whisperStopListen() {
+  if (whisperState.listenTimer) { clearInterval(whisperState.listenTimer); whisperState.listenTimer = 0; }
+  const dlg = $('whisperReviewDlg');
+  if (dlg) dlg.querySelectorAll('[data-listen="1"]').forEach(b => { b.textContent = '聴く'; });
 }
 async function whisperRun() {
-  if (['loading-lib', 'loading-model', 'transcribing', 'aligning'].includes(whisperState.status)) return;
+  if (['loading-lib', 'loading-model', 'transcribing', 'aligning', 'vad', 'cancelling'].includes(whisperState.status)) return;
   const lines = whisperLyricLines();
   if (!lines.length) { toast('歌詞がありません — 歌詞を入力してから実行してください'); return; }
   const audio = whisperGetAudio();
   if (!audio) { toast('音声がありません — 曲を読み込んでから実行してください'); return; }
   const lang = whisperLang();
+  whisperState.cancel = false;
+  // stage 1: light energy VAD (a silence filter, not a voice detector — see J.whisperVad).
+  // almost no voice-like energy at all: stop honestly instead of letting Whisper hallucinate times.
+  whisperSetStatus('vad', '声のある区間を調べています…', 0);
+  const vad = J.whisperVad(audio.data, 16000);
+  whisperState.vad = vad;
+  if (vad.voicedRatio < 0.02) {
+    whisperState.lastRun = { matchedLines: 0, totalLines: lines.length, matchedWords: 0, totalWords: 0, unmatched: lines.map(l => l.text) };
+    whisperSetStatus('done', 'この音声に声らしい区間がほとんどありません — タイミングは変更しませんでした', 0);
+    toast('この音声に声らしい区間がほとんどありません — タイミングは変更しませんでした');
+    return;
+  }
+  // stage 2: library + model (base/small fall back to tiny once if their load fails)
   let T = null;
   try {
     whisperSetStatus('loading-lib', 'ライブラリを読み込んでいます…', 0);
@@ -2388,15 +3037,15 @@ async function whisperRun() {
     toast('ライブラリを読み込めませんでした — ' + reason);
     return;
   }
-  try {
-    whisperSetStatus('loading-model', 'モデルを読み込んでいます（初回は約40MB、次回からは保存済みを使います）…', 0);
-    if (!whisperPipe) whisperPipe = await T.pipeline('automatic-speech-recognition', WHISPER_MODEL, { progress_callback: p => { if (p && p.status === 'progress') { const pct = Math.min(100, Math.max(0, Math.round(p.progress || 0))); whisperSetStatus('loading-model', 'モデルを読み込んでいます — ' + pct + '%（初回は約40MB、次回からは保存済みを使います）', pct); } } });
-    whisperState.modelLoaded = true;
-  } catch (e) {
+  if (whisperState.cancel) return whisperCancelDone();
+  const modelOk = await whisperLoadModel(T);
+  if (!modelOk) {
     whisperSetStatus('error', 'モデルを読み込めませんでした — ネットワークを確認して、もう一度お試しください', 0);
     toast('モデルを読み込めませんでした — ネットワークを確認して、もう一度お試しください');
     return;
   }
+  if (whisperState.cancel) return whisperCancelDone();
+  // stage 3: transcribe the whole audio in one call (the pipeline chunks it internally)
   let out = null;
   try {
     whisperSetStatus('transcribing', '音声を聴いて、1語ずつ認識しています — ブラウザ内で実行中です。長い曲は数分かかることがあります…', 0);
@@ -2406,27 +3055,38 @@ async function whisperRun() {
     toast('Whisperでエラーが発生しました — 今のタイミングをそのまま残します');
     return;
   }
+  if (whisperState.cancel) return whisperCancelDone();
+  // stage 4: drop words outside voiced spans, align against the user's own lyrics, open the review screen.
+  // nothing is applied here — the user checks each line first (whisperApply runs from the dialog).
   whisperSetStatus('aligning', '単語を歌詞と照合しています…', 0);
   const chunks = whisperChunks(out, lang);
-  const res = whisperAlign(lines, chunks, lang);
-  if (!chunks.length || res.matchedWords === 0) {
-    whisperState.lastRun = { matchedLines: 0, totalLines: lines.length, matchedWords: 0, totalWords: res.totalWords, unmatched: lines.map(l => l.text) };
+  if (!chunks.length) {
+    whisperState.lastRun = { matchedLines: 0, totalLines: lines.length, matchedWords: 0, totalWords: 0, unmatched: lines.map(l => l.text) };
     whisperSetStatus('done', 'Whisperはこの音声から単語を認識できませんでした — 今のタイミングをそのまま残します', 0);
     toast('Whisperはこの音声から単語を認識できませんでした — 今のタイミングをそのまま残します');
     return;
   }
-  whisperApply(res);
-  const okLines = res.lines.filter(l => l.matched > 0).length;
-  whisperState.lastRun = { matchedLines: okLines, totalLines: lines.length, matchedWords: res.matchedWords, totalWords: res.totalWords, unmatched: res.unmatched };
-  const msg = `行のタイミングを合わせました — ${okLines}/${lines.length}行、${res.matchedWords}/${res.totalWords}語が一致しました。手で修正もできます。` + (res.unmatched.length ? ` — 未一致: ${res.unmatched.slice(0, 3).join(' / ')}` : '');
-  whisperSetStatus('done', msg, 0);
-  toast(msg);
+  const words = J.whisperFilterWords(chunks, vad.spans, 0.1);
+  const res = whisperAlign(lines, words, lang);
+  const L = S.plan.lines;
+  const rows = res.lines.map(rl => {
+    const t0 = rl.start != null ? rl.start : (L[rl.index] ? L[rl.index].start : 0);
+    const t1 = rl.end != null ? rl.end : (L[rl.index] ? L[rl.index].end : t0 + 5);
+    const vr = J.whisperSpanRatio(vad.spans, t0, t1);
+    const status = J.whisperLineStatus(rl.matched, rl.total, vr);
+    return { index: rl.index, text: rl.text, start: rl.start, end: rl.end, matched: rl.matched, total: rl.total, voicedRatio: +vr.toFixed(2), status, checked: status === 'good', editedStart: null };
+  });
+  const stats = J.whisperReviewStats(rows);
+  whisperState.lastRun = { matchedLines: stats.good, totalLines: lines.length, matchedWords: stats.matchedWords, totalWords: stats.totalWords, unmatched: rows.filter(r => r.status !== 'good').map(r => r.text) };
+  whisperSetStatus('review', '照合が終わりました — 確認画面でチェックしてから適用してください', 0);
+  if (stats.check + stats.novoice > 0) toast('Whisperでは合わせにくい曲です — lyric-align（外部ツール）で作った Enhanced LRC を読み込むと正確です。');
+  whisperOpenReview(res, rows, stats);
 }
 
 function boot() {
   migrateLS();
   S.project = loadLocal();
-  bind(); initVolume(); syncUI(); syncLoopBtn(); replan();
+  bind(); initVolume(); syncUI(); syncLoopBtn(); syncWdSnapBtn(); syncWdHint(); replan(); // P3 v0.21.0: snap toggle + word-drag hint
   restoreFonts(); restoreUserImage();
   // Always default to pro mode on desktop so all tabs, styles, effects and settings are immediately visible
   let mode = window.matchMedia && window.matchMedia('(max-width: 760px)').matches ? 'mobile' : 'pro';

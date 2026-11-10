@@ -29,7 +29,8 @@ J.defaultProject = () => ({
   centerFree: false,              // 中央を空ける: lay the cuts out in side bands (left / right or top / bottom) around a character
   seed: 20260922,
   aspect: '16:9', res: 1080, fps: 24,
-  fx: { motion: 0.7, glitch: 0.55, chroma: 0.7, decor: 0.5, density: 0.55, texture: 0.6, flash: true, beatSync: false, beatAmt: 0.7, beatEvery: 1, onTwos: true, koma: 12, hud: 'auto', bgSwitch: 0.35, hideNo: false, hideTime: false },
+  fx: { motion: 0.7, glitch: 0.55, chroma: 0.7, decor: 0.5, density: 0.55, texture: 0.6, flash: true, beatSync: false, beatAmt: 0.7, beatEvery: 1, onTwos: true, koma: 12, hud: 'auto', bgSwitch: 0.35, hideNo: false, hideTime: false,
+    threeD: false, threeDepth: 0.7, threeMode: 'plane', threeShadow: false, threeMetal: 0.15 },   // v0.19.0 3D text: toggle / depth 0..1 / 'plane'|'block' / shadow / metalness
   enabled: Object.fromEntries(J.GROUP_KEYS.map(g => [g, Object.fromEntries(J.order(g).map(k => [k, true]))])),
   timing: { bpm: 0, offset: 0.4, beatOffset: 0, snap: true, tail: 0.9, lineTimes: {}, lineScale: 1 },
   overrides: {},
@@ -499,6 +500,18 @@ J.plan = (project, audio) => {
     // a locked line keeps its own cuts too (the cut count would otherwise follow the 細かさ slider or おまかせ)
     if (ov.lock && Array.isArray(ov.lockedCuts) && ov.lockedCuts.length && ov.lockedCuts.every(c => c && typeof c.utext === 'string' && ln.text.includes(c.utext.trim())))
       units = ov.lockedCuts.map(c => ({ text: c.utext, w: [...c.utext].length + 1.6, recap: !!c.recap }));
+    // P2.1 F1: on the locked path the recap unit weighed full-text len+1.6
+    // (≈67.6) instead of the original formula avg(non-recap w)×1.25 (≈17.5),
+    // so the first lock shrank the earlier cuts by ~36% and the recap ballooned
+    // +146%. Recompute it with the original formula so a locked replan keeps
+    // the pre-lock boundaries (the K1 clamp below stays as a safety net).
+    {
+      const ri = units.findIndex(u => u.recap);
+      if (ri >= 0) {
+        const others = units.filter(u => !u.recap);
+        if (others.length) units[ri].w = (others.reduce((a, u) => a + u.w, 0) / others.length) * 1.25;
+      }
+    }
     const tot = units.reduce((a, u) => a + u.w, 0);
     // ロック: a locked line keeps exactly what it showed when it was locked (layouts, motion, decorations, colours,
     // accents) — rerolling other lines changes the shared "recently used" state, so the seed alone is not enough
@@ -532,7 +545,7 @@ J.plan = (project, audio) => {
       const tech = cutTechOf(ov, k);                                  // このカットだけの指定
       let layout = ov.layout && J.LAYOUTS[ov.layout] ? ov.layout : pickLayout(rng, st, en, nn, dur, history, emph, u.recap, LH > LW);
       if (UU) layout = UU.layout(li, layout, { nn, dur, emph, kime, rng, portrait: LH > LW, recap: u.recap });
-      let enter = ov.enter && J.ENTER[ov.enter] ? ov.enter : pickEnter(rng, st, en, layout, dur, history, emph, nn);
+      let enter = ov.enter && J.ENTER[ov.enter] ? ov.enter : pickEnter(rng, st, en, layout, dur, history, emph, nn, fx);
       let exit = ov.exit && J.EXIT[ov.exit] ? ov.exit : pickExit(rng, st, en, layout, dur, k === units.length - 1, history);
       let hold = ov.hold && J.HOLD[ov.hold] ? ov.hold : pickHold(rng, en, fxBeat, history);
       let weightGrow = false;
@@ -570,10 +583,11 @@ J.plan = (project, audio) => {
       if (UU) cam = UU.cam(li, cam, { kime, emph, rng });
       let camP = J.CAMERA[cam].plan ? J.CAMERA[cam].plan(rng, st) : {};
       let cutSeed = J.h(lineSeed, k, 17);
+      let keyframes = []; // P2 v0.20.0 K1: this cut's keyframe track — from the again-spec or the lock spec, else empty
       // 統一感: a line that comes back (サビ etc.) is shown exactly as the first time
       const again = UU ? UU.again(li, k, txt) : null;
       if (again) {
-        ({ layout, enter, exit, hold, params, decor, treat, treatP, cam, camP, weightGrow } = again);
+        ({ layout, enter, exit, hold, params, decor, treat, treatP, cam, camP, weightGrow, keyframes } = again);
         sch = again.scheme; cutSeed = again.seed; LD = J.LAYOUTS[layout];
         if (again.bg && again.bg !== 'none') { bg = again.bg; lineBgP = again.bgP; lineBg = bg; }
         [inDur, outDur] = durs(enter, exit);
@@ -581,6 +595,7 @@ J.plan = (project, audio) => {
       const LS = lockSpecs ? lockSpecs[k] : null;
       if (LS) {
         ({ layout, enter, exit, hold, params, decor, treat, treatP, cam, camP } = LS);
+        if (Array.isArray(LS.keyframes)) keyframes = LS.keyframes; // P2 v0.20.0 K1: lock spec wins; old specs without the field keep the again-inherited track
         if (!J.ENTER[enter]) enter = 'blur'; if (!J.EXIT[exit]) exit = 'blur'; if (!J.HOLD[hold]) hold = 'still';
         if (!J.TREAT[treat]) { treat = 'none'; treatP = {}; } if (!J.CAMERA[cam]) { cam = 'push'; camP = {}; }
         decor = (decor || []).filter(d => J.DECOR[d.id]);
@@ -665,8 +680,14 @@ J.plan = (project, audio) => {
         enter = 'cut'; inDur = 0.12;
         prevCut.exit = 'cut'; prevCut.outDur = 0;
       }
+      // P2 v0.20.0 K1: a rebuilt cut may be SHORTER than the one the keys were made on — clamp every
+      // key into [0, dur] so no keyframe is ever silently lost; the panel shows the clamped time
+      // and the user can move it back. (P2.1 F1 fixed the old cause — the locked path weighed the
+      // recap unit at full-text length instead of avg*1.25, shrinking earlier cuts on replan —
+      // but the clamp stays as a safety net for any other boundary shift.)
+      keyframes = (keyframes || []).map(k => ({ ...k, t: J.clamp(+k.t || 0, 0, dur) }));
       const cut = makeCut({ text: txt, lineText: ln.text, note: ln.note, line: li, start: cs, end: ce, layout, enter, exit, hold, inDur, outDur, params, decor, scheme: sch, seed: cutSeed, emph, recap: !!u.recap, words: J.chunkText(txt), stagger: rng.range(0.025, 0.06),
-        treat, treatP, bg, bgP: techBgP || (bg === lineBg ? lineBgP : {}), cam, camP, trans, transP, transDur, zone: Z, utext: u.text });
+        treat, treatP, bg, bgP: techBgP || (bg === lineBg ? lineBgP : {}), cam, camP, trans, transP, transDur, zone: Z, utext: u.text, keyframes: J.keyframeClone(keyframes) }); // P2 v0.20.0 K1: the cut owns its own copy
       if (kime || (LS && LS.kime)) cut.kime = true;
       if (weightGrow) cut.weightGrow = true;
       if (morph) cut.morph = morph;
@@ -831,7 +852,7 @@ function makeUnify(lines, C) {
     enter(i, v, o) {
       if (o.kime) return kimePick('enter', v, o.rng);
       v = sticky(i, 'enter', v, 2, o.rng);
-      v = calm(i, 'enter', v, o.emph, () => pickEnter(o.rng, st, en, o.layout, o.dur, history, false, o.nn), o.rng);
+      v = calm(i, 'enter', v, o.emph, () => pickEnter(o.rng, st, en, o.layout, o.dur, history, false, o.nn, fx), o.rng);
       return alternate(i, 'enter', v);
     },
     exit(i, v, o) { if (o.kime) return kimePick('exit', v, o.rng); return alternate(i, 'exit', sticky(i, 'exit', v, 2, o.rng)); },
@@ -858,7 +879,7 @@ function makeUnify(lines, C) {
       if (!specs.has(i)) specs.set(i, []);
       specs.get(i)[k] = { text: txt, layout: cut.layout, enter: cut.enter, exit: cut.exit, hold: cut.hold, params: cut.params, decor: cut.decor, treat: cut.treat, treatP: cut.treatP,
         cam: cut.cam, camP: cut.camP, scheme: cut.scheme, seed: cut.seed, bg: cut.bg, bgP: cut.bgP, weightGrow: !!cut.weightGrow, morph: !!cut.morph,
-        trans: cut.trans || null, transP: cut.transP, transDur: cut.transDur };
+        trans: cut.trans || null, transP: cut.transP, transDur: cut.transDur, keyframes: J.keyframeClone(cut.keyframes) }; // P2 v0.20.0 K1: repeat lines inherit the original's keys (cloned, never shared)
     },
   };
 }
@@ -896,6 +917,7 @@ function splitCut(cut, halves, zones, st, dur, LS) {
   const delay = Math.min(0.12, dur * 0.08);
   const twin = Object.assign({}, cut, { text: halves[1], lineText: halves[1], words: J.chunkText(halves[1]), zone: Object.assign({}, zones[1]), params: LS && LS.twinParams ? LS.twinParams : planFor(halves[1], zones[1]),
     start: cut.start + delay, bg: 'none', bgP: {}, companion: true, trans: null, transP: {}, transDur: 0, morph: cut.morph });
+  twin.keyframes = J.keyframeClone(cut.keyframes).map(k => ({ ...k, t: J.clamp(k.t - delay, 0, dur - delay) })); // P2 v0.20.0 K1: the twin starts `delay` later — shift keys into the twin's own frame and clamp inside; Object.assign would share the array
   twin.dur = twin.end - twin.start;
   delete twin.companion_; cut.companion = twin;
 }
@@ -906,7 +928,7 @@ J.lineSnapshot = (plan, li) => {
   if (!cuts.length) return null;
   const S = JSON.parse(JSON.stringify(cuts.map(c => ({ utext: c.utext, layout: c.layout, enter: c.enter, exit: c.exit, hold: c.hold, inDur: c.inDur, outDur: c.outDur,
     params: c.params, decor: c.decor, treat: c.treat, treatP: c.treatP, bg: c.bg, bgP: c.bgP, cam: c.cam, camP: c.camP, scheme: c.scheme, seed: c.seed,
-    trans: c.trans, transP: c.transP, transDur: c.transDur, morph: c.morph || null, weightGrow: !!c.weightGrow, kime: !!c.kime, recap: !!c.recap, twinParams: c.companion ? c.companion.params : null, events: [] }))));
+    trans: c.trans, transP: c.transP, transDur: c.transDur, morph: c.morph || null, weightGrow: !!c.weightGrow, kime: !!c.kime, recap: !!c.recap, twinParams: c.companion ? c.companion.params : null, events: [], keyframes: c.keyframes || [] })))); // P2 v0.20.0 K1: keyframes ride the lock spec (JSON round-trip deep-copies)
   // each accent belongs to the cut it plays in (the ones just before a cut start belong to that cut)
   for (const e of plan.events) {
     // an accent belongs to the cut that made it — also one that plays after the line ends (an exit accent)
@@ -930,7 +952,7 @@ J.sideZones = (W, H, dir) => {
 };
 
 function makeCut(o) {
-  const c = Object.assign({ hold: 'still', inDur: 0.3, outDur: 0.25, stagger: 0.04, decor: [], params: {}, scheme: 0, emph: false, words: [], note: null, treat: 'none', treatP: {}, bg: 'none', bgP: {}, cam: 'push', camP: {} }, o);
+  const c = Object.assign({ hold: 'still', inDur: 0.3, outDur: 0.25, stagger: 0.04, decor: [], params: {}, scheme: 0, emph: false, words: [], note: null, treat: 'none', treatP: {}, bg: 'none', bgP: {}, cam: 'push', camP: {}, keyframes: [] }, o); // P2 v0.20.0 K1: keyframes default empty
   c.dur = c.end - c.start;
   return c;
 }
@@ -996,7 +1018,7 @@ const LAYOUT_ENTER = {
   wave: { pop: 1.5, drop: 1.5, blur: 1, slice: 0.3 }, tile: { assemble: 1.3, slice: 1.4, zoom: 1.4 }, huge: { zoom: 1.5, wipe: 1.5, slice: 1.4, stretch: 1.3, type: 0.2 },
   mixed: { pop: 1.6, drop: 1.6, spin: 1.3 }, scatter: { pop: 1.5, spin: 1.5, drop: 1.2, assemble: 1.3 }, vcols: { assemble: 1.8, type: 1.2 }, pill: { wipe: 1.8, type: 1.2 },
 };
-function pickEnter(rng, st, en, layout, dur, history, emph, n) {
+function pickEnter(rng, st, en, layout, dur, history, emph, n, fx) {
   const cands = [];
   for (const k of J.ENTER_ORDER) {
     if (!en.enter[k]) continue;
@@ -1010,6 +1032,7 @@ function pickEnter(rng, st, en, layout, dur, history, emph, n) {
     if (dur < 0.45 && ['cut', 'slice', 'zoom', 'stretch'].includes(k)) w *= 1.8;
     if (k === 'type' && n > 18) w *= 0.3;
     if (emph && ['zoom', 'assemble', 'slice'].includes(k)) w *= 1.8;
+    if (fx && fx.threeD && THREE_ENTER.has(k)) w *= 2.2;
     cands.push([k, w]);
   }
   return cands.length ? rng.wpick(cands) : 'cut';
@@ -1034,6 +1057,11 @@ const HOLD_W = { still: 1, jitter: 1.2, drift: 1, breathe: 0.7, wave: 0.4, glitc
 const BEAT_HOLD = new Set(['ccPulseHeart', 'knWordPulse', 'knBeatLean', 'tyKeyPulse', 'tyTrackStep', 'pulse', 'heartbeat']);
 const BEAT_CAM = new Set(['beatPunch', 'earthquake', 'snapPan', 'jelly']);
 const BEAT_DECOR = new Set(['beatRing', 'sonarArcs', 'spectrumRing', 'lineBurst']);
+/* v0.19.0: 3D effects — favoured (same x2.2 as the beat sets) when fx.threeD is on. */
+const THREE_ENTER = new Set(['textFlip3d']);
+const THREE_HOLD = new Set(['spin3d']);
+const THREE_CAM = new Set(['dolly3d', 'orbit3d']);
+const THREE_TREAT = new Set(['khoi3d']);
 function pickHold(rng, en, fx, history) {
   const cands = J.HOLD_ORDER.filter(k => en.hold[k] !== false && J.HOLD[k]).map(k => {
     const D = J.HOLD[k];
@@ -1041,6 +1069,7 @@ function pickHold(rng, en, fx, history) {
     if (k === 'jitter' || (D.tags && D.tags.includes('glitch'))) w *= 0.4 + fx.motion;
     if (k === 'glitchtick') w *= fx.glitch;
     if (fx.beatSync && BEAT_HOLD.has(k)) w *= 2.2;
+    if (fx.threeD && THREE_HOLD.has(k)) w *= 2.2;
     return [k, w * novelty(history, 'hold', k)];
   });
   return cands.length ? rng.wpick(cands) : 'still';
@@ -1067,7 +1096,7 @@ function pickTreat(rng, st, en, fx, LD, emph, history) {
   if (LD.treat === false) return 'none';
   if (!rng.chance(0.18 + 0.42 * (fx.decor ?? 0.5) + (emph ? 0.15 : 0))) return 'none';
   const cands = J.TREAT_ORDER.filter(k => k !== 'none' && en.treat && en.treat[k] !== false && J.TREAT[k] && (LD.treat !== 'safe' || J.TREAT[k].safe))
-    .map(k => [k, wkey(st.bias && st.bias.treat, k, J.TREAT[k].w ?? 1) * novelty(history, 'treat', k)]);
+    .map(k => [k, wkey(st.bias && st.bias.treat, k, J.TREAT[k].w ?? 1) * novelty(history, 'treat', k) * (fx.threeD && THREE_TREAT.has(k) ? 2.2 : 1)]);
   return cands.length ? rng.wpick(cands) : 'none';
 }
 function pickBg(rng, st, en, fx, bgHist) {
@@ -1083,6 +1112,7 @@ function pickCam(rng, st, en, fx, LD, emph, history) {
     let w = wkey(st.bias && st.bias.cam, k, D.w ?? 1) * novelty(history, 'cam', k);
     if (D.strong) w *= 0.25 + 0.9 * (fx.motion ?? 0.7) + (emph ? 0.6 : 0);
     if (fx.beatSync && BEAT_CAM.has(k)) w *= 2.2;
+    if (fx.threeD && THREE_CAM.has(k)) w *= 2.2;
     if (LD.cam === false && k !== 'push') w *= 0.05;
     return [k, w];
   });

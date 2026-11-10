@@ -1,5 +1,19 @@
 # Third-party notices
 
+## three.js r170 (bundled)
+
+`vendor/three.module.min.js` and `vendor/three-addons/FontLoader.js` / `TextGeometry.js`
+are embedded in `index.html` and used for 3D text (textured-plane layer and
+extruded text). Loaded at runtime from inlined strings via blob URLs — no CDN
+is required. Source: https://github.com/mrdoob/three.js — licensed under the
+MIT License:
+
+```
+MIT License
+
+Copyright (c) 2010-2025 three.js authors
+```
+
 ## mp4-muxer 5.2.2 (bundled)
 
 `vendor/mp4-muxer.min.js` is embedded in `index.html` and is used to write MP4 files.
@@ -39,6 +53,10 @@ M PLUS Rounded 1c, Mochiy Pop One, DotGothic16, Yuji Syuku, IBM Plex Mono, IBM P
 ## Bundled Vietnamese-capable fonts (AURA)
 
 Be Vietnam Pro, Montserrat, Lexend, Noto Sans, Noto Serif, and Oswald are bundled unmodified from google/fonts under SIL OFL 1.1. Each family retains its OFL.txt in fonts/. See fonts/manifest.json for the pinned upstream commit, source URL, file hash, and exact weights. build.py embeds these files in the standalone pages. Original CJK font families may still load online when explicitly selected or used by other lyric languages. Font family names are proper names and are not translated.
+
+### 3D font subsets (Be Vietnam Pro, for the real 3D block layer)
+
+`fonts/3d/BeVietnamPro-Regular-vi-subset.json` and `BeVietnamPro-Bold-vi-subset.json` are subsets of the bundled Be Vietnam Pro Regular 400 / Bold 700 (SIL OFL 1.1), built by `tools/subset_3d_fonts.py` (fontTools subset + a TTF→typeface.json converter using opentype.js, MIT). Each subset keeps 394 glyphs (Vietnamese + Latin + common punctuation) and is converted to three.js typeface.json so `TextGeometry` can extrude real 3D text. The OFL.txt for Be Vietnam Pro is kept in `fonts/3d/OFL.txt`. The subsets are inlined by build.py into every HTML edition (no fetch).
 
 ## gl-transitions 3.0.0 (shaders vendored)
 

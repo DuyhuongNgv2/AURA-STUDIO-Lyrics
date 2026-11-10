@@ -9,7 +9,7 @@ for(const g of J.GROUP_KEYS) for(const id of J.order(g)) {
  assert.ok(parts[g][id],`Missing translation ${g}.${id}`);
  assert.equal(J.registry(g)[id].name,parts[g][id]); labels++;
 }
-assert.equal(labels,887);
+assert.equal(labels,892);
 for(const text of ['Tiếng Việt đậm đà','Đường về quê hương','Anh yêu em','Tôi vẫn nhớ','Ước mơ và nắng', 'Tiếng Việt'.normalize('NFD')]) assert.equal(J.detectLang(text),'vi',text);
 for(const [text,lang] of [['Hello world','en'],['夜明けの色を','ja'],['사랑 노래','ko']]) assert.equal(J.detectLang(text),lang);
 assert.equal(J.resolveLang({lang:'vi',lyrics:'khong dau'}),'vi');

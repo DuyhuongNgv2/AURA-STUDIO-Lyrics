@@ -328,6 +328,7 @@ class Renderer {
       try {
         const e0 = this.makeEnv(ctx, plan, mainCut, sc, { pass: 'main', t: tq, lt: tq - mainCut.start, ltb: tq - mainCut.start, step, scale, allowFilter, energy, beat: beatInfo });
         const c0 = J.CAMERA[mainCut.cam].get(e0, mainCut.camP || {});
+        if (c0) J.applyCamKeyframes(e0, mainCut, c0); // P2 v0.20.0 K2: same camera keyframes as the main path (blur probe)
         if (c0 && c0.blur > 0.4) layerBlur = c0.blur;
       } catch (e) {}
       if (layerBlur) {
@@ -362,6 +363,7 @@ class Renderer {
       const CD = J.CAMERA[cut.cam] || J.CAMERA.push;
       try { cam = CD.get(env, cut.camP || {}); } catch (e) { cam = null; }
       cam = cam || {};
+      cam = J.applyCamKeyframes(env, cut, cam); // P2 v0.20.0 K2: camera keyframes (dolly/orbit) add to the procedural camera
       const cs = cam.s ?? 1;
       X.translate(W / 2 + shx + P.off[0] + (cam.x || 0), H / 2 + shy + P.off[1] + (cam.y || 0));
       if (cam.rot) X.rotate(cam.rot * J.DEG);

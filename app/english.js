@@ -50,7 +50,7 @@
       splitFlap: 'Split flap display', crtOn: 'CRT powers on',
       ccPopBounce: 'CapCut Elastic Pop', ccTypeBlink: 'Typewriter with Cursor',
       ccSmoothSlideUp: 'Smooth Slide Up', ccStompImpact: 'Stomp Hit Impact',
-      ccGlitchRGB: 'Cyber Glitch RGB',
+      ccGlitchRGB: 'Cyber Glitch RGB', textFlip3d: '3D flip',
       odometer: 'Rolling number drum', matrixRain: 'Data rain',
       brushReveal: 'Brush reveal', quarters: 'Converge from four sides',
       printRegister: 'Color plates align', echoCount: 'Count in',
@@ -71,7 +71,7 @@
       typeRattle: 'Typewriter rattle', focusRack: 'Rack focus',
       pluckString: 'Plucked string',
       ccPulseHeart: 'Pulse Heartbeat', ccWaveSway: 'Floating Wave',
-      ccJitterBass: 'Bass Jitter Shake'
+      ccJitterBass: 'Bass Jitter Shake', spin3d: '3D spin'
     },
     exit: {
       fall: 'Crumble and fall', drift: 'Drift away', sinkMask: 'Sink out',
@@ -147,7 +147,7 @@
       cutShift: 'Offset cut', focusPull: 'Focus shift',
       spotChar: 'Highlighted character', ransom: 'Cutout letters',
       ccKaraokeActive: 'Karaoke Active Sing-along', ccHighlighter: 'Highlighter Marker Bar',
-      ccNeonGlowTube: 'Neon Glow Tube'
+      ccNeonGlowTube: 'Neon Glow Tube', khoi3d: '3D block'
     },
     bg: {
       none: 'Solid color', seigaiha: 'Seigaiha waves',
@@ -169,7 +169,7 @@
       pullOut: 'Pull out', panL: 'Pan left', panR: 'Pan right',
       dutch: 'Dutch angle', beatPunch: 'Zoom on beat',
       driftDiag: 'Diagonal drift', shakeHard: 'Strong shake',
-      stepZoom: 'Stepped zoom'
+      stepZoom: 'Stepped zoom', dolly3d: 'Dolly', orbit3d: 'Orbit'
     },
     fx: {
       chroma: 'Chromatic jump', slice: 'Slice glitch', block: 'Block glitch',

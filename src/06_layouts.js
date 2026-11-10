@@ -69,7 +69,7 @@ J.karaokeAt = (env, it) => {
 };
 
 /* ---------- main-item pipeline: enter / hold / exit + draw ---------- */
-J.mainDraw = (env, it) => {
+J.mainDraw2D = (env, it) => {
   const cut = env.cut;
   it.seed = it.seed != null ? it.seed : J.h(cut.seed, (it.mi | 0) + 1, 7);
   it.charFns = []; it.pieceFns = [];
@@ -92,6 +92,7 @@ J.mainDraw = (env, it) => {
   const amt = J.clamp((ltI - cut.inDur * 0.85) / 0.25) * (1 - pOut);
   if (amt > 0 && !it.noHold) ho.apply(env, it, amt, ctx);
   if (pOut > 0 && ex !== J.EXIT.cut) ex.apply(env, it, pOut, ctx);
+  J.applyKeyframes(env, it); // P2 v0.20.0 K1: keyframe OFFSET, once per item per frame (after enter/hold/exit, before draw)
   it.charFn = J.combineChar(it.charFns);
   it.pieceFn = J.combinePiece(it.pieceFns);
   const kara = J.karaokeAt(env, it);
@@ -124,6 +125,22 @@ J.mainDraw = (env, it) => {
     }}));
   }
   return bb;
+};
+
+/* P1 v0.19.0 — 3D seam. When 3D is on and the host is ready, the main text
+   item is baked by the 2D pipeline into a texture and rendered on a 3D plane
+   (J.text3d.drawMain). Everything else — ghost passes, morph recording
+   (glyphLog), hidden text, nested calls during a bake — keeps the 2D path,
+   so Preview and Export stay identical and old effects never break. */
+J.mainDraw = (env, it) => {
+  const fx = env.fx || {};
+  if (fx.threeD && J.text3d && env.pass === 'main' && !env.glyphLog && !env.hideText && !env._t3dBaking) {
+    if (J.text3d.ready) {
+      const r = J.text3d.drawMain(env, it);
+      if (r !== undefined) return r;
+    } else if (!J.text3d._loading) { J.text3d.load(); }   // lazy-load on first 3D frame; this frame stays 2D
+  }
+  return J.mainDraw2D(env, it);
 };
 
 /* draw an item honouring bands / clip / streak / echo / wipe-bar / cursor / treatment hooks */

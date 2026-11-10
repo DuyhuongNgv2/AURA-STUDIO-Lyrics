@@ -601,6 +601,19 @@ BODY.update({
     '>フロート（浮遊パララックス）</option>': '>Float (Floating Parallax)</option>',
     '>回転（スロースピン）</option>': '>Spin (Slow Rotation)</option>',
     '暗さ（文字強調）': 'Dim Overlay',
+
+    # v0.18.0 Whisper 1-Click + review dialog
+    '>歌詞を1クリックで合わせる</button>': '>Align lyrics 1-Click</button>',
+    'Whisperモデル<select': 'Whisper model<select',
+    '<h2 id="whisperReviewTitle">歌詞のタイミングを確認</h2>': '<h2 id="whisperReviewTitle">Check the lyric timing</h2>',
+    '>適用しない</button>': ">Don't apply</button>",
+    '>選択した行を適用</button>': '>Apply selected lines</button>',
+
+    # v0.20.0 Keyframe Editor
+    'title="再生位置にキーフレームを追加（行をロックします）">＋キーフレーム</button>': 'title="Add a keyframe at the playhead (locks the line)">+ Keyframe</button>',
+
+    # v0.21.0 Waveform Word-Drag
+    'title="単語ドラッグのスナップ ON/OFF（0.05秒）" aria-pressed="true">Snap 0.05s</button>': 'title="Toggle word-drag snap on/off (0.05s)" aria-pressed="true">Snap 0.05s</button>',
 })
 
 UI.update({
@@ -611,4 +624,60 @@ UI.update({
     "'画像ファイルが大きすぎます'": "'Image file is too large (max 15MB)'",
     '`画像を読み込みました：${file.name}`': '`Loaded image: ${file.name}`',
     "'画像を消しました'": "'Cleared background image'",
+
+    # v0.18.0 Whisper: model choice, VAD, review screen
+    '`モデル「${key}」を読み込んでいます（初回は約${spec.size}、次回からは保存済みを使います）…`': '`Loading the Whisper ${key} model (first time ~${spec.size}, then cached)…`',
+    '`モデル「${key}」を読み込んでいます — ${pct}%（初回は約${spec.size}、次回からは保存済みを使います）`': '`Loading the Whisper ${key} model — ${pct}% (first time ~${spec.size}, then cached)`',
+    '`モデル「${whisperModel}」を読み込めませんでした — tiny で続けます…`': '`Could not load the Whisper ${whisperModel} model — continuing with tiny…`',
+    "'声のある区間を調べています…'": "'Checking which parts contain a voice…'",
+    "'この音声に声らしい区間がほとんどありません — タイミングは変更しませんでした'": "'This audio has almost no voice-like parts — timing was not changed.'",
+    "'中止しています…'": "'Cancelling…'",
+    "'中止しました — タイミングは変更しませんでした'": "'Cancelled — timing was not changed.'",
+    "'照合が終わりました — 確認画面でチェックしてから適用してください'": "'Matching done — check the review screen before applying.'",
+    "'Whisperでは合わせにくい曲です — lyric-align（外部ツール）で作った Enhanced LRC を読み込むと正確です。'": "'Whisper struggles with this song — an Enhanced LRC made with lyric-align (external tool) will be more accurate.'",
+    '`「${stats.good}行がよく一致、${stats.check}行は要確認、${stats.novoice}行は声なし — ${stats.matchedWords}/${stats.totalWords}語」`': '`${stats.good} lines matched well, ${stats.check} need checking, ${stats.novoice} have no voice — ${stats.matchedWords}/${stats.totalWords} words`',
+    "'要確認の行は適用されません。聴いて、開始時刻を直して、チェックを付けてから適用できます。正確なタイミングが要るときは、lyric-align（外部ツール）の Enhanced LRC を読み込んでください。'": "'Lines needing a check are not applied. Listen, fix the start time, tick the box, then apply. When you need exact timing, import an Enhanced LRC made with lyric-align (external tool).'",
+    "'一致が良い'": "'Good match'",
+    "'声なし'": "'No voice'",
+    "'要確認'": "'Needs check'",
+    "'聴く'": "'Listen'",
+    "'停止'": "'Stop'",
+    "'この行を適用'": "'Apply this line'",
+    "'開始時刻（秒）'": "'Start time (seconds)'",
+    '`選択した ${n}行のタイミングを適用しました。手で修正もできます。`': '`Applied timing for ${n} selected lines. You can still edit by hand.`',
+    "'適用する行がありません — チェックと開始時刻を確認してください'": "'No lines to apply — check the tick boxes and start times.'",
+    "'確認画面を閉じました — タイミングは変更しませんでした'": "'Closed the review — timing was not changed.'",
+    '`モデル「${whisperModel}」を次回から使います`': '`The ${whisperModel} model will be used next time`',
+
+    # v0.19.0 3D text
+    '3Dテキスト': '3D text',
+    '3Dの深さ': '3D depth',
+    '3Dモード': '3D mode',
+    '平面3D': '3D plane',
+    '立体ブロック': 'Real 3D block',
+    '影をつける': 'Shadow',
+    "'3Dの読み込みに失敗しました。2D表示のままです'": "'Could not load 3D. Staying in 2D.'",
+    "'立体ブロック：Be Vietnam Pro 400/700のベトナム語のみ。日本語や他のフォントは平面3Dで表示します'": "'Real 3D block: Be Vietnam Pro 400/700 Vietnamese text only. Japanese or other fonts show as the 3D plane.'",
+
+    # v0.20.0 Keyframe Editor
+    "'ロックを外すとこの行のキーフレームが消えます。続けますか？'": "'Unlocking will delete this line’s keyframes. Continue?'",
+    "'キーフレームを追加しました（行をロックしました）'": "'Keyframe added (line locked)'",
+    "'キーフレームを追加しました'": "'Keyframe added'",
+    "'キーフレームを削除しました'": "'Keyframe deleted'",
+    "'キーフレーム'": "'Keyframe'",
+    '`再生位置の姿勢： X ${f(p.x)} · Y ${f(p.y)} · 回転 ${f(p.rot)}° · 拡大 ${p.scale.toFixed(2)} · 不透明度 ${p.opacity.toFixed(2)}`': '`Pose at playhead: X ${f(p.x)} · Y ${f(p.y)} · rotation ${f(p.rot)}° · scale ${p.scale.toFixed(2)} · opacity ${p.opacity.toFixed(2)}`',
+    '` · 3D回転Y ${f(p.rotY)}° · 3D回転X ${f(p.rotX)}° · ドリー ${f(p.dolly)} · オービット ${f(p.orbit)}°`': '` · 3D rotY ${f(p.rotY)}° · 3D rotX ${f(p.rotX)}° · dolly ${f(p.dolly)} · orbit ${f(p.orbit)}°`',
+    "'このカットにはキーフレームがありません。「＋ 再生位置に追加」で追加します。'": "'This cut has no keyframes yet. Add one with “+ Add at playhead”.'",
+    "'＋ 再生位置に追加'": "'+ Add at playhead'",
+    "'キーを削除'": "'Delete key'",
+
+    # v0.21.0 Waveform Word-Drag
+    # v0.22.0 Whole-Word Drag: hint strings rewritten to cover the whole-word drag (old keys removed)
+    "'波形の上の単語をドラッグで動かせます：区切りで端だけ、真ん中で単語ごと（Shiftで0.01秒・スナップ0.05秒オン）'": "'Drag a word on the waveform to adjust its time: drag an edge for one side, drag the middle to move the whole word (Shift: 0.01s • Snap 0.05s: on)'",
+    "'波形の上の単語をドラッグで動かせます：区切りで端だけ、真ん中で単語ごと（Shiftで0.01秒・スナップオフ）'": "'Drag a word on the waveform to adjust its time: drag an edge for one side, drag the middle to move the whole word (Shift: 0.01s • Snap: off)'",
+    "'（音声なし：時間で合わせられます）'": "'(No audio: you can still adjust by time)'",
+    '`単語「${w.text}」 開始 ${WD.t.toFixed(2)}秒`': '`Word “${w.text}” starts ${WD.t.toFixed(2)}s`',
+    '`単語「${w.text}」 終了 ${WD.t.toFixed(2)}秒`': '`Word “${w.text}” ends ${WD.t.toFixed(2)}s`',
+    '`単語「${w.text}」 ${WD.t.toFixed(2)}〜${(WD.t + WD.dur).toFixed(2)}秒`': '`Word “${w.text}” ${WD.t.toFixed(2)}–${(WD.t + WD.dur).toFixed(2)}s`',
+    "'（カットなし）'": "'(no cut)'",
 })

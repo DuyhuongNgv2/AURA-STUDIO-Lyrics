@@ -154,4 +154,89 @@ J.beatGrid = (bpm, offset, duration) => {
   for (let t = offset; t < duration + 0.01; t += p) if (t >= 0) out.push(+t.toFixed(4));
   return out;
 };
+
+/* ---- Whisper alignment helpers (v0.18.0, pure functions — node-tested) ---- */
+/* Lightweight energy VAD: 20 ms frames, RMS against a peak-relative threshold. This is a silence
+   filter, NOT a voice detector — a loud music-only passage still counts as "voiced". Lines are never
+   written on VAD alone; the per-line match ratio and the review screen are what keep wrong times out. */
+J.whisperVad = (data, sr) => {
+  const s = sr || 16000, frame = Math.max(1, Math.round(s * 0.02)), len = data ? data.length : 0;
+  const n = Math.floor(len / frame), rms = new Float32Array(n);
+  for (let f = 0; f < n; f++) {
+    let e = 0; const end = Math.min(len, (f + 1) * frame);
+    for (let i = f * frame; i < end; i++) e += data[i] * data[i];
+    rms[f] = Math.sqrt(e / frame);
+  }
+  const sorted = Array.from(rms).sort((a, b) => a - b);
+  const p95 = sorted.length ? sorted[Math.floor(sorted.length * 0.95)] || 0 : 0;
+  const thr = Math.max(p95 * 0.08, 0.003);
+  const voiced = new Uint8Array(n);
+  let vc = 0;
+  for (let f = 0; f < n; f++) if (rms[f] > thr) { voiced[f] = 1; vc++; }
+  // merge into spans, bridging gaps shorter than 0.3 s (breaths between phrases stay one span)
+  const spans = [], gap = Math.round(0.3 / 0.02);
+  let a = -1, last = -1;
+  for (let f = 0; f < n; f++) {
+    if (!voiced[f]) continue;
+    if (a < 0) { a = f; last = f; continue; }
+    if (f - last <= gap) { last = f; continue; }
+    spans.push([+((a * 0.02).toFixed(3)), +(((last + 1) * 0.02).toFixed(3))]); a = f; last = f;
+  }
+  if (a >= 0) spans.push([+((a * 0.02).toFixed(3)), +(((last + 1) * 0.02).toFixed(3))]);
+  return { spans, voicedRatio: n ? vc / n : 0, frames: n };
+};
+/* fraction of [t0, t1] covered by voiced spans */
+J.whisperSpanRatio = (spans, t0, t1) => {
+  if (!spans || !spans.length || !(t1 > t0)) return 0;
+  let c = 0;
+  for (const sp of spans) { const lo = Math.max(sp[0], t0), hi = Math.min(sp[1], t1); if (hi > lo) c += hi - lo; }
+  return c / (t1 - t0);
+};
+/* keep only words overlapping a voiced span (pad: seconds of tolerance on both sides) */
+J.whisperFilterWords = (words, spans, pad) => {
+  const p = pad == null ? 0.1 : pad;
+  if (!spans || !spans.length) return [];
+  return (words || []).filter(w => w && w.start != null && spans.some(sp => w.start <= sp[1] + p && (w.end != null ? w.end : w.start) >= sp[0] - p));
+};
+/* per-line verdict: 'good' (applied by default), 'check' (needs a human listen), 'novoice' (no voice in its span) */
+J.whisperLineStatus = (matched, total, voicedRatio) => {
+  if (voicedRatio < 0.1) return 'novoice';
+  if (!total) return 'check';
+  return (matched / total) >= 0.5 ? 'good' : 'check';
+};
+/* the end of a line is the NEXT fixed time after it — new lineTimes take precedence over the old plan.
+   v0.18.0 fix: the old code used the OLD plan's lineEnd here, which dropped every word whenever the new
+   line start had moved past the old (estimated) end — the QA-018 bug (0 wordTimes on a real song). */
+J.whisperLineEnd = (lt, L, index, durMax) => {
+  const n = L ? L.length : 0;
+  for (let j = index + 1; j < n; j++) {
+    let f = (lt && lt[j] != null && isFinite(+lt[j])) ? +lt[j] : null;
+    if (f == null && L[j] && L[j].lrc != null) f = +L[j].lrc;
+    if (f != null) return Math.max(0, f - 0.05);
+  }
+  return Math.max(0, durMax || 0);
+};
+/* clamp matched words inside the NEW line span [lineStart, lineEnd], keep them in order, min 0.05 s each */
+J.whisperClampWords = (pairs, flat, wWords, toks, lineStart, lineEnd) => {
+  const clean = [];
+  let prev = lineStart;
+  for (const p of pairs || []) {
+    const u = flat[p.u], w = wWords[p.w];
+    if (!u || !w || w.start == null || !isFinite(+w.start)) continue;
+    const tok = toks ? toks[u.k] : null;
+    let a = Math.max(lineStart, Math.min(+w.start, lineEnd));
+    let b = (w.end != null && isFinite(+w.end)) ? +w.end : a + 0.3;
+    if (a < prev) a = prev;
+    if (a >= lineEnd) continue;
+    b = Math.max(b, a + 0.05); b = Math.min(b, lineEnd);
+    clean.push({ start: +a.toFixed(3), end: +b.toFixed(3), text: tok ? tok.text : u.text });
+    prev = b;
+  }
+  return clean;
+};
+J.whisperReviewStats = (rows) => {
+  let good = 0, check = 0, novoice = 0, mw = 0, tw = 0;
+  for (const r of rows || []) { if (r.status === 'good') good++; else if (r.status === 'novoice') novoice++; else check++; mw += r.matched || 0; tw += r.total || 0; }
+  return { good, check, novoice, matchedWords: mw, totalWords: tw, total: (rows || []).length };
+};
 })();

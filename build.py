@@ -11,6 +11,28 @@ VERSION = read('VERSION').strip()
 sources = sorted(glob.glob('src/*.js'))
 js = '\n'.join(read(f) for f in sources)
 mux = '/*! mp4-muxer v5.2.2 | MIT License | (c) 2023 Vanilagy | see THIRD_PARTY_NOTICES.md */\n' + read('vendor/mp4-muxer.min.js')
+# P1 v0.19.0: Three.js r170 vendored (MIT) — shipped as JSON strings so the runtime can
+# create blob URLs and dynamic-import them (no importmap, works on local server AND file://).
+# Escaped '</' so the payload can never terminate its own <script> block.
+def _three_json():
+    d = {
+        'core': read('vendor/three.module.min.js'),
+        'fontLoader': read('vendor/three-addons/FontLoader.js'),
+        'textGeometry': read('vendor/three-addons/TextGeometry.js'),
+    }
+    return json.dumps(d).replace('</', '<\\/')
+THREE_JSON = _three_json()
+# P1 v0.19.0 M2: 3D font subsets (Be Vietnam Pro Regular 400 + Bold 700, Vietnamese
+# + Latin, built by tools/subset_3d_fonts.py) — inlined as parsed objects so the
+# runtime can hand them straight to three.js FontLoader.parse() (no fetch,
+# works on a local server AND file://). Same '</' escaping as the three payload.
+def _fonts3d_json():
+    d = {
+        'regular': json.loads(read('fonts/3d/BeVietnamPro-Regular-vi-subset.json')),
+        'bold': json.loads(read('fonts/3d/BeVietnamPro-Bold-vi-subset.json')),
+    }
+    return json.dumps(d).replace('</', '<\\/')
+FONTS3D_JSON = _fonts3d_json()
 def font_css():
     rules=[]
     for f in json.loads(read('fonts/manifest.json')):
@@ -62,12 +84,19 @@ def build(lang):
 {read('app/style.css')}
 {LOCAL_FONT_CSS}
 html[lang=vi] {{ --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be Vietnam Pro',monospace; }}
+[48 more lines in file. Use offset=76 to continue.]
 </style>
 </head>
 <body>
 {body}
 <script>
 {mux}
+</script>
+<script>
+window.__AURA_THREE__ = {THREE_JSON};
+</script>
+<script>
+window.__AURA_FONTS3D__ = {FONTS3D_JSON};
 </script>
 <script>
 {script}

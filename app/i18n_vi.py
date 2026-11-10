@@ -1156,6 +1156,19 @@ BODY.update({
     '>フロート（浮遊パララックス）</option>': '>Trôi bồng bềnh (Floating Parallax)</option>',
     '>回転（スロースピン）</option>': '>Xoay tròn (Slow Spin)</option>',
     '暗さ（文字強調）': 'Độ tối mờ',
+
+    # v0.18.0 Whisper 1-Click + review dialog
+    '>歌詞を1クリックで合わせる</button>': '>Căn lời 1-Click</button>',
+    'Whisperモデル<select': 'Model Whisper<select',
+    '<h2 id="whisperReviewTitle">歌詞のタイミングを確認</h2>': '<h2 id="whisperReviewTitle">Kiểm tra thời gian lời</h2>',
+    '>適用しない</button>': '>Không áp dụng</button>',
+    '>選択した行を適用</button>': '>Áp dụng các dòng đã chọn</button>',
+
+    # v0.20.0 Keyframe Editor
+    'title="再生位置にキーフレームを追加（行をロックします）">＋キーフレーム</button>': 'title="Thêm keyframe tại playhead (khóa dòng)">+ Keyframe</button>',
+
+    # v0.21.0 Waveform Word-Drag
+    'title="単語ドラッグのスナップ ON/OFF（0.05秒）" aria-pressed="true">Snap 0.05s</button>': 'title="Bật/tắt snap khi kéo từ (0.05 giây)" aria-pressed="true">Snap 0.05s</button>',
 })
 
 UI.update({
@@ -1166,4 +1179,60 @@ UI.update({
     "'画像ファイルが大きすぎます'": "'Tệp ảnh quá lớn (tối đa 15MB)'",
     '`画像を読み込みました：${file.name}`': '`Đã tải ảnh: ${file.name}`',
     "'画像を消しました'": "'Đã xóa ảnh nền'",
+
+    # v0.18.0 Whisper: model choice, VAD, review screen
+    '`モデル「${key}」を読み込んでいます（初回は約${spec.size}、次回からは保存済みを使います）…`': '`Đang tải model Whisper ${key} (lần đầu ~${spec.size}, lần sau dùng bản đã lưu)…`',
+    '`モデル「${key}」を読み込んでいます — ${pct}%（初回は約${spec.size}、次回からは保存済みを使います）`': '`Đang tải model Whisper ${key} — ${pct}% (lần đầu ~${spec.size}, lần sau dùng bản đã lưu)`',
+    '`モデル「${whisperModel}」を読み込めませんでした — tiny で続けます…`': '`Không tải được model Whisper ${whisperModel} — sẽ dùng tiny…`',
+    "'声のある区間を調べています…'": "'Đang tìm đoạn có giọng hát…'",
+    "'この音声に声らしい区間がほとんどありません — タイミングは変更しませんでした'": "'Audio này gần như không có đoạn nào giống giọng hát — không đổi thời gian lời.'",
+    "'中止しています…'": "'Đang dừng…'",
+    "'中止しました — タイミングは変更しませんでした'": "'Đã dừng — không đổi thời gian lời.'",
+    "'照合が終わりました — 確認画面でチェックしてから適用してください'": "'Đã khớp xong — kiểm tra ở màn duyệt rồi mới áp dụng.'",
+    "'Whisperでは合わせにくい曲です — lyric-align（外部ツール）で作った Enhanced LRC を読み込むと正確です。'": "'Whisper khó căn được bài này — dùng lyric-align (công cụ ngoài) để làm Enhanced LRC rồi nhập vào sẽ chính xác hơn.'",
+    '`「${stats.good}行がよく一致、${stats.check}行は要確認、${stats.novoice}行は声なし — ${stats.matchedWords}/${stats.totalWords}語」`': '`${stats.good} dòng khớp tốt, ${stats.check} dòng cần kiểm tra, ${stats.novoice} dòng không có giọng — ${stats.matchedWords}/${stats.totalWords} từ`',
+    "'要確認の行は適用されません。聴いて、開始時刻を直して、チェックを付けてから適用できます。正確なタイミングが要るときは、lyric-align（外部ツール）の Enhanced LRC を読み込んでください。'": "'Dòng cần kiểm tra sẽ không được áp dụng. Nghe thử, sửa giờ bắt đầu, tích chọn rồi mới áp dụng. Khi cần thời gian chính xác, hãy nhập Enhanced LRC làm bằng lyric-align (công cụ ngoài).'",
+    "'一致が良い'": "'Khớp tốt'",
+    "'声なし'": "'Không có giọng'",
+    "'要確認'": "'Cần kiểm tra'",
+    "'聴く'": "'Nghe'",
+    "'停止'": "'Dừng'",
+    "'この行を適用'": "'Áp dụng dòng này'",
+    "'開始時刻（秒）'": "'Giờ bắt đầu (giây)'",
+    '`選択した ${n}行のタイミングを適用しました。手で修正もできます。`': '`Đã áp dụng thời gian cho ${n} dòng đã chọn. Sửa tay thêm nếu cần.`',
+    "'適用する行がありません — チェックと開始時刻を確認してください'": "'Không có dòng nào để áp dụng — kiểm tra tích chọn và giờ bắt đầu.'",
+    "'確認画面を閉じました — タイミングは変更しませんでした'": "'Đã đóng màn kiểm tra — không đổi thời gian lời.'",
+    '`モデル「${whisperModel}」を次回から使います`': '`Lần chạy sau sẽ dùng model ${whisperModel}`',
+
+    # v0.19.0 3D text
+    '3Dテキスト': 'Chữ 3D',
+    '3Dの深さ': 'Độ sâu 3D',
+    '3Dモード': 'Chế độ 3D',
+    '平面3D': 'Mặt phẳng 3D',
+    '立体ブロック': 'Khối 3D thật',
+    '影をつける': 'Bóng đổ',
+    "'3Dの読み込みに失敗しました。2D表示のままです'": "'Không tải được 3D. Vẫn hiển thị 2D.'",
+    "'立体ブロック：Be Vietnam Pro 400/700のベトナム語のみ。日本語や他のフォントは平面3Dで表示します'": "'Khối 3D thật: chỉ chữ Be Vietnam Pro 400/700, tiếng Việt. Chữ Nhật hoặc font khác sẽ hiện dạng Mặt phẳng 3D.'",
+
+    # v0.20.0 Keyframe Editor
+    "'ロックを外すとこの行のキーフレームが消えます。続けますか？'": "'Mở khóa sẽ xóa keyframe của dòng này. Tiếp tục?'",
+    "'キーフレームを追加しました（行をロックしました）'": "'Đã thêm keyframe (đã khóa dòng)'",
+    "'キーフレームを追加しました'": "'Đã thêm keyframe'",
+    "'キーフレームを削除しました'": "'Đã xóa keyframe'",
+    "'キーフレーム'": "'Keyframe'",
+    '`再生位置の姿勢： X ${f(p.x)} · Y ${f(p.y)} · 回転 ${f(p.rot)}° · 拡大 ${p.scale.toFixed(2)} · 不透明度 ${p.opacity.toFixed(2)}`': '`Tư thế tại playhead: X ${f(p.x)} · Y ${f(p.y)} · xoay ${f(p.rot)}° · tỉ lệ ${p.scale.toFixed(2)} · độ mờ ${p.opacity.toFixed(2)}`',
+    '` · 3D回転Y ${f(p.rotY)}° · 3D回転X ${f(p.rotX)}° · ドリー ${f(p.dolly)} · オービット ${f(p.orbit)}°`': '` · xoay 3D Y ${f(p.rotY)}° · xoay 3D X ${f(p.rotX)}° · dolly ${f(p.dolly)} · orbit ${f(p.orbit)}°`',
+    "'このカットにはキーフレームがありません。「＋ 再生位置に追加」で追加します。'": "'Cut này chưa có keyframe. Bấm “+ Thêm tại playhead” để thêm.'",
+    "'＋ 再生位置に追加'": "'+ Thêm tại playhead'",
+    "'キーを削除'": "'Xóa key'",
+
+    # v0.21.0 Waveform Word-Drag
+    # v0.22.0 Whole-Word Drag: hint strings rewritten to cover the whole-word drag (old keys removed)
+    "'波形の上の単語をドラッグで動かせます：区切りで端だけ、真ん中で単語ごと（Shiftで0.01秒・スナップ0.05秒オン）'": "'Kéo từ trên sóng âm để căn giờ: kéo vạch để chỉnh mép, kéo giữa từ để dời cả từ (Shift: 0.01s • Snap 0.05s: bật)'",
+    "'波形の上の単語をドラッグで動かせます：区切りで端だけ、真ん中で単語ごと（Shiftで0.01秒・スナップオフ）'": "'Kéo từ trên sóng âm để căn giờ: kéo vạch để chỉnh mép, kéo giữa từ để dời cả từ (Shift: 0.01s • Snap: tắt)'",
+    "'（音声なし：時間で合わせられます）'": "'(Chưa có audio: vẫn căn được theo thời gian)'",
+    '`単語「${w.text}」 開始 ${WD.t.toFixed(2)}秒`': '`Từ “${w.text}” bắt đầu ${WD.t.toFixed(2)}s`',
+    '`単語「${w.text}」 終了 ${WD.t.toFixed(2)}秒`': '`Từ “${w.text}” kết thúc ${WD.t.toFixed(2)}s`',
+    '`単語「${w.text}」 ${WD.t.toFixed(2)}〜${(WD.t + WD.dur).toFixed(2)}秒`': '`Từ “${w.text}” ${WD.t.toFixed(2)}–${(WD.t + WD.dur).toFixed(2)}s`',
+    "'（カットなし）'": "'(không có cut)'",
 })
