@@ -8,6 +8,19 @@ LyricWave Studio のバージョンは `メジャー.マイナー.パッチ` の
 
 いまのバージョンはリポジトリ直下の `VERSION` に書いてあり、ブラウザ版の左上（LyricWave Studio のロゴの横）、AE パネル（スクリプト版の見出しと、診断レポート）に表示されます。保存したプロジェクトファイルと AE 用 JSON にも `appVersion` として記録されます。
 
+## v0.37.0 — 2026-11-24
+
+### 変更（AE/CEP パッケージの同期）
+
+- **AE パネル用データ `ae/data.json` を現行レジストリに同期**：`tools/export_ae_data.js` で再生成し、キーを 887 → 918 に更新しました（layout 184、enter 131、hold 56、exit 112、decor 138、treat 68、bg 74、cam 38、fx 75、trans 42）。v0.35.0 の 3D 背景 `viz3dSolar`・`viz3dCubes` と、v0.33.0 の P6 シェーダー転換 `glSwirl`・`glKaleido`・`glPinwheel`・`glTvStatic` を含みます。
+- **AE スクリプト版と CEP 版を再ビルド**：`LyricWave_AE.jsx`・`LyricWave_AE_en.jsx`・`LyricWave_CEP.zip`・`LyricWave_CEP_en.zip` を現行パイプライン（`build_ae.py`・`build_cep.py`）で再生成し、バージョン表示を v0.37.0 に揃えました。
+- ブラウザ版アプリのロジックは変更していません（バージョン表示の更新のみ）。
+
+### 仕様
+
+- 効果ラベルは **918 のまま**（追加・削除なし）。
+- プロジェクトファイルと AE 用 JSON の形式は変わりません（`ae/data.json` の `version` は 2 のまま、キーの追加のみ）。
+
 ## v0.36.0 — 2026-11-23
 
 ### 変更（多言語 UI の統一・インドネシア語版の廃止）
