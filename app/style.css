@@ -1,6 +1,6 @@
 /* ============================================================
-   AURA STUDIO — Kinetic Typography & Motion Video Engine
-   Theme & Workspace Stylesheet (AURA Design System v2.0)
+   LYRICWAVE STUDIO — Kinetic Typography & Motion Video Engine
+   Theme & Workspace Stylesheet (LyricWave Design System v2.0)
    ============================================================ */
 :root {
   color-scheme: dark;
@@ -249,6 +249,12 @@ h3 { font-size: 11px; letter-spacing: 0.14em; color: var(--muted); margin-top: 1
 .syntax ul { margin: 0; padding-left: 16px; display: grid; gap: 3px; }
 .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .audio-name { font-size: 12px; overflow-wrap: anywhere; }
+/* M4 v0.29.0 playlist */
+.pl-list { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.pl-list li { display: flex; align-items: center; gap: 6px; padding: 3px 6px; border: 1px solid var(--line); border-radius: var(--r); }
+.pl-list li.pl-cur { border-color: var(--purple); background: var(--purple-glow); }
+.pl-play { flex: 1; min-width: 0; text-align: left; background: none; border: 0; cursor: pointer; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 2px 0; }
+.pl-btn { flex: none; }
 .fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .field { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--muted); }
 .field input, .field select { width: 100%; }

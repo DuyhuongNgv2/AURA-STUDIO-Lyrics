@@ -84,8 +84,8 @@ const J = context.window.J;
     { t: 1, x: 11, y: 0, rot: 0, scale: 1, opacity: 1, rotY: 0, rotX: 0, dolly: 0, orbit: 0 },
   ]);
   eq(out, [
-    { t: 1, x: 11, y: 0, rot: 0, scale: 1, opacity: 1, rotY: 0, rotX: 0, dolly: 0, orbit: 0 },
-    { t: 3, x: 30, y: 0, rot: 0, scale: 1, opacity: 1, rotY: 0, rotX: 0, dolly: 0, orbit: 0 },
+    { t: 1, x: 11, y: 0, rot: 0, scale: 1, opacity: 1, rotY: 0, rotX: 0, dolly: 0, orbit: 0, ease: 'linear' },
+    { t: 3, x: 30, y: 0, rot: 0, scale: 1, opacity: 1, rotY: 0, rotX: 0, dolly: 0, orbit: 0, ease: 'linear' },
   ], 'norm sorts + dedupes + drops bad');
   eq(J.keyframeNorm('not-an-array'), [], 'norm of non-array is []');
 }
@@ -98,7 +98,7 @@ const J = context.window.J;
     { t: 9, x: 90, y: 0, rot: 0, scale: 1, opacity: 1, rotY: 0, rotX: 0, dolly: 0, orbit: 0 },
   ], 5);
   assert.equal(r.dropped, 2, 'two keys outside duration dropped');
-  eq(r.keys, [{ t: 2, x: 20, y: 0, rot: 0, scale: 1, opacity: 1, rotY: 0, rotX: 0, dolly: 0, orbit: 0 }], 'only in-range key kept');
+  eq(r.keys, [{ t: 2, x: 20, y: 0, rot: 0, scale: 1, opacity: 1, rotY: 0, rotX: 0, dolly: 0, orbit: 0, ease: 'linear' }], 'only in-range key kept');
 }
 
 // --- keyframeClone: deep copy, no shared reference ---
@@ -159,7 +159,7 @@ const J = context.window.J;
 // --- K2: norm fills missing K2 props with 0, preserves present ones ---
 {
   const out = J.keyframeNorm([{ t: 0, x: 0, y: 0, rot: 0, scale: 1, opacity: 1, rotY: 30 }]);
-  eq(out, [{ t: 0, x: 0, y: 0, rot: 0, scale: 1, opacity: 1, rotY: 30, rotX: 0, dolly: 0, orbit: 0 }], 'norm keeps rotY, defaults the rest');
+  eq(out, [{ t: 0, x: 0, y: 0, rot: 0, scale: 1, opacity: 1, rotY: 30, rotX: 0, dolly: 0, orbit: 0, ease: 'linear' }], 'norm keeps rotY, defaults the rest');
 }
 
 // --- K2 Hook 1: rotY/rotX land in it._t3d as RADIANS, additive to the effect's value ---

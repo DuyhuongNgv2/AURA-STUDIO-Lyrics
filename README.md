@@ -1,12 +1,12 @@
-# AURA Motion Lyrics — Trình Tạo Video Kinetic Typography Chuyên Nghiệp
+# LyricWave Studio — Trình Tạo Video Kinetic Typography Chuyên Nghiệp
 
 **Các phiên bản ngôn ngữ:** [Mở ứng dụng (Tiếng Việt)](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/) · [English](en/) · [日本語](ja/) · [Bahasa Indonesia](id/) · [繁體中文](zh-hant/) · [简体中文](zh-hans/) · [한국어](ko/)
 
-> Dựa trên [JIZURA](https://github.com/852wa/JIZURA) của 852wa (giấy phép MIT) — đã đổi tên và Việt hóa thành AURA Motion Lyrics.
+> Dựa trên [JIZURA](https://github.com/852wa/JIZURA) của 852wa (giấy phép MIT) — đã đổi tên và Việt hóa thành LyricWave Studio.
 
-Panel After Effects: [ScriptUI](AURA_AE.jsx) · [CEP](AURA_CEP.zip)
+Panel After Effects: [ScriptUI](LyricWave_AE.jsx) · [CEP](LyricWave_CEP.zip)
 
-**AURA LYRICS** là studio tạo video lyric chuyển động chữ (*Kinetic Typography / Kinetic Motion PV*) tự động chạy trực tiếp 100% trên trình duyệt web, không cần cài đặt phần mềm nặng, xuất file MP4 chất lượng cao lên đến 4K 60fps. Dự án sở hữu kho tàng **hơn 879 hiệu ứng chuyển động, 27 phong cách mỹ thuật, tích hợp trọn bộ hiệu ứng CapCut & Concat điện ảnh, kho Stock nền mẫu có sẵn, tải ảnh nền đa chuyển động** và nút thông minh **"Độc bản"** tự động biến hóa hiệu ứng không trùng lặp cho từng câu hát.
+**LYRICWAVE STUDIO** là studio tạo video lyric chuyển động chữ (*Kinetic Typography / Kinetic Motion PV*) tự động chạy trực tiếp 100% trên trình duyệt web, không cần cài đặt phần mềm nặng, xuất file MP4 chất lượng cao lên đến 4K 60fps. Dự án sở hữu kho tàng **hơn 879 hiệu ứng chuyển động, 27 phong cách mỹ thuật, tích hợp trọn bộ hiệu ứng CapCut & Concat điện ảnh, kho Stock nền mẫu có sẵn, tải ảnh nền đa chuyển động** và nút thông minh **"Độc bản"** tự động biến hóa hiệu ứng không trùng lặp cho từng câu hát.
 
 **Phiên bản: v1.0.0 (Bản Tiếng Việt Toàn Diện & Chuẩn Điện Ảnh)**
 
@@ -32,8 +32,8 @@ Panel After Effects: [ScriptUI](AURA_AE.jsx) · [CEP](AURA_CEP.zip)
 | Tệp tin / Thư mục | Chức năng |
 |---|---|
 | `index.html` | Bản ứng dụng chạy trên trình duyệt (đã đóng gói đơn tệp hoàn chỉnh, mở bằng Chrome/Edge/Cốc Cốc) |
-| `AURA_AE.jsx` | Panel điều khiển dành cho Adobe After Effects (ScriptUI) |
-| `AURA_CEP.zip` | Panel mở rộng đầy đủ giao diện dành cho Adobe After Effects (CEP Panel) |
+| `LyricWave_AE.jsx` | Panel điều khiển dành cho Adobe After Effects (ScriptUI) |
+| `LyricWave_CEP.zip` | Panel mở rộng đầy đủ giao diện dành cho Adobe After Effects (CEP Panel) |
 | `src/` | Mã nguồn động cơ cốt lõi (Bộ tính toán bố cục, bộ render canvas, các pack chuyển động, âm thanh, UI) |
 | `src/11p_capcut.js` | Gói hiệu ứng chuyển động CapCut & chuyển cảnh Concat độc quyền |
 | `app/` | Giao diện, bản dịch tiếng Việt, CSS phong cách mỹ thuật và hệ thống đa ngôn ngữ |
@@ -66,7 +66,7 @@ Góc trên bên phải màn hình có các nút chuyển đổi chế độ hi�
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                        AURA LYRICS STUDIO UI                           │
+│                        LYRICWAVE STUDIO UI                           │
 ├─────────────────────┬──────────────────────────┬───────────────────────┤
 │    CỘT BÊN TRÁI     │        CỘT Ở GIỮA        │     CỘT BÊN PHẢI      │
 │  (Lời & Âm thanh)   │   (Màn hình Preview)     │ (Cấu hình & Xuất file)│
@@ -89,7 +89,7 @@ Mỗi dòng văn bản tương ứng với một câu hát hiển thị. Bạn c
 | `/` | **Ngắt cảnh cắt:** Chia câu dài thành 2 cảnh xuất hiện kế tiếp nhau | `Tôi vẫn nhớ/màu bình minh` |
 | `*từ ngữ*` | **Nhấn mạnh:** Từ nằm giữa 2 dấu sao sẽ phóng to nổi bật và gán hiệu ứng mạnh mẽ | `Tình yêu này *mãi mãi* khắc sâu` |
 | `!` ở cuối dòng | **Bùng nổ (Kime):** Kích hoạt hiệu ứng chớp sáng, zoom giật và rung lắc màn hình | `Không bao giờ gục ngã!` |
-| `Câu hát\|Ghi chú` | **Phần chữ phụ:** Chữ sau dấu gạch đứng hiển thị nhỏ làm chú thích ở góc | `AURA\|Studio Version` |
+| `Câu hát\|Ghi chú` | **Phần chữ phụ:** Chữ sau dấu gạch đứng hiển thị nhỏ làm chú thích ở góc | `LyricWave\|Studio Version` |
 | `[01:23.45]` | **Dấu thời gian LRC:** Đặt chính xác giây bắt đầu câu hát | `[00:15.20]Gió cuốn đi muộn phiền` |
 | `[間奏 8]` hoặc `[interlude 8]` | **Đoạn dạo nhạc:** 8 giây không lời, chỉ chạy đồ họa nền và screen effects | `[interlude 8]` |
 
@@ -187,11 +187,11 @@ Bao gồm danh mục **879 chi tiết** được phân loại thành 10 nhóm:
 ## 🔌 Tích hợp với Adobe After Effects
 
 Ứng dụng đi kèm 2 công cụ kết nối trực tiếp với After Effects:
-1. **ScriptUI Panel (`AURA_AE.jsx`):**
+1. **ScriptUI Panel (`LyricWave_AE.jsx`):**
    * Đặt tệp vào thư mục `Scripts/ScriptUI Panels` trong thư mục cài đặt After Effects.
    * Cho phép dựng toàn bộ bài hát thành các Composition chứa Text Layer, Shape Layer, Keyframe và Expression native để bạn chỉnh sửa thủ công không giới hạn.
-2. **CEP Extension Panel (`AURA_CEP.zip`):**
-   * Đưa nguyên vẹn giao diện trực quan của AURA vào làm một bảng điều khiển bên trong After Effects (Window → Extensions).
+2. **CEP Extension Panel (`LyricWave_CEP.zip`):**
+   * Đưa nguyên vẹn giao diện trực quan của LyricWave vào làm một bảng điều khiển bên trong After Effects (Window → Extensions).
    * Bấm **"Xuất cho AE"** trên trình duyệt để tải tệp `.json`, sau đó nạp vào After Effects là có ngay Project AE hoàn chỉnh.
 
 ---

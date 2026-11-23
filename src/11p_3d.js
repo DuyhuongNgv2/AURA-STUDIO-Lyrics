@@ -1,4 +1,4 @@
-/* AURA pack: 3D text (P1 v0.19.0) — 5 new effects with a dual behaviour.
+/* LyricWave pack: 3D text (P1 v0.19.0) — 5 new effects with a dual behaviour.
    When 3D is on AND the host is ready (J.text3d.ready), the effect writes a
    3D descriptor (it._t3d / env._t3dCam) and the plane/block renderer does the
    real transform; the 2D charFn is skipped so nothing is applied twice.

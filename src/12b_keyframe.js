@@ -1,18 +1,21 @@
-/* AURA — Keyframe Editor (P2 v0.20.0, K1 + K2).
+/* LyricWave — Keyframe Editor (P2 v0.20.0, K1 + K2; K4 v0.26.1 easing).
    Item keyframes, OFFSET semantics: a key stores a full pose {t, x, y, rot,
    scale, opacity, rotY, rotX, dolly, orbit} where x/y/rot ADD to the
    procedural value and scale/opacity MULTIPLY it. K2 fields: rotY/rotX are
    3D text rotation in DEGREES (additive into it._t3d, radians); dolly is a
    camera push (additive 0..1 into env._t3dCam.dolly, zoom multiplier in 2D);
    orbit is a camera orbit in DEGREES (additive into env._t3dCam.orbit,
-   radians; slight rotation in 2D). Linear interpolation between keys, hold
-   outside the key range. Pure functions only (no DOM): keyframeEval is
-   unit-tested in Node, and the render hooks are single calls — Hook 1 inside
-   J.mainDraw2D (after enter/hold/exit, before draw; runs once per item per
-   frame, inside the bake too, so 3D plane + block both read the mutated
-   item) and Hook 2 J.applyCamKeyframes inside Renderer.frame (after CD.get;
-   the layerBlur probe in the same file calls the same helper). No extrusion
-   depth is keyframeable (geometry cache key includes exDepth). */
+   radians; slight rotation in 2D). K4: each key carries `ease` (default
+   'linear'), which shapes the interpolation of the segment FROM that key
+   TO the next one — all 9 channels share the segment's easing. Linear
+   interpolation between keys, hold outside the key range. Pure functions
+   only (no DOM): keyframeEval is unit-tested in Node, and the render hooks
+   are single calls — Hook 1 inside J.mainDraw2D (after enter/hold/exit,
+   before draw; runs once per item per frame, inside the bake too, so 3D
+   plane + block both read the mutated item) and Hook 2 J.applyCamKeyframes
+   inside Renderer.frame (after CD.get; the layerBlur probe in the same file
+   calls the same helper). No extrusion depth is keyframeable (geometry cache
+   key includes exDepth). */
 (() => {
 'use strict';
 const clamp = J.clamp, lerp = J.lerp;
@@ -23,10 +26,28 @@ const clamp = J.clamp, lerp = J.lerp;
 const UNIT = Object.freeze({ x: 0, y: 0, rot: 0, scale: 1, opacity: 1, rotY: 0, rotX: 0, dolly: 0, orbit: 0 });
 const PROPS = ['x', 'y', 'rot', 'scale', 'opacity', 'rotY', 'rotX', 'dolly', 'orbit'];
 
+/* K4 v0.26.1 — easing per key: the `ease` of a key shapes the segment FROM
+   that key TO the next one (all 9 pose channels share it; the last key's
+   ease has no outgoing segment and is stored harmlessly). Reuses J.E
+   (01_util.js); `hold` is the only new curve (a step: the pose stays at the
+   lo key until the segment end, then jumps). Missing/unknown names fall
+   back to 'linear', so keys saved before K4 (no `ease` field) render
+   exactly as before. */
+J.keyframeEase = Object.freeze({
+  linear: J.E.lin,
+  'ease-in': J.E.inQuad,
+  'ease-out': J.E.outQuad,
+  'ease-in-out': J.E.inOutCubic,
+  hold: u => (u >= 1 ? 1 : 0),
+});
+J.keyframeEaseFn = name => J.keyframeEase[name] || J.keyframeEase.linear;
+J.keyframeEaseValid = name => (typeof name === 'string' && Object.prototype.hasOwnProperty.call(J.keyframeEase, name)) ? name : 'linear';
+
 /* Normalise a key array into a clean sorted copy (never mutates the input):
    drops non-objects and non-finite t, fills missing props from UNIT,
    clamps opacity into [0, 1], forces scale to a finite positive number,
-   sorts by t, and drops earlier duplicates of the same t (last wins). */
+   validates `ease` (missing/unknown -> 'linear'), sorts by t, and drops
+   earlier duplicates of the same t (last wins). */
 J.keyframeNorm = keys => {
   if (!Array.isArray(keys)) return [];
   const out = [];
@@ -39,6 +60,7 @@ J.keyframeNorm = keys => {
       else if (prop === 'scale') p[prop] = Number.isFinite(v) && v > 0 ? v : 1;
       else p[prop] = Number.isFinite(v) ? v : 0;
     }
+    p.ease = J.keyframeEaseValid(k.ease); // K4: missing/unknown -> 'linear'
     out.push(p);
   }
   out.sort((a, b) => a.t - b.t);
@@ -51,8 +73,9 @@ J.keyframeNorm = keys => {
 };
 
 /* Evaluate the pose at cut-relative time t (seconds since cut start).
-   Pure function of (keys, t): linear interpolation between the bracketing
-   keys, hold the nearest key outside the range, unit pose for an empty track.
+   Pure function of (keys, t): eased interpolation between the bracketing
+   keys (the lo key's `ease` shapes the segment; missing -> linear), hold
+   the nearest key outside the range, unit pose for an empty track.
    Robust to unsorted input and duplicate t (last duplicate wins) — one O(n)
    scan, no allocation except the returned pose. */
 J.keyframeEval = (keys, t) => {
@@ -81,7 +104,7 @@ J.keyframeEval = (keys, t) => {
   if (!hi) return poseOf(lo.k);            // after the last key: hold it
   const span = hi.k.t - lo.k.t;
   if (span <= 0) return poseOf(lo.k);
-  const u = clamp((q - lo.k.t) / span, 0, 1);
+  const u = J.keyframeEaseFn(lo.k.ease)(clamp((q - lo.k.t) / span, 0, 1)); // K4: the lo key's ease shapes this segment
   const a = poseOf(lo.k), b = poseOf(hi.k);
   return {
     x: lerp(a.x, b.x, u),

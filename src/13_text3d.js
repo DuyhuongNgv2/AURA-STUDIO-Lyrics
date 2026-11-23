@@ -1,5 +1,5 @@
-/* AURA — 3D text host (P1 v0.19.0, M1: textured-plane + M2: extrusion).
-   Three.js r170 vendored (MIT), loaded from window.__AURA_THREE__ (JSON strings
+/* LyricWave — 3D text host (P1 v0.19.0, M1: textured-plane + M2: extrusion).
+   Three.js r170 vendored (MIT), loaded from window.__LyricWave_THREE__ (JSON strings
    injected by build.py) via blob URLs — no importmap, works on a local server
    AND file://. Addon sources are rewritten at runtime so their `from 'three'`
    points at the core blob URL.
@@ -46,6 +46,28 @@ function shadeHex(hex, amount) {
   return _rgbHex(c[0] * (1 - amount), c[1] * (1 - amount), c[2] * (1 - amount));
 }
 
+/* ---- M3 viz3d constants (SonaWave 3d-solar-system / 3d-cube-matrix designs,
+   HAY Studio73, MIT — rewritten in AURA style, no TS/React carried over).
+   Single source of truth for both the 3D builders below and the 2D
+   loading fallback in 11p_viz3d.js (exposed on J at the bottom of this file).
+   Planet template: orbit radius = sun radius + off, size and angular speed
+   in SonaWave units; AURA scales them by unit = R_out / 31 so Saturn's
+   orbit fits the frame. Orbit speed is slowed (×0.25) so an orbit reads
+   on screen instead of whirling. */
+const VIZ3D_SUN_R = 5.5;        // SonaWave solarSunSize default
+const VIZ3D_ORBIT_SPEED = 0.25;
+const VIZ3D_PLANETS = [
+  { name: 'Mercury', off: 3.8, size: 0.75, speed: 2.2, color: '#94a3b8' },
+  { name: 'Venus', off: 7.0, size: 1.05, speed: 1.7, color: '#facc15' },
+  { name: 'Earth', off: 10.8, size: 1.2, speed: 1.25, color: '#38bdf8' },
+  { name: 'Mars', off: 14.5, size: 0.9, speed: 0.95, color: '#f87171' },
+  { name: 'Jupiter', off: 19.8, size: 2.3, speed: 0.65, color: '#fb923c' },
+  { name: 'Saturn', off: 25.5, size: 1.8, speed: 0.45, color: '#fef08a' },
+];
+const VIZ3D_CUBE_N = 8;         // SonaWave cubeGridSize default
+const VIZ3D_CUBE_W = 2.0;       // SonaWave cube width (units)
+const VIZ3D_CUBE_GAP = 0.35;    // SonaWave cubeSpacing default
+
 const T3D = {
   THREE: null, FontLoader: null, TextGeometry: null,
   ready: false, _loading: null, _warned: false, _lost: false,
@@ -60,10 +82,12 @@ const T3D = {
   _matCache: new Map(), _matMax: 128,                   // M2: MeshStandardMaterial cache (by colour)
   _shadowCatcher: null,                                 // M2: ShadowMaterial plane (threeShadow only)
   _cw: 0, _ch: 0,
+  _viz3d: null,                                          // M3: cached viz3d scene { key, sig, scene, ...refs }
+  viz3d: { key: null, webgl: false },                   // M3: probe state (QA/debugging) — last viz3d frame's path
 
   _warn(msg) {
-    if (!this._warned) { this._warned = true; console.warn('AURA 3D: ' + msg); }
-    else console.warn('AURA 3D: ' + msg);
+    if (!this._warned) { this._warned = true; console.warn('LyricWave 3D: ' + msg); }
+    else console.warn('LyricWave 3D: ' + msg);
   },
 
   _blob(src) {
@@ -82,8 +106,8 @@ const T3D = {
     if (this._loading) return this._loading;
     this._loading = (async () => {
       try {
-        const src = (typeof window !== 'undefined' && window.__AURA_THREE__) || null;
-        if (!src || !src.core) { this._warn('vendored Three.js source is missing (window.__AURA_THREE__) — 3D falls back to 2D'); return false; }
+        const src = (typeof window !== 'undefined' && window.__LyricWave_THREE__) || null;
+        if (!src || !src.core) { this._warn('vendored Three.js source is missing (window.__LyricWave_THREE__) — 3D falls back to 2D'); return false; }
         const coreUrl = this._blob(src.core);
         const flUrl = this._blob(this._rewriteAddon(src.fontLoader, coreUrl));
         const tgUrl = this._blob(this._rewriteAddon(src.textGeometry, coreUrl));
@@ -109,15 +133,15 @@ const T3D = {
 
   /* M2: parse the vendored 3D font subsets (Be Vietnam Pro Regular 400 + Bold 700,
      Vietnamese + Latin, built by tools/subset_3d_fonts.py) from the in-memory
-     window.__AURA_FONTS3D__ payload — no fetch, works on a server AND file://.
+     window.__LyricWave_FONTS3D__ payload — no fetch, works on a server AND file://.
      Returns { regular, bold } (three.js Font objects) or null when missing. */
   async _loadFonts() {
     if (this._fonts) return this._fonts;
     if (this._fontsLoading) return this._fontsLoading;
     this._fontsLoading = (async () => {
       try {
-        const src = (typeof window !== 'undefined' && window.__AURA_FONTS3D__) || null;
-        if (!src || !src.regular || !src.bold) { this._warn('3D font subsets are missing (window.__AURA_FONTS3D__) — block mode falls back to the plane'); return null; }
+        const src = (typeof window !== 'undefined' && window.__LyricWave_FONTS3D__) || null;
+        if (!src || !src.regular || !src.bold) { this._warn('3D font subsets are missing (window.__LyricWave_FONTS3D__) — block mode falls back to the plane'); return null; }
         const fl = new this.FontLoader();
         const regular = fl.parse(src.regular);
         const bold = fl.parse(src.bold);
@@ -308,6 +332,7 @@ const T3D = {
     // Drop cached objects tied to a previous renderer (context restore):
     // the old GPU resources are gone with the lost context.
     this._plane = null; this._planeGeo = null; this._planeGeoKey = ''; this._tex = null;
+    this._viz3d = null; this.viz3d = { key: null, webgl: false };   // M3: viz scenes are rebuilt on demand
     // The renderer OWNS its canvas (renderer.domElement) — do not create a
     // separate one: drawImage must read the canvas the renderer drew into.
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, depth: true, stencil: false, preserveDrawingBuffer: false, powerPreference: 'default' });
@@ -652,9 +677,250 @@ const T3D = {
     }
   },
 
+  /* ---- M3 viz3d: two full-screen 3D background scenes rendered through
+     this SAME singleton renderer + canvas — never a second WebGL context.
+     A viz3d scene is its own THREE.Scene; drawViz3d renders it and
+     composites with drawImage, the _renderPlane pattern. Every motion is
+     a pure function of (t, freq(t), beat(t)): planet angles a0 + speed*t,
+     cube heights straight from the 64-bin spectrum (already time-smoothed
+     by J.vizData) — no dt accumulation, no Math.random, so Preview ==
+     offline export frame by frame. Deterministic pseudo-noise (nhash) is
+     used only for static flare/belt positions, fixed at build time. */
+  _viz3dNh(i, t) { const s = Math.sin(i * 12.9898 + t * 78.233) * 43758.5453; return s - Math.floor(s); },
+
+  /* scheme colours that stand apart from the background (same rule as the
+     M2 viz hues() in 11p_viz.js, local here so the 3D host stays standalone) */
+  _viz3dHues(sc) {
+    const out = [];
+    for (const c of [sc.accent, sc.accent2, sc.ghostA, sc.ghostB, sc.fg]) {
+      if (!c || J.contrast(c, sc.bg) < 1.25) continue;
+      const k = String(c).toLowerCase();
+      if (!out.some(o => String(o).toLowerCase() === k)) out.push(c);
+    }
+    return out.length ? out : [sc.fg || '#ffffff'];
+  },
+
+  _viz3dBuildSolar(THREE, W, H) {
+    const scene = new THREE.Scene();
+    scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+    const dl = new THREE.DirectionalLight(0xffffff, 1.5);
+    dl.position.set(W / 2 + 200, H / 2 + 300, 400);
+    scene.add(dl);
+    const cx = W / 2, cy = H / 2;                 // three coords: y up, origin bottom-left
+    const R_out = Math.min(W, H) * 0.42;
+    const unit = R_out / (VIZ3D_SUN_R + 25.5);    // Saturn's orbit == R_out
+    const sunR = VIZ3D_SUN_R * unit;
+    const group = new THREE.Group();
+    group.position.set(cx, cy, 0);
+    group.rotation.x = -0.38;                     // ~22 deg tilt (SonaWave defaultTilt)
+    scene.add(group);
+    // sun (SonaWave: MeshStandardMaterial, emissive 1.2)
+    const sun = new THREE.Mesh(
+      new THREE.SphereGeometry(sunR, 32, 32),
+      new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xf59e0b, emissiveIntensity: 1.2, roughness: 0.1, metalness: 0.2 }));
+    group.add(sun);
+    // corona: wireframe icosahedron (SonaWave)
+    const corona = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(sunR * 1.35, 2),
+      new THREE.MeshBasicMaterial({ color: 0xec4899, wireframe: true, transparent: true, opacity: 0.45 }));
+    group.add(corona);
+    // solar flares: 180 deterministic points on a shell (SonaWave used Math.random here — AURA uses nhash so the build is reproducible)
+    const flareCount = 180, fp = new Float32Array(flareCount * 3), fc = new Float32Array(flareCount * 3);
+    const cA = new THREE.Color('#f59e0b'), cB = new THREE.Color('#ec4899');
+    for (let i = 0; i < flareCount; i++) {
+      const i3 = i * 3;
+      const theta = this._viz3dNh(i, 1.7) * Math.PI * 2;
+      const phi = Math.acos(this._viz3dNh(i, 2.3) * 2 - 1);
+      const r = sunR * (1.1 + this._viz3dNh(i, 3.1) * 0.5);
+      fp[i3] = r * Math.sin(phi) * Math.cos(theta);
+      fp[i3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      fp[i3 + 2] = r * Math.cos(phi);
+      const c = cA.clone().lerp(cB, this._viz3dNh(i, 4.7) * 0.6);
+      fc[i3] = c.r; fc[i3 + 1] = c.g; fc[i3 + 2] = c.b;
+    }
+    const flareGeo = new THREE.BufferGeometry();
+    flareGeo.setAttribute('position', new THREE.BufferAttribute(fp, 3));
+    flareGeo.setAttribute('color', new THREE.BufferAttribute(fc, 3));
+    const flares = new THREE.Points(flareGeo, new THREE.PointsMaterial({ size: sunR * 0.28, vertexColors: true, transparent: true, opacity: 0.88, blending: THREE.AdditiveBlending, depthWrite: false }));
+    group.add(flares);
+    // planets + orbit lines + Saturn ring + Earth moon
+    const planets = [];
+    for (let i = 0; i < VIZ3D_PLANETS.length; i++) {
+      const tp = VIZ3D_PLANETS[i];
+      const R = (VIZ3D_SUN_R + tp.off) * unit;
+      const size = tp.size * unit;
+      const col = new THREE.Color(tp.color);
+      const mesh = new THREE.Mesh(
+        new THREE.SphereGeometry(size, 20, 20),
+        new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: 0.35, roughness: 0.3, metalness: 0.5 }));
+      group.add(mesh);
+      const pts = [];
+      for (let j = 0; j <= 64; j++) { const a = (j / 64) * Math.PI * 2; pts.push(new THREE.Vector3(Math.cos(a) * R, 0, Math.sin(a) * R)); }
+      const line = new THREE.LineLoop(
+        new THREE.BufferGeometry().setFromPoints(pts),
+        new THREE.LineBasicMaterial({ color: col, transparent: true, opacity: 0.32 }));
+      group.add(line);
+      let ring = null;
+      if (tp.name === 'Saturn') {
+        const rg = new THREE.RingGeometry(size * 1.35, size * 2.3, 32);
+        rg.rotateX(-Math.PI / 2.8);
+        ring = new THREE.Mesh(rg, new THREE.MeshStandardMaterial({ color: 0xfef08a, side: THREE.DoubleSide, transparent: true, opacity: 0.75, roughness: 0.4 }));
+        mesh.add(ring);
+      }
+      let moon = null;
+      if (tp.name === 'Earth') {
+        moon = new THREE.Mesh(new THREE.SphereGeometry(0.35 * unit, 12, 12), new THREE.MeshBasicMaterial({ color: 0xe2e8f0 }));
+        mesh.add(moon);
+      }
+      planets.push({ mesh, ring, moon, R, size, speed: tp.speed, a0: (i / VIZ3D_PLANETS.length) * Math.PI * 2 });
+    }
+    // asteroid belt: 400 deterministic points just outside Saturn's orbit
+    const beltN = 400, bp = new Float32Array(beltN * 3);
+    const beltR0 = (VIZ3D_SUN_R + 25.5) * unit * 1.12, beltR1 = beltR0 * 1.18;
+    for (let i = 0; i < beltN; i++) {
+      const a = this._viz3dNh(i, 5.3) * Math.PI * 2;
+      const r = beltR0 + this._viz3dNh(i, 6.1) * (beltR1 - beltR0);
+      bp[i * 3] = Math.cos(a) * r;
+      bp[i * 3 + 1] = (this._viz3dNh(i, 7.7) - 0.5) * unit * 1.2;
+      bp[i * 3 + 2] = Math.sin(a) * r;
+    }
+    const beltGeo = new THREE.BufferGeometry();
+    beltGeo.setAttribute('position', new THREE.BufferAttribute(bp, 3));
+    const belt = new THREE.Points(beltGeo, new THREE.PointsMaterial({ color: 0xcbd5e1, size: unit * 0.5, transparent: true, opacity: 0.8 }));
+    group.add(belt);
+    return { scene, group, sun, corona, flares, planets, belt, sunR, unit };
+  },
+
+  _viz3dUpdateSolar(v, env, freq, pulse) {
+    const t = env.t;
+    const bass = freq ? (freq[2] + freq[3]) / 2 : 0.3;
+    const mid = freq ? freq[Math.floor(freq.length * 0.3)] : 0.3;
+    const sunBounce = 1 + (bass * 0.35 + pulse * 0.25) * 1.5;
+    v.sun.scale.set(sunBounce, sunBounce, sunBounce);
+    v.sun.rotation.y = t * 0.3;
+    const coronaBounce = 1 + pulse * 0.45 * 1.5;
+    v.corona.scale.set(coronaBounce, coronaBounce, coronaBounce);
+    v.corona.rotation.y = -t * 0.5;
+    v.corona.rotation.x = t * 0.2;
+    const burst = 1 + pulse * 0.55 * 1.5;
+    v.flares.scale.set(burst, burst, burst);
+    v.flares.rotation.y = t * 0.25;
+    v.group.rotation.y = t * 0.05;
+    for (const p of v.planets) {
+      const a = p.a0 + p.speed * VIZ3D_ORBIT_SPEED * t;
+      p.mesh.position.set(Math.cos(a) * p.R, 0, Math.sin(a) * p.R);
+      p.mesh.rotation.y = t * 2.5;
+      p.mesh.material.emissiveIntensity = 0.35 + pulse * 0.3;
+      if (p.moon) { p.moon.position.x = Math.cos(a * 4.5) * 2.2 * v.unit; p.moon.position.z = Math.sin(a * 4.5) * 2.2 * v.unit; }
+      if (p.ring) p.ring.rotation.z = t * 0.4;
+    }
+    v.belt.rotation.y = t * 0.02;
+    v.belt.scale.y = 1 + mid * 0.6;
+  },
+
+  _viz3dBuildCubes(THREE, W, H, cols) {
+    const scene = new THREE.Scene();
+    scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+    const dl = new THREE.DirectionalLight(0xffffff, 1.5);
+    dl.position.set(W / 2 + 200, H / 2 + 300, 400);
+    scene.add(dl);
+    const u = H / 27.6;                          // SonaWave visible height ~27.6 units at its camera
+    const pitch = (VIZ3D_CUBE_W + VIZ3D_CUBE_GAP) * u;
+    const cubeW = VIZ3D_CUBE_W * u;
+    const group = new THREE.Group();
+    group.position.set(W / 2, H * 0.28, 0);      // base line at plan y 0.72H (three y is up)
+    group.rotation.x = -0.35;                    // tip the tops toward the camera
+    scene.add(group);
+    const geo = new THREE.BoxGeometry(cubeW, 1, cubeW);   // unit height, scaled per frame
+    const cubes = [];
+    const maxDist = Math.sqrt(2) * (VIZ3D_CUBE_N - 1) / 2;
+    for (let ix = 0; ix < VIZ3D_CUBE_N; ix++) for (let iz = 0; iz < VIZ3D_CUBE_N; iz++) {
+      const dx = ix - (VIZ3D_CUBE_N - 1) / 2, dz = iz - (VIZ3D_CUBE_N - 1) / 2;
+      const dist = Math.sqrt(dx * dx + dz * dz) / maxDist;   // 0 centre .. 1 corner
+      const mat = new THREE.MeshStandardMaterial({ color: cols[0], emissive: cols[0], emissiveIntensity: 0.25, roughness: 0.4, metalness: 0.3 });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(dx * pitch, 0.5, dz * pitch);
+      mesh.scale.y = 1;
+      group.add(mesh);
+      cubes.push({ mesh, mat, dist });
+    }
+    return { scene, group, cubes, maxH: H * 0.42, minH: Math.max(2, u * 0.4) };
+  },
+
+  _viz3dUpdateCubes(v, env, freq, pulse, cols) {
+    const n = freq ? freq.length : 64;
+    for (let i = 0; i < v.cubes.length; i++) {
+      const c = v.cubes[i];
+      // SonaWave's bin pick: floor(dist * dataLength * 0.65)
+      const bi = Math.min(n - 1, Math.floor(c.dist * n * 0.65));
+      const f = freq ? freq[bi] : 0.3;
+      const h = Math.max(v.minH, f * v.maxH * (1 + 0.25 * pulse));
+      c.mesh.scale.y = h;
+      c.mesh.position.y = h / 2;
+      const col = cols[Math.min(cols.length - 1, Math.floor((h / v.maxH) * cols.length))];
+      c.mat.color.set(col);
+      c.mat.emissive.set(col);
+      c.mat.emissiveIntensity = 0.25 + (h / v.maxH) * 0.8;
+    }
+  },
+
+  _viz3dDispose() {
+    const v = this._viz3d;
+    if (!v) return;
+    try {
+      if (v.scene) {
+        v.scene.traverse(o => {
+          if (o.geometry) { try { o.geometry.dispose(); } catch (e) {} }
+          if (o.material) {
+            const ms = Array.isArray(o.material) ? o.material : [o.material];
+            for (const m of ms) { try { m.dispose(); } catch (e) {} }
+          }
+        });
+      }
+    } catch (e) {}
+    this._viz3d = null;
+  },
+
+  /* M3 seam: render one viz3d scene into the shared WebGL canvas and
+     composite it onto the frame ctx. Returns false when 3D is not usable
+     (not loaded yet / context lost) — the caller draws the 2D fallback. */
+  drawViz3d(env, key, freq) {
+    if (!this.ready || !this.renderer) return false;
+    const THREE = this.THREE;
+    const ctx = env.ctx;
+    const cw = ctx.canvas.width, ch = ctx.canvas.height;
+    const W = env.W, H = env.H;
+    if (!this._ensureSize(cw, ch)) return false;
+    const sig = key + '|' + W + 'x' + H;
+    let v = this._viz3d;
+    if (!v || v.sig !== sig) {
+      this._viz3dDispose();
+      const sc = env.sc || {};
+      const cols = this._viz3dHues(sc);
+      const built = key === 'viz3dCubes'
+        ? this._viz3dBuildCubes(THREE, W, H, cols)
+        : this._viz3dBuildSolar(THREE, W, H);
+      v = this._viz3d = Object.assign({ key, sig, cols }, built);
+    }
+    const pulse = (env.beat && env.beat.since < 0.25 ? Math.exp(-env.beat.since * 8) : 0);
+    try {
+      if (key === 'viz3dCubes') this._viz3dUpdateCubes(v, env, freq, pulse, v.cols);
+      else this._viz3dUpdateSolar(v, env, freq, pulse);
+      this._setupCamera(env, {}, W, H, W / 2, H / 2);
+      this.renderer.render(v.scene, this.camera);
+      ctx.drawImage(this.canvas, 0, 0, W, H);
+    } catch (e) {
+      this._warn('viz3d render failed: ' + (e && e.message ? e.message : e));
+      return false;
+    }
+    this.viz3d = { key, webgl: true };
+    return true;
+  },
+
   /* Free all WebGL resources. Called on context loss recovery failure and when
      the user turns 3D off for a long session (UI may call it on toggle-off). */
   dispose() {
+    this._viz3dDispose(); this.viz3d = { key: null, webgl: false };   // M3
     try { if (this._tex) { this._tex.dispose(); this._tex = null; } } catch (e) {}
     try { if (this._planeGeo) { this._planeGeo.dispose(); this._planeGeo = null; } } catch (e) {}
     try { if (this._plane) { this.scene.remove(this._plane); this._plane = null; } } catch (e) {}
@@ -674,4 +940,11 @@ const T3D = {
   },
 };
 J.text3d = T3D;
+/* M3 viz3d: single source of truth for the scene constants, shared with the
+   2D loading fallback in 11p_viz3d.js and the node tests. Pure functions of
+   (index, t) / (dist, bins) — the same math the 3D builders use. */
+J.viz3dSolarPlanets = VIZ3D_PLANETS;
+J.viz3dCubeSpec = { n: VIZ3D_CUBE_N, w: VIZ3D_CUBE_W, gap: VIZ3D_CUBE_GAP };
+J.viz3dPlanetAngle = (i, t) => (i / VIZ3D_PLANETS.length) * Math.PI * 2 + VIZ3D_PLANETS[i].speed * VIZ3D_ORBIT_SPEED * t;
+J.viz3dCubeBin = (dist, n) => Math.min(n - 1, Math.floor(dist * n * 0.65));
 })();

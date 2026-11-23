@@ -1,4 +1,4 @@
-/* AURA — WebGL host for the vendored gl-transitions shaders (src/11p_gltrans.js).
+/* LyricWave — WebGL host for the vendored gl-transitions shaders (src/11p_gltrans.js).
    One shared context for every Renderer instance (Preview, technique-preview, export):
    never create a context per Renderer. Plain WebGL1, no libraries, no CDN.
    The context is alpha:true + premultipliedAlpha:false so transparent PNG export keeps
@@ -82,7 +82,7 @@ const GL = {
       return P;
     } catch (e) {
       this.programs[name] = null;
-      if (!this.warned) { this.warned = true; console.warn('AURA gltrans: ' + (e && e.message ? e.message : e)); }
+      if (!this.warned) { this.warned = true; console.warn('LyricWave gltrans: ' + (e && e.message ? e.message : e)); }
       return null;
     }
   },
@@ -123,7 +123,7 @@ const GL = {
       gl.disableVertexAttribArray(P.loc.aPos);
       return true;
     } catch (e) {
-      if (!this.warned) { this.warned = true; console.warn('AURA gltrans render: ' + (e && e.message ? e.message : e)); }
+      if (!this.warned) { this.warned = true; console.warn('LyricWave gltrans render: ' + (e && e.message ? e.message : e)); }
       return false;
     }
   },

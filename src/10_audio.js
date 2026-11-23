@@ -146,6 +146,31 @@ J.loadFontData = async (key) => {
 J.forgetSong = async () => {
   try { const db = await IDB.open(); await new Promise(res => { const tx = db.transaction('files', 'readwrite'); tx.objectStore('files').delete('song'); tx.oncomplete = res; tx.onerror = res; }); } catch (e) {}
 };
+/* ---- M4 v0.29.0: per-track audio for the playlist ----
+   Same store as the single song ('song'), but keyed per playlist item
+   ('song:' + item id) so each track keeps its own file. The legacy 'song'
+   key is untouched: a playlist-less project still restores exactly as before. */
+J.saveSongKey = async (key, file) => {
+  if (!key || !file) return false;
+  try {
+    const db = await IDB.open(), data = await file.arrayBuffer();
+    await new Promise((res, rej) => { const tx = db.transaction('files', 'readwrite'); tx.objectStore('files').put({ name: file.name, type: file.type, data }, String(key)); tx.oncomplete = res; tx.onerror = () => rej(tx.error); });
+    return true;
+  } catch (e) { return false; }
+};
+J.loadSongKey = async (key) => {
+  if (!key) return null;
+  try {
+    const db = await IDB.open();
+    const rec = await new Promise((res, rej) => { const tx = db.transaction('files', 'readonly'); const q = tx.objectStore('files').get(String(key)); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
+    if (!rec || !rec.data) return null;
+    return new File([rec.data], rec.name || 'song', { type: rec.type || '' });
+  } catch (e) { return null; }
+};
+J.forgetSongKey = async (key) => {
+  if (!key) return;
+  try { const db = await IDB.open(); await new Promise(res => { const tx = db.transaction('files', 'readwrite'); tx.objectStore('files').delete(String(key)); tx.oncomplete = res; tx.onerror = res; }); } catch (e) {}
+};
 
 /* rebuild a beat grid from a user BPM + first-beat offset */
 J.beatGrid = (bpm, offset, duration) => {
@@ -238,5 +263,252 @@ J.whisperReviewStats = (rows) => {
   let good = 0, check = 0, novoice = 0, mw = 0, tw = 0;
   for (const r of rows || []) { if (r.status === 'good') good++; else if (r.status === 'novoice') novoice++; else check++; mw += r.matched || 0; tw += r.total || 0; }
   return { good, check, novoice, matchedWords: mw, totalWords: tw, total: (rows || []).length };
+};
+/* ---- M2 v0.27.0: precomputed frequency spectrum for the 2D visualizers ----
+   No live AnalyserNode exists in the preview path (the song plays from a
+   decoded AudioBuffer), so the spectrum is computed once, offline, from the
+   buffer itself: 2048-point FFT, 30 fps, 64 log-spaced bins. The result is
+   cached per AudioBuffer (WeakMap) so every replan reuses it, and shared by
+   Preview and offline export — both read the same frames at the same t, so
+   what you see is what the MP4 gets. Pure JS, no model, no library. */
+const _vizCache = new WeakMap();
+/* iterative radix-2 FFT, in place on re/im (length must be a power of two) */
+const _vizFFT = (re, im) => {
+  const n = re.length;
+  for (let i = 1, j = 0; i < n; i++) {
+    let bit = n >> 1;
+    for (; j & bit; bit >>= 1) j ^= bit;
+    j ^= bit;
+    if (i < j) {
+      const tr = re[i]; re[i] = re[j]; re[j] = tr;
+      const ti = im[i]; im[i] = im[j]; im[j] = ti;
+    }
+  }
+  for (let len = 2; len <= n; len <<= 1) {
+    const ang = -2 * Math.PI / len, wr = Math.cos(ang), wi = Math.sin(ang), half = len >> 1;
+    for (let i = 0; i < n; i += len) {
+      let cwr = 1, cwi = 0;
+      for (let k = 0; k < half; k++) {
+        const ur = re[i + k], ui = im[i + k];
+        const vr = re[i + k + half] * cwr - im[i + k + half] * cwi;
+        const vi = re[i + k + half] * cwi + im[i + k + half] * cwr;
+        re[i + k] = ur + vr; im[i + k] = ui + vi;
+        re[i + k + half] = ur - vr; im[i + k + half] = ui - vi;
+        const nwr = cwr * wr - cwi * wi; cwi = cwr * wi + cwi * wr; cwr = nwr;
+      }
+    }
+  }
+};
+/* { sr, rate, bins, frames, spec: Float32Array(frames*64), mono, monoSr } —
+   spec is normalised per bin to its 95th percentile over the whole song
+   (like energyN), so quiet bands still move and loud ones never clip past 1. */
+J.vizData = (audio) => {
+  if (!audio || !audio.buffer) return null;
+  const buf = audio.buffer;
+  if (_vizCache.has(buf)) return _vizCache.get(buf);
+  const sr = buf.sampleRate, ch = buf.numberOfChannels, len = buf.length;
+  const mono = new Float32Array(len);
+  for (let c = 0; c < ch; c++) { const d = buf.getChannelData(c); for (let i = 0; i < len; i++) mono[i] += d[i] / ch; }
+  const BINS = 64, WIN = 2048, rate = 30, hop = Math.max(1, Math.round(sr / rate));
+  const nF = Math.max(1, Math.floor((len - WIN) / hop) + 1);
+  const spec = new Float32Array(nF * BINS);
+  const hann = new Float64Array(WIN);
+  for (let i = 0; i < WIN; i++) hann[i] = 0.5 * (1 - Math.cos(2 * Math.PI * i / (WIN - 1)));
+  const re = new Float64Array(WIN), im = new Float64Array(WIN);
+  const fMin = 20, fMax = Math.min(16000, sr / 2), fRatio = fMax / fMin;
+  const loBin = new Int32Array(BINS), hiBin = new Int32Array(BINS);
+  for (let b = 0; b < BINS; b++) {
+    const fLo = fMin * Math.pow(fRatio, b / BINS), fHi = fMin * Math.pow(fRatio, (b + 1) / BINS);
+    loBin[b] = Math.max(1, Math.floor(fLo * WIN / sr));
+    hiBin[b] = Math.min(WIN / 2, Math.ceil(fHi * WIN / sr));
+  }
+  for (let f = 0; f < nF; f++) {
+    const off = f * hop;
+    for (let i = 0; i < WIN; i++) { re[i] = (off + i < len ? mono[off + i] : 0) * hann[i]; im[i] = 0; }
+    _vizFFT(re, im);
+    for (let b = 0; b < BINS; b++) {
+      let m = 0;
+      for (let k = loBin[b]; k <= hiBin[b]; k++) { const v = Math.hypot(re[k], im[k]); if (v > m) m = v; }
+      spec[f * BINS + b] = m;
+    }
+  }
+  // per-bin 95th percentile normalisation, then light one-pole smoothing over time.
+  // The per-bin divisor has a floor at 5% of the GLOBAL 95th percentile: without
+  // it a pure tone's window leakage would normalise every distant bin up to ~1
+  // and all 64 bars would light up the same. Quiet bands still get headroom,
+  // but a band with (nearly) no energy stays (nearly) dark.
+  const allSorted = Array.from(spec).sort((x, y) => x - y);
+  const gP95 = allSorted[Math.floor(allSorted.length * 0.95)] || 1;
+  const floor = 0.05 * gP95;
+  for (let b = 0; b < BINS; b++) {
+    const col = new Float32Array(nF);
+    for (let f = 0; f < nF; f++) col[f] = spec[f * BINS + b];
+    const sorted = Array.from(col).sort((x, y) => x - y);
+    const p95 = sorted[Math.floor(sorted.length * 0.95)] || 1;
+    const inv = 1 / Math.max(p95, floor, 1e-6);
+    let s = 0;
+    for (let f = 0; f < nF; f++) {
+      s += 0.5 * (Math.min(1, col[f] * inv) - s);
+      spec[f * BINS + b] = s;
+    }
+  }
+  const viz = { sr, rate, bins: BINS, frames: nF, spec, mono, monoSr: sr };
+  _vizCache.set(buf, viz);
+  audio._viz = viz;
+  return viz;
+};
+/* the spectrum + waveform slice at time t (freq is a view into the cached
+   frames — read-only; wave is a fresh 128-sample slice of mono around t) */
+J.vizFrame = (viz, t) => {
+  if (!viz) return null;
+  const fi = Math.min(viz.frames - 1, Math.max(0, Math.floor(t * viz.rate)));
+  const freq = viz.spec.subarray(fi * viz.bins, (fi + 1) * viz.bins);
+  const wave = new Float32Array(128);
+  const c = Math.min(viz.mono.length - 1, Math.max(0, Math.round(t * viz.monoSr)));
+  const span = Math.max(1, Math.round(viz.monoSr * 0.025));
+  for (let i = 0; i < 128; i++) {
+    const idx = Math.min(viz.mono.length - 1, Math.max(0, c - span + Math.floor(i * 2 * span / 127)));
+    wave[i] = viz.mono[idx];
+  }
+  return { freq, wave, fi };
+};
+
+/* ---- M6 v0.31.0: 10-band Master EQ (SonaWave audioEngine.ts, rewritten) ----
+   Chain: preamp (Gain) -> lowCut (highpass) -> 10 BiquadFilter bands ->
+   highCut (lowpass). Same chain for preview, fast export (via the AP tap)
+   and offline export (via resample in 11_export.js) — one builder for all
+   three, so what you hear is what the MP4 gets. Pure data (bands/presets/
+   normalize) is node-testable; buildEqChain / eqBandEnergies need Web Audio. */
+J.EQ_BANDS = [
+  { id: 'b32', freq: 32, type: 'lowshelf', label: '32Hz' },
+  { id: 'b64', freq: 64, type: 'peaking', label: '64Hz' },
+  { id: 'b125', freq: 125, type: 'peaking', label: '125Hz' },
+  { id: 'b250', freq: 250, type: 'peaking', label: '250Hz' },
+  { id: 'b500', freq: 500, type: 'peaking', label: '500Hz' },
+  { id: 'b1k', freq: 1000, type: 'peaking', label: '1kHz' },
+  { id: 'b2k', freq: 2000, type: 'peaking', label: '2kHz' },
+  { id: 'b4k', freq: 4000, type: 'peaking', label: '4kHz' },
+  { id: 'b8k', freq: 8000, type: 'peaking', label: '8kHz' },
+  { id: 'b16k', freq: 16000, type: 'highshelf', label: '16kHz' },
+];
+/* band gains in dB — exactly SonaWave's MASTER_EQ_PRESETS_DATA values */
+J.EQ_PRESETS = [
+  { id: 'flat', name: 'フラット', vi: 'Mặc Định Gốc (Flat)', en: 'Flat / Bypass', preamp: 0, lowCut: 0, highCut: 20000, bands: { b32: 0, b64: 0, b125: 0, b250: 0, b500: 0, b1k: 0, b2k: 0, b4k: 0, b8k: 0, b16k: 0 } },
+  { id: 'bass-boost', name: 'バスブースト', vi: 'Tăng Cường Bass', en: 'Bass Booster', preamp: -2, lowCut: 20, highCut: 20000, bands: { b32: 6.5, b64: 8.0, b125: 4.5, b250: 1.5, b500: 0, b1k: 0, b2k: 1.0, b4k: 2.0, b8k: 3.5, b16k: 2.0 } },
+  { id: 'sub-punch', name: 'サブパンチ', vi: 'Trống Sub Nặng', en: 'Sub-Punch', preamp: -2.5, lowCut: 20, highCut: 20000, bands: { b32: 8.5, b64: 9.0, b125: 3.5, b250: -1.0, b500: 0, b1k: 0.5, b2k: 1.5, b4k: 3.0, b8k: 2.5, b16k: 1.5 } },
+  { id: 'vocal-clarity', name: 'ボーカルクリア', vi: 'Sáng Giọng Ca', en: 'Vocal Clarity & Air', preamp: -1, lowCut: 40, highCut: 20000, bands: { b32: -3.0, b64: -2.0, b125: -1.5, b250: 1.0, b500: 2.0, b1k: 3.5, b2k: 5.5, b4k: 6.0, b8k: 4.5, b16k: 3.5 } },
+  { id: 'acoustic-warmth', name: 'アコースティック', vi: 'Ấm Áp Mộc', en: 'Acoustic Warmth', preamp: 0, lowCut: 0, highCut: 18000, bands: { b32: 1.0, b64: 2.5, b125: 4.0, b250: 3.5, b500: 1.5, b1k: 0, b2k: -1.0, b4k: -1.5, b8k: 1.5, b16k: 2.5 } },
+  { id: 'edm-club', name: 'EDMクラブ', vi: 'Đại Tiệc EDM', en: 'EDM Festival Punch', preamp: -3, lowCut: 20, highCut: 20000, bands: { b32: 7.0, b64: 8.5, b125: 4.0, b250: -2.0, b500: -2.5, b1k: 0, b2k: 2.5, b4k: 4.5, b8k: 6.5, b16k: 7.0 } },
+  { id: 'rock-metal', name: 'ロック／メタル', vi: 'Rock / Metal Mạnh Mẽ', en: 'Rock / Metal Drive', preamp: -2, lowCut: 30, highCut: 20000, bands: { b32: 4.5, b64: 6.0, b125: 3.5, b250: -1.5, b500: -3.0, b1k: -1.5, b2k: 2.5, b4k: 4.5, b8k: 5.5, b16k: 4.0 } },
+  { id: 'lofi-vintage', name: 'ローファイ', vi: 'Lofi Cổ Điển Băng Từ', en: 'Lofi Vintage Warmth', preamp: 0.5, lowCut: 30, highCut: 14000, bands: { b32: 3.0, b64: 4.5, b125: 3.5, b250: 2.5, b500: 1.0, b1k: -1.0, b2k: -2.5, b4k: -4.5, b8k: -7.0, b16k: -10.0 } },
+  { id: 'cinematic-air', name: 'シネマティック', vi: 'Điện Ảnh Không Gian', en: 'Cinematic Master', preamp: -1.5, lowCut: 0, highCut: 20000, bands: { b32: 6.0, b64: 5.0, b125: 2.0, b250: 0, b500: 1.0, b1k: 2.0, b2k: 2.5, b4k: 4.0, b8k: 6.0, b16k: 7.5 } },
+  { id: 'podcast-clean', name: 'ポッドキャスト', vi: 'Thu Âm / Giọng Nói Sạch', en: 'Podcast / Clean Speech', preamp: 0, lowCut: 80, highCut: 16000, bands: { b32: -12.0, b64: -8.0, b125: -3.0, b250: -2.0, b500: 1.0, b1k: 2.5, b2k: 4.0, b4k: 4.5, b8k: 2.0, b16k: 0 } },
+];
+J.eqPreset = (id) => J.EQ_PRESETS.find(p => p.id === id) || J.EQ_PRESETS[0];
+J.eqDefault = () => ({ bypass: false, preset: 'flat', preamp: 0, lowCut: 0, highCut: 20000, bands: { b32: 0, b64: 0, b125: 0, b250: 0, b500: 0, b1k: 0, b2k: 0, b4k: 0, b8k: 0, b16k: 0 } });
+/* a full EQ state with a preset's values loaded (a fresh object — the preset table is never mutated) */
+J.eqApplyPreset = (id) => {
+  const p = J.eqPreset(id), bands = {};
+  for (const b of J.EQ_BANDS) bands[b.id] = p.bands[b.id] || 0;
+  return { bypass: false, preset: p.id, preamp: p.preamp, lowCut: p.lowCut, highCut: p.highCut, bands };
+};
+/* project files are untrusted: clamp everything, unknown preset -> flat (or 'custom' when the bands are non-flat) */
+J.eqNormalize = (eq) => {
+  const d = J.eqDefault(), src = (eq && typeof eq === 'object') ? eq : {};
+  const out = {
+    bypass: !!src.bypass,
+    preset: typeof src.preset === 'string' ? src.preset : 'flat',
+    preamp: isFinite(+src.preamp) ? Math.max(-6, Math.min(6, +src.preamp)) : 0,
+    lowCut: isFinite(+src.lowCut) ? Math.max(0, Math.min(500, +src.lowCut)) : 0,
+    highCut: isFinite(+src.highCut) ? Math.max(8000, Math.min(20000, +src.highCut)) : 20000,
+    bands: {},
+  };
+  const sb = (src.bands && typeof src.bands === 'object') ? src.bands : {};
+  for (const b of J.EQ_BANDS) out.bands[b.id] = isFinite(+sb[b.id]) ? Math.max(-12, Math.min(12, +sb[b.id])) : 0;
+  const known = J.EQ_PRESETS.some(p => p.id === out.preset);
+  if (!known) {
+    const flat = J.EQ_BANDS.every(b => out.bands[b.id] === 0) && out.preamp === 0 && out.lowCut === 0 && out.highCut === 20000;
+    out.preset = flat ? 'flat' : 'custom';
+  }
+  return out;
+};
+/* build the chain on any BaseAudioContext (live or offline). Returns
+   { input, output, set(eq) } — set() retunes live with setTargetAtTime. */
+J.buildEqChain = (ctx, eq) => {
+  const e = J.eqNormalize(eq);
+  const preamp = ctx.createGain();
+  const lowCut = ctx.createBiquadFilter(); lowCut.type = 'highpass'; lowCut.Q.value = 0.707;
+  const highCut = ctx.createBiquadFilter(); highCut.type = 'lowpass'; highCut.Q.value = 0.707;
+  const bands = {};
+  let prev = preamp;
+  prev.connect(lowCut); prev = lowCut;
+  for (const b of J.EQ_BANDS) {
+    const f = ctx.createBiquadFilter();
+    f.type = b.type; f.frequency.value = b.freq; f.Q.value = 1.4; f.gain.value = 0;
+    bands[b.id] = f; prev.connect(f); prev = f;
+  }
+  prev.connect(highCut);
+  const setParam = (param, value, tc) => {
+    try {
+      const now = ctx.currentTime || 0;
+      if (typeof param.setTargetAtTime === 'function') param.setTargetAtTime(value, now, tc == null ? 0.05 : tc);
+      else param.value = value;
+    } catch (err) { try { param.value = value; } catch (e2) {} }
+  };
+  const chain = {
+    input: preamp, output: highCut, preamp, lowCut, highCut, bands,
+    set(eq2) {
+      const n = J.eqNormalize(eq2);
+      setParam(preamp.gain, Math.pow(10, n.preamp / 20));
+      setParam(lowCut.frequency, n.lowCut > 0 ? n.lowCut : 10);
+      setParam(highCut.frequency, n.highCut < 20000 ? n.highCut : 22050);
+      for (const b of J.EQ_BANDS) setParam(bands[b.id].gain, n.bands[b.id]);
+    },
+  };
+  chain.set(e);
+  return chain;
+};
+/* Relative band energies (each band's share of total power, 0..1) of a buffer
+   rendered through the EQ — the QA probe: bass-boost must raise the low
+   bands' share, lofi must cut the high bands' share, bypass must match off.
+   Null when there is no OfflineAudioContext (node). */
+J.eqBandEnergies = async (buffer, eq) => {
+  if (typeof OfflineAudioContext === 'undefined' || !buffer) return null;
+  const sr = buffer.sampleRate, chn = Math.min(2, buffer.numberOfChannels);
+  const oc = new OfflineAudioContext(chn, buffer.length, sr);
+  const src = oc.createBufferSource(); src.buffer = buffer;
+  const e = J.eqNormalize(eq);
+  if (!e.bypass) { const chain = J.buildEqChain(oc, e); src.connect(chain.input); chain.output.connect(oc.destination); }
+  else src.connect(oc.destination);
+  src.start(0);
+  const rendered = await oc.startRendering();
+  const mono = new Float32Array(rendered.length);
+  for (let c = 0; c < chn; c++) { const d = rendered.getChannelData(c); for (let i = 0; i < rendered.length; i++) mono[i] += d[i] / chn; }
+  // 2048-point FFT windows spread over the buffer; power per bin, summed into bands
+  const WIN = 2048, nWin = Math.max(1, Math.min(16, Math.floor(mono.length / WIN)));
+  const power = new Float64Array(WIN / 2 + 1);
+  const re = new Float64Array(WIN), im = new Float64Array(WIN);
+  for (let w = 0; w < nWin; w++) {
+    const off = Math.floor(w * (mono.length - WIN) / Math.max(1, nWin - 1));
+    for (let i = 0; i < WIN; i++) { re[i] = mono[off + i] * (0.5 * (1 - Math.cos(2 * Math.PI * i / (WIN - 1)))); im[i] = 0; }
+    _vizFFT(re, im);
+    for (let k = 0; k <= WIN / 2; k++) power[k] += re[k] * re[k] + im[k] * im[k];
+  }
+  const bandPower = (fLo, fHi) => {
+    const kLo = Math.max(1, Math.floor(fLo * WIN / sr)), kHi = Math.min(WIN / 2, Math.ceil(fHi * WIN / sr));
+    let s = 0; for (let k = kLo; k <= kHi; k++) s += power[k];
+    return s;
+  };
+  const bands = {};
+  let total = 0;
+  for (let i = 0; i < J.EQ_BANDS.length; i++) {
+    const b = J.EQ_BANDS[i];
+    const fLo = i === 0 ? 20 : b.freq / Math.SQRT2, fHi = i === J.EQ_BANDS.length - 1 ? 20000 : b.freq * Math.SQRT2;
+    bands[b.id] = bandPower(fLo, fHi); total += bands[b.id];
+  }
+  // the half-octave windows overlap slightly, so normalise by the sum, not the raw total
+  const out = {};
+  for (const b of J.EQ_BANDS) out[b.id] = total > 0 ? +(bands[b.id] / total).toFixed(4) : 0;
+  return out;
 };
 })();

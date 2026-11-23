@@ -1,4 +1,4 @@
-/* AURA pack: gl-transitions — real GLSL cut-to-cut transitions, vendored verbatim from
+/* LyricWave pack: gl-transitions — real GLSL cut-to-cut transitions, vendored verbatim from
    gl-transitions@3.0.0 (MIT, https://gl-transitions.com). The shaders are plain GLSL text;
    they run on the WebGL host in src/13_gltrans.js. No library, no CDN, no importmap,
    so the app stays fully offline. See THIRD_PARTY_NOTICES.md for the credit. */
@@ -303,6 +303,110 @@ vec4 transition(vec2 uv) {
   // The flash lights up the image, not the transparent areas around it.
   return vec4(c.rgb + (progress < 0.5 ? mix(0.0, 1.0, phase) : mix(1.0, 0.0, phase)), c.a);
 }`,
+  glSwirl: `// License: MIT
+// Author: Sergey Kosarevsky
+// Description: Both images swirl around the center while crossfading
+// Tags: swirl, rotate, blend
+// ( http://www.linderdaum.com )
+// ported by gre from https://gist.github.com/corporateshark/cacfedb8cca0f5ce3f7c
+
+vec4 transition(vec2 UV)
+{
+	float Radius = 1.0;
+
+	float T = progress;
+
+	UV -= vec2( 0.5, 0.5 );
+
+	float Dist = length(UV);
+
+	if ( Dist < Radius )
+	{
+		float Percent = (Radius - Dist) / Radius;
+		float A = ( T <= 0.5 ) ? mix( 0.0, 1.0, T/0.5 ) : mix( 1.0, 0.0, (T-0.5)/0.5 );
+		float Theta = Percent * Percent * A * 8.0 * 3.14159;
+		float S = sin( Theta );
+		float C = cos( Theta );
+		UV = vec2( dot(UV, vec2(C, -S)), dot(UV, vec2(S, C)) );
+	}
+	UV += vec2( 0.5, 0.5 );
+
+	vec4 C0 = getFromColor(UV);
+	vec4 C1 = getToColor(UV);
+
+	return mix( C0, C1, T );
+}`,
+  glKaleido: `// Author: nwoeanhinnogaehr
+// License: MIT
+// Description: A crossfade through a spinning kaleidoscope
+// Tags: kaleidoscope, distort, blend
+
+uniform float speed; // = 1.0
+uniform float angle; // = 1.0
+uniform float power; // = 1.5
+
+vec4 transition(vec2 uv) {
+  vec2 p = uv.xy / vec2(1.0).xy;
+  vec2 q = p;
+  float t = pow(progress, power)*speed;
+  p = p -0.5;
+  for (int i = 0; i < 7; i++) {
+    p = vec2(sin(t)*p.x + cos(t)*p.y, sin(t)*p.y - cos(t)*p.x);
+    t += angle;
+    p = abs(mod(p, 2.0) - 1.0);
+  }
+  abs(mod(p, 1.0));
+  return mix(
+    mix(getFromColor(q), getToColor(q), progress),
+    mix(getFromColor(p), getToColor(p), progress), 1.0 - 2.0*abs(progress - 0.5));
+}`,
+  glPinwheel: `// Author: Mr Speaker
+// License: MIT
+// Description: A spinning pinwheel reveals the incoming image
+// Tags: pinwheel, radial, rotate
+
+// @param Rotation speed
+uniform float speed; // = 2.0
+
+vec4 transition(vec2 uv) {
+  
+  vec2 p = uv.xy / vec2(1.0).xy;
+  
+  float circPos = atan(p.y - 0.5, p.x - 0.5) + progress * speed;
+  float modPos = mod(circPos, 3.1415 / 4.);
+  float signed = sign(progress - modPos);
+  
+  return mix(getToColor(p), getFromColor(p), step(signed, 0.5));
+  
+}`,
+  glTvStatic: `// Author: Brandon Anzaldi
+// License: MIT
+// Description: Cuts to full-screen TV static, then to the incoming image
+// Tags: static, noise, retro
+// @param Part of the transition, at each end, that shows the images instead of static
+uniform float offset; // = 0.05
+
+// Pseudo-random noise function
+// http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
+highp float noise(vec2 co)
+{
+    highp float a = 12.9898;
+    highp float b = 78.233;
+    highp float c = 43758.5453;
+    highp float dt= dot(co.xy * progress, vec2(a, b));
+    highp float sn= mod(dt,3.14);
+    return fract(sin(sn) * c);
+}
+
+vec4 transition(vec2 p) {
+  if (progress < offset) {
+    return getFromColor(p);
+  } else if (progress > (1.0 - offset)) {
+    return getToColor(p);
+  } else {
+    return vec4(vec3(noise(p)), max(getFromColor(p).a, getToColor(p).a)); // static where the images are
+  }
+}`,
 };
 
 /* catalog defaults (gl-transitions.json defaultParams) — a uniform is never left at 0 */
@@ -315,6 +419,10 @@ const DEFAULTS = {
   glGlitch: {},
   glZoom: { strength: 0.4 },
   glDream: { rotation: 6, scale: 1.2 },
+  glSwirl: {},
+  glKaleido: { speed: 1, angle: 1, power: 1.5 },
+  glPinwheel: { speed: 2 },
+  glTvStatic: { offset: 0.05 },
 };
 
 /* same p<=0 / p>=1 edge handling as trReg in 11p_treattrans.js: p=0 draws A exactly, p=1 draws B exactly */
@@ -363,4 +471,16 @@ glReg('glZoom', { name: 'クロスズーム', tags: ['graphic', 'pop', 'kinetic'
 glReg('glDream', { name: 'ドリーミーズーム', tags: ['graphic', 'pop', 'emotional'], w: 0.8, dur: 0.45,
   plan: () => ({ rotation: 6, scale: 1.2 }),
   draw: glDraw('glDream') });
+glReg('glSwirl', { name: 'スワール', tags: ['graphic', 'pop', 'kinetic'], w: 0.9, dur: 0.4,
+  plan: () => ({}),
+  draw: glDraw('glSwirl') });
+glReg('glKaleido', { name: 'カレイドスコープ', tags: ['graphic', 'pop', 'emotional'], w: 0.8, dur: 0.4,
+  plan: () => ({ speed: 1, angle: 1, power: 1.5 }),
+  draw: glDraw('glKaleido') });
+glReg('glPinwheel', { name: 'ピンホイール', tags: ['graphic', 'pop', 'kinetic'], w: 0.9, dur: 0.4,
+  plan: () => ({ speed: 2 }),
+  draw: glDraw('glPinwheel') });
+glReg('glTvStatic', { name: 'TVノイズ', tags: ['glitch', 'pop', 'graphic'], w: 0.6, dur: 0.35,
+  plan: () => ({ offset: 0.05 }),
+  draw: glDraw('glTvStatic') });
 })();

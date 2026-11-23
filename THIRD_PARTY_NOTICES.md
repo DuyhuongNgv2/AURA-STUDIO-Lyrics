@@ -1,5 +1,14 @@
 # Third-party notices
 
+## SonaWave (design credit — no code vendored)
+
+LyricWave Studio's 2D visualizers (M2), 3D visualizer scenes (M3), particles /
+LUT / film light (M5), Lottie stickers / EQ (M6) and lyric tools (M7) were
+rewritten in plain AURA-style JavaScript from the *design* of
+HAY Studio73's SonaWave (`HAYStudio73_SonaWave`, MIT). No TypeScript/React
+code was carried over. Source: https://github.com/haystudio73/HAYStudio73_SonaWave
+— licensed under the MIT License.
+
 ## three.js r170 (bundled)
 
 `vendor/three.module.min.js` and `vendor/three-addons/FontLoader.js` / `TextGeometry.js`
@@ -50,7 +59,7 @@ included in this repository. They are distributed by their authors under the SIL
 Noto Sans JP, Noto Serif JP, Dela Gothic One, Zen Kaku Gothic New, Zen Old Mincho, Kaisei Tokumin,
 M PLUS Rounded 1c, Mochiy Pop One, DotGothic16, Yuji Syuku, IBM Plex Mono, IBM Plex Sans JP.
 
-## Bundled Vietnamese-capable fonts (AURA)
+## Bundled Vietnamese-capable fonts (LyricWave)
 
 Be Vietnam Pro, Montserrat, Lexend, Noto Sans, Noto Serif, and Oswald are bundled unmodified from google/fonts under SIL OFL 1.1. Each family retains its OFL.txt in fonts/. See fonts/manifest.json for the pinned upstream commit, source URL, file hash, and exact weights. build.py embeds these files in the standalone pages. Original CJK font families may still load online when explicitly selected or used by other lyric languages. Font family names are proper names and are not translated.
 
@@ -60,7 +69,7 @@ Be Vietnam Pro, Montserrat, Lexend, Noto Sans, Noto Serif, and Oswald are bundle
 
 ## gl-transitions 3.0.0 (shaders vendored)
 
-Eight transition shaders from gl-transitions are vendored verbatim in `src/11p_gltrans.js`
+Twelve transition shaders from gl-transitions are vendored verbatim in `src/11p_gltrans.js`
 and run on a small WebGL host written for this app (`src/13_gltrans.js`); no library or
 network request is involved.
 
@@ -72,6 +81,10 @@ network request is involved.
 - GlitchMemories — Author: Gunnar Roth
 - CrossZoom — Author: rectalogic
 - DreamyZoom — Author: Zeh Fernando
+- Swirl — Author: Sergey Kosarevsky
+- Kaleidoscope — Author: nwoeanhinnogaehr
+- Pinwheel — Author: Mr Speaker
+- TvStatic — Author: Brandon Anzaldi
 
 Source: https://github.com/gl-transitions/gl-transitions — licensed under the MIT License:
 
@@ -102,3 +115,35 @@ Note: Individual transitions in the transitions/ directory may have their own
 license specified in their file header comments. When no license is specified,
 the transition is covered by this MIT license.
 ```
+
+## lottie-web 5.13.0 (bundled, canvas renderer only)
+
+`vendor/lottie-web/lottie_canvas.min.js` is embedded in `index.html` and
+renders the Lottie sticker animations (M6 v0.31.0).
+Source: https://github.com/airbnb/lottie-web — licensed under the MIT License
+(see `vendor/lottie-web/LICENSE.md`):
+
+```
+The MIT License (MIT)
+
+Copyright (c) 2015 Bodymovin
+```
+
+## Embedded Lottie sticker data (HAY Studio73 / SonaWave)
+
+The 8 sticker animations embedded in `src/14_lottie.js` (`J.LOTTIE_DATA`)
+are hand-authored Bodymovin shape data from HAY Studio73's SonaWave
+(`src/data/embeddedLottieData.ts`), transplanted as plain JSON:
+vinyl record, equalizer wave, neon heart, dancing notes, cyber lightning,
+bass speaker, sparkling stars, fire flame. SonaWave is MIT-licensed;
+credit to HAY Studio73 for the sticker designs.
+
+## Master EQ (SonaWave design, rewritten)
+
+The 10-band EQ band frequencies, filter types (lowshelf / peaking /
+highshelf, Q 1.4), cut filters and the 10 preset gain values in
+`src/10_audio.js` (`J.EQ_BANDS`, `J.EQ_PRESETS`) follow HAY Studio73's
+SonaWave `src/utils/presets.ts` (`MASTER_EQ_BANDS_META`,
+`MASTER_EQ_PRESETS_DATA`) and `src/utils/audioEngine.ts`; the code is a
+fresh plain-JS implementation for LyricWave, not a copy. SonaWave is
+MIT-licensed.

@@ -1,5 +1,5 @@
 /* ============================================================
-   AURA — subtitle import: SRT / WebVTT / SSA-ASS → standard LRC
+   LyricWave — subtitle import: SRT / WebVTT / SSA-ASS → standard LRC
    At import time each cue becomes one LRC line ([mm:ss.xx]text);
    per-word times (\k in ASS, timestamp tags in VTT) become inline
    <mm:ss.xx> tags, so they flow through the Enhanced LRC path that

@@ -83,11 +83,18 @@ J.pickAudioCodec = async (sr, chn) => {
   return null;
 };
 
-async function resample(buffer, sr, duration, offset = 0) {
+async function resample(buffer, sr, duration, offset = 0, eq = null) {
   const chn = Math.min(2, buffer.numberOfChannels);
   const len = Math.ceil(duration * sr);
   const oc = new OfflineAudioContext(chn, len, sr);
-  const src = oc.createBufferSource(); src.buffer = buffer; src.connect(oc.destination); src.start(0, Math.max(0, offset));
+  const src = oc.createBufferSource(); src.buffer = buffer;
+  // M6 v0.31.0: the offline soundtrack goes through the same EQ chain as the
+  // preview (bypassed = no chain at all, exactly like the live player)
+  if (eq && J.buildEqChain && !J.eqNormalize(eq).bypass) {
+    const chain = J.buildEqChain(oc, eq);
+    src.connect(chain.input); chain.output.connect(oc.destination);
+  } else src.connect(oc.destination);
+  src.start(0, Math.max(0, offset));
   return oc.startRendering();
 }
 /* part of the song to export: range = { t0, t1 } in seconds (選んだ行だけ), default the whole plan */
@@ -161,11 +168,18 @@ J.exportMP4 = async (o) => {
   const err = new Error('MP4 を書き出せませんでした。' + (file ? '' : '「大きな動画用（ファイルに直接保存）」か、') + '解像度・fps・画質を下げて試してください。詳細：' + tried.join(' ／ '));
   err.detail = tried; throw err;
 };
-async function encodeMP4({ plan, project, audio, onProgress, signal, range, file, w, h, vc, note }) {
-  const span = J.exportSpan(plan, range);
+async function encodeMP4({ plan, project, audio, onProgress, signal, range, file, w, h, vc, note, segments }) {
+  /* M4 v0.29.0: `segments` (optional) exports a whole playlist into ONE mp4.
+     Each segment is { plan, project, audio } for one song; video frames carry
+     one global timestamp, audio chunks are offset by the songs before them.
+     Without segments this is exactly the old single-song path (range honoured). */
+  const segs = segments && segments.length ? segments : [{ plan, project, audio }];
+  const spans = segs.map(s => segments ? J.exportSpan(s.plan, null) : J.exportSpan(s.plan, range));
+  const totalDur = spans.reduce((a, s) => a + s.dur, 0);
   const fps = plan.fps;
   let ac = null;
-  if (audio && audio.buffer && project.includeAudio !== false) ac = await J.pickAudioCodec(48000, Math.min(2, audio.buffer.numberOfChannels));
+  const firstAud = segs.find(s => s.audio && s.audio.buffer && s.project.includeAudio !== false);
+  if (firstAud) ac = await J.pickAudioCodec(48000, Math.min(2, firstAud.audio.buffer.numberOfChannels));
   const store = file ? null : new BlockStore();
   const target = file ? new Mp4Muxer.FileSystemWritableFileStreamTarget(file, { chunkSize: 8 * 1048576 })
     : new Mp4Muxer.StreamTarget({ onData: (data, pos) => store.write(data, pos), chunked: true, chunkSize: 8 * 1048576 });
@@ -178,24 +192,30 @@ async function encodeMP4({ plan, project, audio, onProgress, signal, range, file
   const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
   const ctx = canvas.getContext('2d', { alpha: false });
   const R = new J.Renderer();
-  const total = Math.max(1, Math.round(span.dur * fps));
+  const total = Math.max(1, Math.round(totalDur * fps));
   const scale = w / plan.W;
   const prevRes = J.glyphs.maxRes; J.glyphs.maxRes = h >= 1000 ? 768 : 512;
   const closeEnc = () => { try { if (venc.state !== 'closed') venc.close(); } catch (e) {} };
   try {
-    for (let i = 0; i < total; i++) {
-      if (signal && signal.aborted) { closeEnc(); throw new Error('キャンセルしました'); }
-      if (err) throw err;
-      if (venc.state === 'closed') throw new Error('エンコーダーが停止しました');
-      R.frame(ctx, plan, span.t0 + i / fps, { scale });
-      const vf = new VideoFrame(canvas, { timestamp: Math.round(i * 1e6 / fps), duration: Math.round(1e6 / fps) });
-      try { venc.encode(vf, { keyFrame: i % (fps * 2) === 0 }); } finally { vf.close(); }
-      let spins = 0;
-      // (time in the background doesn't count: a phone pauses the encoder while the page is hidden)
-      while (venc.encodeQueueSize > 4 && !err) { await new Promise(r => setTimeout(r, 2)); if (!document.hidden && ++spins > 15000) throw new Error('エンコーダーが応答しません'); }
-      // an encoder that accepts frames but never returns any has failed silently (seen with some GPU drivers)
-      if (i === Math.min(total - 1, fps * 3) && outFrames === 0) { await venc.flush(); if (!outFrames) throw new Error('エンコーダーが出力を返しません'); }
-      if (i % 3 === 0) { onProgress && onProgress(i / total, `フレーム ${i + 1}/${total}${note || ''}`); await new Promise(r => setTimeout(r, 0)); }
+    let gi = 0;   // global frame index across all segments (the MP4 timestamp clock)
+    for (let si = 0; si < segs.length; si++) {
+      const seg = segs[si], sp = spans[si];
+      const nF = Math.max(1, Math.round(sp.dur * fps));
+      for (let i = 0; i < nF; i++) {
+        if (signal && signal.aborted) { closeEnc(); throw new Error('キャンセルしました'); }
+        if (err) throw err;
+        if (venc.state === 'closed') throw new Error('エンコーダーが停止しました');
+        R.frame(ctx, seg.plan, sp.t0 + i / fps, { scale });
+        const vf = new VideoFrame(canvas, { timestamp: Math.round(gi * 1e6 / fps), duration: Math.round(1e6 / fps) });
+        try { venc.encode(vf, { keyFrame: gi % (fps * 2) === 0 }); } finally { vf.close(); }
+        gi++;
+        let spins = 0;
+        // (time in the background doesn't count: a phone pauses the encoder while the page is hidden)
+        while (venc.encodeQueueSize > 4 && !err) { await new Promise(r => setTimeout(r, 2)); if (!document.hidden && ++spins > 15000) throw new Error('エンコーダーが応答しません'); }
+        // an encoder that accepts frames but never returns any has failed silently (seen with some GPU drivers)
+        if (gi === Math.min(total - 1, fps * 3) && outFrames === 0) { await venc.flush(); if (!outFrames) throw new Error('エンコーダーが出力を返しません'); }
+        if (gi % 3 === 0) { onProgress && onProgress(gi / total, `フレーム ${gi}/${total}${note || ''}`); await new Promise(r => setTimeout(r, 0)); }
+      }
     }
     await venc.flush();
     if (err) throw err;
@@ -205,33 +225,40 @@ async function encodeMP4({ plan, project, audio, onProgress, signal, range, file
   if (outFrames < total * 0.98) throw new Error(`動画のフレームが足りません（${outFrames}/${total}）`);
   if (ac) {
     onProgress && onProgress(0.99, '音声をエンコード中');
-    const rs = await resample(audio.buffer, ac.sr, span.dur, span.t0);
-    const chn = rs.numberOfChannels;
-    let aChunks = 0, aEnd = 0, aErr = null;
+    let audioOff = 0, aChunks = 0, aEnd = 0, aErr = null, expectedAudio = 0;
+    const chn = Math.min(2, firstAud.audio.buffer.numberOfChannels);
     const aenc = new AudioEncoder({ output: (chunk, meta) => { aChunks++; aEnd = Math.max(aEnd, chunk.timestamp + (chunk.duration || 0)); muxer.addAudioChunk(chunk, meta); }, error: e => { aErr = e; } });
     aenc.configure({ codec: ac.codec, sampleRate: ac.sr, numberOfChannels: chn, bitrate: 192000 });
-    const frames = rs.length, block = 4800;
-    for (let off = 0; off < frames; off += block) {
+    for (let si = 0; si < segs.length; si++) {
+      const seg = segs[si], sp = spans[si];
+      if (!seg.audio || !seg.audio.buffer || seg.project.includeAudio === false) { audioOff += sp.dur; continue; }   // silent gap: keep later songs in sync
+      const rs = await resample(seg.audio.buffer, ac.sr, sp.dur, sp.t0, seg.project.eq);
+      expectedAudio += Math.min(sp.dur, Math.max(0, seg.audio.buffer.duration - sp.t0));
+      const frames = rs.length, block = 4800;
+      for (let off = 0; off < frames; off += block) {
+        if (aErr) break;
+        const n = Math.min(block, frames - off);
+        const data = new Float32Array(n * chn);
+        for (let c = 0; c < chn; c++) data.set(rs.getChannelData(c).subarray(off, off + n), c * n);
+        const ad = new AudioData({ format: 'f32-planar', sampleRate: ac.sr, numberOfFrames: n, numberOfChannels: chn, timestamp: Math.round((audioOff + off / ac.sr) * 1e6), data });
+        aenc.encode(ad); ad.close();
+        if (aenc.encodeQueueSize > 16) await new Promise(r => setTimeout(r, 1));
+      }
+      audioOff += sp.dur;
       if (aErr) break;
-      const n = Math.min(block, frames - off);
-      const data = new Float32Array(n * chn);
-      for (let c = 0; c < chn; c++) data.set(rs.getChannelData(c).subarray(off, off + n), c * n);
-      const ad = new AudioData({ format: 'f32-planar', sampleRate: ac.sr, numberOfFrames: n, numberOfChannels: chn, timestamp: Math.round(off * 1e6 / ac.sr), data });
-      aenc.encode(ad); ad.close();
-      if (aenc.encodeQueueSize > 16) await new Promise(r => setTimeout(r, 1));
     }
     await aenc.flush(); aenc.close();
     const fatal = m => { const e = new Error(m); e.jzFatal = true; return e; };    // audio problems: another video encoder won't help
     if (aErr) throw fatal('音声のエンコードに失敗しました: ' + (aErr.message || aErr));
     // the encoder must have produced the whole soundtrack — otherwise report it instead of writing a silent file
-    if (!aChunks || aEnd < (Math.min(span.dur, audio.buffer.duration - span.t0) - 0.5) * 1e6) throw fatal('音声のエンコードが途中で止まりました（' + aChunks + '）。もう一度書き出してください');
+    if (!aChunks || aEnd < (expectedAudio - 0.5) * 1e6) throw fatal('音声のエンコードが途中で止まりました（' + aChunks + '）。もう一度書き出してください');
   }
   onProgress && onProgress(0.995, 'ファイルを仕上げ中');
   muxer.finalize();
   if (file) await file.close();
   onProgress && onProgress(1, '完了');
   const size = file ? null : store.end;
-  return { blob: file ? null : store.blob('video/mp4'), size, codec: vc.label + (vc.hw === 'prefer-software' ? '（ソフトウェア）' : ''), audio: ac ? ac.mux : null, audioWanted: !!(audio && audio.buffer && project.includeAudio !== false), width: w, height: h, toFile: !!file };
+  return { blob: file ? null : store.blob('video/mp4'), size, codec: vc.label + (vc.hw === 'prefer-software' ? '（ソフトウェア）' : ''), audio: ac ? ac.mux : null, audioWanted: segs.some(s => !!(s.audio && s.audio.buffer && s.project.includeAudio !== false)), width: w, height: h, toFile: !!file, segments: segs.length, duration: totalDur };
 }
 
 /* ---------- PNG sequence as ZIP (store, no compression) ---------- */
@@ -282,7 +309,7 @@ J.exportPNGZip = async ({ plan, project, transparent, layers, onProgress, signal
   const scale = w / plan.W;
   for (let i = 0; i < total; i += every) {
     if (signal && signal.aborted) throw new Error('キャンセルしました');
-    const name = `aura_${String(i).padStart(5, '0')}.png`;
+    const name = `lyricwave_${String(i).padStart(5, '0')}.png`;
     for (const layer of layers ? ['back', 'front'] : [null]) {
       R.frame(ctx, plan, span.t0 + i / fps, { scale, transparent: transparent || !!layers, layer });
       const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
@@ -305,7 +332,7 @@ J.AE_MAP = {
   hold: { float: 'drift', sway: 'wave', pulse: 'breathe', shimmer: 'still', colorRun: 'still', rotateSlow: 'drift', trackBreathe: 'breathe', skewWobble: 'wave', beatHop: 'wave', hWave: 'wave', heartbeat: 'breathe', orbitSmall: 'jitter', jelly: 'breathe', scanBand: 'glitchtick', noiseDrift: 'drift', tilt: 'drift', zoomSlow: 'drift', stretchPulse: 'breathe', glitchJump: 'glitchtick', echoTrail: 'drift' },
   decor: { crosshair: 'brackets', cropMarks: 'brackets', reticle: 'rings', radar: 'rings', progressRing: 'rings', timecodeBar: 'barcode', rulerEdge: 'grid', dimension: 'leaders', indexNum: 'counter', dateStamp: 'barcode', qrBlock: 'barcode', glitchRects: 'bars', concentricSquares: 'shapes', triangleSpin: 'shapes', lineBurst: 'sparks', plusGrid: 'grid', guides: 'grid', waveLine: 'waveform', spiralLine: 'rings', halftonePatch: 'shapes', checkerStrip: 'stripes', beatRing: 'rings', orbitDots: 'dots', constellation: 'sparks', confetti: 'shapes', petals: 'shapes', rainStreaks: 'slash', snow: 'dots', lightLeak: 'blobs', bokeh: 'blobs', speedCorner: 'slash', risingParticles: 'sparks', twinkle: 'sparks', brushStroke: 'bars', tapePieces: 'bars', scribbleCircle: 'rings', scribbleUnder: 'slash', crossOut: 'slash', highlightMark: 'bars', heartsStars: 'shapes', watermarkKanji: 'counter', verticalStrip: 'leaders', romajiLine: 'leaders', bracketsJP: 'brackets', seal: 'shapes' },
   fx: { rgbSplit: 'chroma', smear: 'slice', vhsRoll: 'slice', trackingNoise: 'slice', waveWarp: 'slice', pixelDrift: 'slice', tileShift: 'block', gridRepeat: 'block', mirrorFlash: 'block', strobe: 'invert', blackFrame: 'invert', whiteFrame: 'flash', filmBurn: 'flash', lightSweep: 'flash', panelWipe: 'flash', zoomPunch: 'zoom', whipBlur: 'zoom', posterize: 'mosaic', hueShift: 'chroma', irisTrans: 'zoom', doors: 'slice', blindsTrans: 'slice', splitSlide: 'slice', crtOff: 'flash' },
-  trans: { glBurn: 'inkBlob', glDissolve: 'inkBlob', glWater: 'wipe', glWarp: 'zoomThrough', glMorph: 'inkBlob', glGlitch: 'pixelate', glZoom: 'zoomThrough', glDream: 'flashCross' },
+  trans: { glBurn: 'inkBlob', glDissolve: 'inkBlob', glWater: 'wipe', glWarp: 'zoomThrough', glMorph: 'inkBlob', glGlitch: 'pixelate', glZoom: 'zoomThrough', glDream: 'flashCross', glSwirl: 'spinOut', glKaleido: 'checker', glPinwheel: 'clockWipe', glTvStatic: 'pixelate' },
 };
 // The plan goes to the After Effects panel as-is (version 2): the panel builds every key it implements and
 // picks the closest counterpart itself (from the exported metadata / J.AE_MAP) for anything it lacks.

@@ -125,7 +125,9 @@
       indexTabs: 'Index tabs', moonPhases: 'Moon phases',
       dandelion: 'Dandelion seeds', tally: 'Tally marks',
       windowChrome: 'Window frame', notifBell: 'Notification bell',
-      likeCounter: 'Like counter', mediaControls: 'Playback controls'
+      likeCounter: 'Like counter', mediaControls: 'Playback controls',
+      ptRain: 'Rain', ptSnow: 'Snowfall', ptDust: 'Lofi dust', ptStars: 'Twinkling stars',
+      ptEmbers: 'Fire embers', ptBubbles: 'Rainbow bubbles', ptSpeed: 'Speed lines', ptWarp: 'Hyperspace warp'
     },
     treat: {
       none: 'None', outline: 'Hollow letters', outlineFill: 'Outlined text',
@@ -160,7 +162,11 @@
       splitDiag: 'Diagonal color split', tvBars: 'TV color bars',
       speedLines: 'Speed lines', bokehBg: 'Bokeh',
       particlesBg: 'Floating particles', eqBars: 'Equalizer bars',
-      letterbox: 'Cinema letterbox', noiseField: 'Moving noise'
+      letterbox: 'Cinema letterbox', noiseField: 'Moving noise',
+      vizBarsMirror: 'Mirrored bars with peaks', vizFlame: 'Flame spectrum',
+      vizMatrix: 'Cyber matrix', vizLaser: 'Laser beams',
+      vizStarburst: 'Starburst core', vizDna: 'DNA helix',
+      viz3dSolar: 'Solar system 3D', viz3dCubes: 'Cube matrix 3D'
     },
     cam: {
       push: 'Slow push in', rackFocus: 'Rack focus',
@@ -185,7 +191,10 @@
       defocus: 'Out of focus', rgbSplit: 'RGB separation',
       vhsRoll: 'VHS roll', trackingNoise: 'Tracking noise',
       posterize: 'Posterization', filmBurn: 'Film burn',
-      crtOff: 'CRT powers off'
+      crtOff: 'CRT powers off',
+      filmVintage: 'Vintage 35mm burn', filmAnamorphic: 'Anamorphic cinema flare',
+      filmPrism: 'Prism rainbow beam', filmGolden: 'Golden hour sunbeams',
+      filmNeon: 'Cyberpunk neon leak', filmLens: 'Optical ring flare'
     },
     trans: {
       wipe: 'Edge wipe', diagonalWipe: 'Diagonal band wipe',
@@ -196,7 +205,8 @@
       cubeTurn: 'Cube turn', flashCross: 'Flash cut', pixelate: 'Pixel transition',
       glBurn: 'Burn through', glDissolve: 'Noise dissolve', glWater: 'Water drop',
       glWarp: 'Cross warp', glMorph: 'Morph', glGlitch: 'Glitch memories',
-      glZoom: 'Cross zoom', glDream: 'Dreamy zoom'
+      glZoom: 'Cross zoom', glDream: 'Dreamy zoom',
+      glSwirl: 'Swirl', glKaleido: 'Kaleidoscope', glPinwheel: 'Pinwheel', glTvStatic: 'TV static'
     }
   };
   const acronym = { rgb: 'RGB', crt: 'CRT', vhs: 'VHS', qr: 'QR', tv: 'TV', led: 'LED', hud: 'HUD', jp: 'JP' };

@@ -27,10 +27,14 @@ J.defaultProject = () => ({
   typeset: false,                 // 文字整列: kana tracking, small particles / big first character, Latin sizing, 0.2 s lead, restraint
   centerDir: 'tb',                // 中央を空ける on tall frames: 'tb' = top / bottom, 'lr' = left / right
   centerFree: false,              // 中央を空ける: lay the cuts out in side bands (left / right or top / bottom) around a character
+  duo: false,                     // v0.32.0 M7: karaoke 2 dòng — dòng kế mờ bên dưới dòng đang hát (mặc định tắt)
+  syllableKaraoke: false,         // v0.34.0 P5: karaoke theo âm tiết — chia span từ thành âm tiết theo tỉ lệ ký tự (mặc định tắt = theo từ như cũ)
+  lineOffsets: {},                // v0.32.0 M7: { [lineIndex]: { dx, dy } } — vị trí chữ kéo thả trên canvas, tỉ lệ khung hình, ±0.45
   seed: 20260922,
   aspect: '16:9', res: 1080, fps: 24,
   fx: { motion: 0.7, glitch: 0.55, chroma: 0.7, decor: 0.5, density: 0.55, texture: 0.6, flash: true, beatSync: false, beatAmt: 0.7, beatEvery: 1, onTwos: true, koma: 12, hud: 'auto', bgSwitch: 0.35, hideNo: false, hideTime: false,
-    threeD: false, threeDepth: 0.7, threeMode: 'plane', threeShadow: false, threeMetal: 0.15 },   // v0.19.0 3D text: toggle / depth 0..1 / 'plane'|'block' / shadow / metalness
+    threeD: false, threeDepth: 0.7, threeMode: 'plane', threeShadow: false, threeMetal: 0.15,
+    grade: { lut: 'none', strength: 1 }, particleLayers: 2, particleReact: true },   // v0.19.0 3D text: toggle / depth 0..1 / 'plane'|'block' / shadow / metalness; v0.30.0 M5: LUT grade + particle layers/react
   enabled: Object.fromEntries(J.GROUP_KEYS.map(g => [g, Object.fromEntries(J.order(g).map(k => [k, true]))])),
   timing: { bpm: 0, offset: 0.4, beatOffset: 0, snap: true, tail: 0.9, lineTimes: {}, lineScale: 1 },
   overrides: {},
@@ -295,6 +299,93 @@ J.sliceWordTimes = (wt, text, lang) => {
   return out;
 };
 
+/* ---------------- P5 v0.34.0: syllable karaoke ----------------
+   Split each timed word span into syllable sub-spans using ONLY the existing
+   word times (no phoneme model, no download): the word's [start, end] is
+   subdivided proportionally to each syllable's character length, the last
+   syllable ending exactly at the word's end. Vietnamese tokens are already
+   one syllable each (whitespace-separated) and CJK tokens one character
+   each, so those pass through unchanged (Japanese small kana merge into the
+   previous mora). Latin words split on vowel groups with silent-e and -le
+   handling. J.karaokeAt (06_layouts.js) is span-driven, so finer spans make
+   the sweep follow syllables with no renderer change. */
+const SYL_CJK = lang => lang === 'ja' || lang === 'zh' || lang === 'zh-Hant' || lang === 'zh-Hans' || lang === 'ko';
+const SYL_SMALL_KANA = 'ゃゅょぁぃぅぇぉゎャュョァィゥェォヮ';
+/* syllable char ranges [a, b) inside one Latin word (offsets in code points) */
+J.splitSyllables = (word, lang) => {
+  const arr = [...String(word || '')];
+  const n = arr.length;
+  if (n <= 1 || lang === 'vi' || SYL_CJK(lang)) return [[0, n]];
+  const low = arr.map(c => c.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase());
+  const isV = i => {
+    const c = low[i];
+    if ('aeiou'.includes(c)) return true;
+    if (c === 'y') return i > 0 && !'aeiou'.includes(low[i - 1]);   // y is a vowel after a consonant (gym, happy), not word-initial (yes)
+    return false;
+  };
+  // vowel groups (nuclei); adjacent vowels that are not a common diphthong
+  // split into separate nuclei (hiatus: radio = ra-di-o, karaoke's a-o)
+  const DIPHTHONG = new Set(['ai', 'ay', 'au', 'aw', 'ea', 'ee', 'ei', 'ey', 'eu', 'ew', 'ie', 'oa', 'oe', 'oi', 'oy', 'oo', 'ou', 'ow', 'ua', 'ue', 'ui', 'uo', 'uy']);
+  const groups = [];
+  for (let i = 0; i < n; i++) {
+    if (!isV(i)) continue;
+    let j = i + 1;
+    // 'io'/'ia' merge only before 'n' (nation, action); elsewhere hiatus (radio, piano)
+    while (j < n && isV(j) && (DIPHTHONG.has(low[j - 1] + low[j]) || ((low[j - 1] + low[j] === 'io' || low[j - 1] + low[j] === 'ia') && low[j + 1] === 'n'))) j++;
+    groups.push([i, j]);
+    i = j - 1;
+  }
+  if (groups.length <= 1) return [[0, n]];
+  // silent e: a trailing 'e' after a consonant adds no syllable (make, theme) —
+  // except consonant + 'le', which is its own syllable (table, little)
+  const leEnding = n >= 3 && low[n - 1] === 'e' && low[n - 2] === 'l' && !isV(n - 3) && groups.length >= 2 && groups[groups.length - 1][0] === n - 1;
+  if (!leEnding && low[n - 1] === 'e' && !isV(n - 2) && groups[groups.length - 1][0] === n - 1) groups.pop();
+  if (groups.length <= 1) return [[0, n]];
+  // boundaries between nuclei: one consonant goes with the next syllable
+  // (onset), two or more split after the first (coda + onset)
+  const cuts = [0];
+  for (let k = 0; k + 1 < groups.length; k++) {
+    const e0 = groups[k][1], s1 = groups[k + 1][0], m = s1 - e0;
+    cuts.push(m <= 1 ? e0 : e0 + 1);
+  }
+  if (leEnding) cuts[cuts.length - 1] = n - 3;   // the -le syllable starts at its consonant
+  cuts.push(n);
+  const out = [];
+  for (let k = 0; k + 1 < cuts.length; k++) if (cuts[k + 1] > cuts[k]) out.push([cuts[k], cuts[k + 1]]);
+  return out.length ? out : [[0, n]];
+};
+/* word spans -> syllable spans (same shape). `text` is the text the spans'
+   c0/c1 index into. A one-syllable word keeps its exact span values. */
+J.expandSyllables = (wt, text, lang) => {
+  if (!wt || !wt.length) return wt;
+  const arr = [...String(text || '')];
+  if (SYL_CJK(lang)) {
+    if (lang !== 'ja') return wt.map(w => ({ start: w.start, end: w.end, c0: w.c0, c1: w.c1 }));
+    // Japanese: tokens are single characters; a small kana joins the mora before it
+    const out = [];
+    for (const w of wt) {
+      const ch = arr[w.c0] || '';
+      const prev = out[out.length - 1];
+      if (prev && ch && SYL_SMALL_KANA.includes(ch) && prev.c1 === w.c0) { prev.c1 = w.c1; prev.end = w.end; continue; }
+      out.push({ start: w.start, end: w.end, c0: w.c0, c1: w.c1 });
+    }
+    return out;
+  }
+  const out = [];
+  for (const w of wt) {
+    const word = arr.slice(w.c0, w.c1).join('');
+    const parts = J.splitSyllables(word, lang);
+    if (parts.length <= 1) { out.push({ start: w.start, end: w.end, c0: w.c0, c1: w.c1 }); continue; }
+    const total = Math.max(1, w.c1 - w.c0), span = w.end - w.start;
+    parts.forEach(([a, b], k) => {
+      const s = k === 0 ? w.start : +(w.start + span * (a / total)).toFixed(3);
+      const e = k === parts.length - 1 ? w.end : +(w.start + span * (b / total)).toFixed(3);
+      out.push({ start: s, end: Math.max(s, e), c0: w.c0 + a, c1: w.c0 + b });
+    });
+  }
+  return out;
+};
+
 /* ---------------- timing ---------------- */
 J.computeTiming = (project, parsed, audio) => {
   const T = project.timing || {};
@@ -378,6 +469,176 @@ J.computeTiming = (project, parsed, audio) => {
   return { starts, ends, duration, wordTimes };
 };
 
+/* ---------------- M7 v0.32.0: auto-fix lyrics overlaps + canvas drag offsets + karaoke duo ----------------
+   SonaWave lyricsParser.ts (autoFixLyricsOverlaps / validateLyricsTimings / KaraokeDuoInfo) rewritten
+   in plain JS for AURA's timing model. AURA keeps line ends derived (ends[i] = starts[i+1]), so an
+   overlap only exists in the STORED data (timing.lineTimes / timing.wordTimes / ELRC tags): the plan
+   already clamps silently (computeTiming). The fix rewrites the stored data to match the plan.
+   Rules (locked in the M7 Gate 0 doc): B0 snap an early line start to its own first word; A line
+   starts strictly increasing with a 0.5 s minimum gap; B trim a word's tail to nextStart - 0.05 s
+   (the next line's start is sacred — SonaWave's rule); C clamp words inside their span, each >= 0.05 s,
+   monotonic, never deleting a word. Words are never shifted: sung times (wordTimes) beat typed times. */
+const M7_BUF = 0.05, M7_MIN_LINE = 0.5, M7_MIN_WORD = 0.05;
+J.lineOffsetsNormalize = (v) => {
+  const out = {};
+  if (!v || typeof v !== 'object') return out;
+  for (const [k, o] of Object.entries(v)) {
+    const i = +k;
+    if (!Number.isInteger(i) || i < 0 || !o || typeof o !== 'object') continue;
+    const dx = J.clamp(+o.dx || 0, -0.45, 0.45), dy = J.clamp(+o.dy || 0, -0.45, 0.45);
+    if (dx || dy) out[i] = { dx: Math.round(dx * 1000) / 1000, dy: Math.round(dy * 1000) / 1000 };
+  }
+  return out;
+};
+/* next singable line after idx (skips interludes / empty lines), or -1 */
+J.duoNextLine = (lines, idx) => {
+  if (!Array.isArray(lines)) return -1;
+  for (let j = (idx | 0) + 1; j < lines.length; j++) { const l = lines[j]; if (l && !l.interlude && String(l.text || '').trim()) return j; }
+  return -1;
+};
+/* stored timing, as the user (and the editor) sees it: stored line starts (or the plan's when
+   nothing is stored) + stored word times (or the ELRC tags parsed from the lyrics text). */
+J.lyricsTimingData = (project) => {
+  const parsed = J.parseLyrics(project.lyrics);
+  const T = project.timing || {};
+  const tm0 = J.computeTiming(project, parsed, null);
+  const lines = parsed.lines;
+  const starts = lines.map((l, i) => {
+    const man = T.lineTimes && T.lineTimes[i] != null ? +T.lineTimes[i] : null;
+    if (man != null && isFinite(man)) return man;
+    return tm0.starts[i];
+  });
+  const words = lines.map((l, i) => {
+    const st = T.wordTimes && Array.isArray(T.wordTimes[i]) && T.wordTimes[i].length ? T.wordTimes[i] : null;
+    const src = st || (l.words && l.words.length ? l.words : null);
+    if (!src) return null;
+    return src.map(w => ({ start: +w.start, end: w.end != null && isFinite(+w.end) ? +w.end : null, text: w.text != null ? String(w.text) : null }));
+  });
+  return { parsed, lines, starts, words, tm0 };
+};
+J.validateLyricsTimings = (project) => {
+  const { lines, starts, words } = J.lyricsTimingData(project);
+  const issues = [];
+  let overlapCount = 0, errorCount = 0;
+  const push = (line, word, type, diff, message) => {
+    issues.push({ line, word: word == null ? null : word, type, diffSeconds: +diff.toFixed(3), message });
+    if (type === 'overlap') overlapCount++; else errorCount++;
+  };
+  for (let i = 0; i < lines.length; i++) {
+    const s = starts[i];
+    if (s == null || !isFinite(s)) continue;
+    if (i > 0 && starts[i - 1] != null && isFinite(starts[i - 1]) && s < starts[i - 1] + M7_MIN_LINE)
+      push(i, null, 'overlap', starts[i - 1] + M7_MIN_LINE - s, `行${i + 1}の開始が前行の開始+${M7_MIN_LINE}秒より早い`);
+    const w = words[i];
+    if (!w || !w.length) continue;
+    if (isFinite(w[0].start) && s < w[0].start - M7_BUF)
+      push(i, 0, 'overlap', w[0].start - s, `行${i + 1}の開始が最初の単語より${M7_BUF}秒以上早い`);
+    let prevEnd = null;
+    for (let k = 0; k < w.length; k++) {
+      const ww = w[k];
+      if (!isFinite(ww.start)) continue;
+      if (ww.end != null && isFinite(ww.end) && ww.end <= ww.start)
+        push(i, k, 'inverted', ww.start - ww.end, `行${i + 1}・単語${k + 1}の終了が開始以下`);
+      if (prevEnd != null && ww.start < prevEnd)
+        push(i, k, 'overlap', prevEnd - ww.start, `行${i + 1}・単語${k + 1}の開始が前単語の終了より早い`);
+      if (ww.start < s - 1e-6)
+        push(i, k, 'outside', s - ww.start, `行${i + 1}・単語${k + 1}の開始が行の開始より早い`);
+      if (ww.end != null && isFinite(ww.end) && i + 1 < lines.length && starts[i + 1] != null && isFinite(starts[i + 1]) && ww.end > starts[i + 1] - M7_BUF)
+        push(i, k, 'overlap', ww.end - (starts[i + 1] - M7_BUF), `行${i + 1}・単語${k + 1}の終了が次行の開始より遅い`);
+      if (ww.end != null && isFinite(ww.end)) prevEnd = Math.max(prevEnd == null ? -Infinity : prevEnd, ww.end);
+      else if (k + 1 < w.length && isFinite(w[k + 1].start)) prevEnd = Math.max(prevEnd == null ? -Infinity : prevEnd, w[k + 1].start);
+    }
+  }
+  return { hasIssues: issues.length > 0, overlapCount, errorCount, issues };
+};
+J.autoFixLyricsOverlaps = (project, _depth) => {
+  const before = J.validateLyricsTimings(project);
+  const T = project.timing || (project.timing = {});
+  const { lines, starts, words, tm0 } = J.lyricsTimingData(project);
+  const n = lines.length, details = [];
+  const fixed = starts.slice();
+  const fixedWords = words.map(w => w ? w.map(x => ({ start: x.start, end: x.end, text: x.text })) : null);
+  const note = (line, rule, from, to) => details.push({ line, rule, from: typeof from === 'number' ? +from.toFixed(3) : from, to: typeof to === 'number' ? +to.toFixed(3) : to });
+  // Phase B0: an early line start snaps to its own first word (the words were right, the typed start was wrong)
+  for (let i = 0; i < n; i++) {
+    const w = fixedWords[i];
+    if (w && w.length && isFinite(w[0].start) && fixed[i] != null && fixed[i] < w[0].start - M7_BUF) {
+      note(i, 'B0', fixed[i], w[0].start); fixed[i] = w[0].start;
+    }
+  }
+  // Phase A: starts strictly increasing, minimum 0.5 s per line (SonaWave's prev.startTime + 0.5)
+  const enforceA = (from) => {
+    for (let i = Math.max(1, from); i < n; i++) {
+      if (fixed[i] == null || fixed[i - 1] == null) continue;
+      const need = fixed[i - 1] + M7_MIN_LINE;
+      if (fixed[i] < need) { note(i, 'A', fixed[i], need); fixed[i] = need; }
+    }
+  };
+  enforceA(1);
+  // span ends after the start fixes: recompute the plan timing on the fixed starts so the last
+  // line's span end is its estimated duration (not its last word's end — that would trim it by 0.05)
+  const fixedObj = {};
+  for (let i = 0; i < n; i++) if (fixed[i] != null) fixedObj[i] = +fixed[i].toFixed(3);
+  const tm1 = J.computeTiming({ lyrics: project.lyrics, timing: Object.assign({}, T, { lineTimes: fixedObj }) }, J.parseLyrics(project.lyrics), null);
+  // Phase B+C: clamp every word into its final span [start, nextStart); a word that starts at/past the
+  // span end pushes the next line's start to (word end + 0.05) instead of being squeezed — sung times win
+  for (let i = 0; i < n; i++) {
+    const w = fixedWords[i];
+    if (!w || !w.length || fixed[i] == null) continue;
+    const s0 = fixed[i];
+    let e0 = (i + 1 < n && fixed[i + 1] != null) ? fixed[i + 1] : Math.max(tm1.ends[i] != null ? tm1.ends[i] : s0 + M7_MIN_LINE, s0 + M7_MIN_LINE);
+    let prevEnd = s0;
+    for (let k = 0; k < w.length; k++) {
+      const ww = w[k];
+      let a = isFinite(ww.start) ? +ww.start : prevEnd;
+      // a word with no stored end runs to the next word's start, or to the span end (like computeTiming)
+      const endNull = ww.end == null || !isFinite(ww.end);
+      const bNat = !endNull ? +ww.end : (k + 1 < w.length && isFinite(w[k + 1].start) ? +w[k + 1].start : e0);
+      if (a < s0) a = s0;
+      if (a < prevEnd) a = prevEnd;
+      if (a > e0 - M7_MIN_WORD - M7_BUF) {
+        // no room left in this span: extend it (next line starts after this word + buffer)
+        const needEnd = (bNat != null ? bNat : a + M7_MIN_WORD) + M7_BUF;
+        if (i + 1 < n && fixed[i + 1] != null) { note(i + 1, 'B-push', fixed[i + 1], needEnd); fixed[i + 1] = needEnd; enforceA(i + 2); e0 = fixed[i + 1]; }
+        else e0 = Math.max(e0, needEnd);
+      }
+      let b = bNat != null ? bNat : a + M7_MIN_WORD;
+      if (b <= a) b = a + M7_MIN_WORD;
+      const cap = e0 - M7_BUF;
+      if (b > cap) b = cap;
+      if (b <= a) { a = Math.max(s0, cap - M7_MIN_WORD); b = cap; }
+      // a word that ran to the span end keeps its null end in storage (no change is written back)
+      const newEnd = (endNull && b >= cap - 1e-9) ? null : b;
+      if (a !== ww.start || newEnd !== ww.end) note(i, 'B/C-word', ww.start + '/' + ww.end, a + '/' + newEnd);
+      ww.start = +a.toFixed(3); ww.end = newEnd == null ? null : +newEnd.toFixed(3);
+      prevEnd = b;
+    }
+  }
+  enforceA(1);
+  // write back only what actually changed (a correct line gains no new stored time)
+  if (!T.lineTimes) T.lineTimes = {};
+  for (let i = 0; i < n; i++) {
+    const origStored = T.lineTimes[i] != null ? +T.lineTimes[i] : null;
+    const origEff = origStored != null && isFinite(origStored) ? origStored : tm0.starts[i];
+    if (fixed[i] != null && Math.abs(fixed[i] - origEff) > 0.001) T.lineTimes[i] = +fixed[i].toFixed(3);
+  }
+  if (!T.wordTimes) T.wordTimes = {};
+  for (let i = 0; i < n; i++) {
+    const fw = fixedWords[i];
+    if (!fw) continue;
+    const orig = words[i];
+    if (JSON.stringify(fw) !== JSON.stringify(orig)) T.wordTimes[i] = fw.map(x => ({ start: x.start, end: x.end, text: x.text }));
+  }
+  const after = J.validateLyricsTimings(project);
+  // a push of a later line's start can leave an earlier-clamped word starting before it: one more
+  // pass converges (the second pass only head-trims); never more than 3 passes in total
+  if (after.hasIssues && ((_depth | 0) < 2)) {
+    const again = J.autoFixLyricsOverlaps(project, (_depth | 0) + 1);
+    return { fixed: details.length + again.fixed, details: details.concat(again.details), before, after: again.after };
+  }
+  return { fixed: details.length, details, before, after };
+};
+
 /* ---------------- planning ---------------- */
 const wkey = (obj, k, d = 1) => (obj && obj[k] != null ? obj[k] : d);
 
@@ -412,13 +673,17 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'AURA', appVersion: '@VERSION@', title, artist, W, H, fps: project.fps || 24,
+    version: 1, generator: 'LyricWave', appVersion: '@VERSION@', title, artist, W, H, fps: project.fps || 24,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
     keyBg: J.keyMode ? J.keyMode(project) : null,   // 'green' | 'black' | null — 合成用の背景
     centerFree: !!zones, zones,
     typeset: !!project.typeset, unify: !!project.unify,
+    stickers: J.stickerNormalize ? J.stickerNormalize(project.stickers) : [],   // M6 v0.31.0: Lottie overlays (global, time-ranged)
+    duo: !!project.duo,                                                       // M7 v0.32.0: karaoke 2 dòng — dòng kế mờ dưới dòng đang hát
+    syllableKaraoke: !!project.syllableKaraoke,                               // P5 v0.34.0: karaoke theo âm tiết (span từ chia nhỏ trong sliceCut)
+    lineOffsets: J.lineOffsetsNormalize ? J.lineOffsetsNormalize(project.lineOffsets) : {},   // M7 v0.32.0: per-line canvas-drag offsets
     lang: J.resolveLang ? J.resolveLang(project) : 'ja',   // 歌詞の言語 (auto → detected)
   };
   if (J.setLang) J.setLang(plan.lang);                     // chunking + measuring below use this language
@@ -773,11 +1038,21 @@ J.plan = (project, audio) => {
     if (!L || !L.wordTimes) return;
     c.wordTimes = J.sliceWordTimes(L.wordTimes, c.text, plan.lang);
     if (c.lineText && c.lineText !== c.text) c.lineWordTimes = J.sliceWordTimes(L.wordTimes, c.lineText, plan.lang);
+    // P5 v0.34.0: syllable mode subdivides the word spans (karaokeAt is span-driven, so the sweep follows syllables)
+    if (plan.syllableKaraoke) {
+      if (c.wordTimes) c.wordTimes = J.expandSyllables(c.wordTimes, c.text, plan.lang);
+      if (c.lineWordTimes) c.lineWordTimes = J.expandSyllables(c.lineWordTimes, c.lineText, plan.lang);
+    }
   };
   plan.cuts.forEach(c => { sliceCut(c); if (c.companion) sliceCut(c.companion); });
   plan.events.sort((a, b) => a.t - b.t);
   plan.energy = audio && audio.energy ? audio.energy : null;
   plan.energyRate = audio && audio.energyRate ? audio.energyRate : 0;
+  // M2 v0.27.0: precomputed spectrum for the 2D visualizers — non-enumerable
+  // so J.planForAE's JSON round-trip (11_export.js) never serialises it.
+  let viz = null;
+  try { viz = audio ? J.vizData(audio) : null; } catch (e) { viz = null; }
+  if (viz) Object.defineProperty(plan, 'viz', { value: viz, enumerable: false, configurable: true });
   return plan;
 };
 
@@ -1215,7 +1490,7 @@ J.previewPlan = (project, group, key) => {
   }
   cuts.forEach((c, i) => { c.index = i; });
   return {
-    version: 1, lang: J.resolveLang(project), generator: 'AURA-preview', title: '', artist: '', W, H, fps: 24,
+    version: 1, lang: J.resolveLang(project), generator: 'LyricWave-preview', title: '', artist: '', W, H, fps: 24,
     duration: cuts[cuts.length - 1].end, styleKey: project.style, style: st, fx,
     lines: [], cuts, events, beats: [], hud: false, keyBg: null,
   };

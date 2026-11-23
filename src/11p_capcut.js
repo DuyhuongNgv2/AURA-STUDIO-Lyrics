@@ -1,4 +1,4 @@
-/* AURA pack: capcut — trending kinetic typography effects inspired by CapCut & V-Pop */
+/* LyricWave pack: capcut — trending kinetic typography effects inspired by CapCut & V-Pop */
 (() => {
 'use strict';
 const E = J.E;

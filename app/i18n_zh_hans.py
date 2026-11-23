@@ -2,7 +2,7 @@
 Replacements run longest-key-first over the already-replaced text, so values avoid containing shorter Japanese keys
 (e.g. 和 / 高 / 保存 / 背景 / 文字 / 行 / 秒 map to themselves)."""
 
-TITLE = 'AURA Motion Lyrics — 歌词动态视频制作工具'
+TITLE = 'LyricWave Studio — 歌词动态视频制作工具'
 DESCRIPTION = '在浏览器中把歌词做成动态歌词视频，并导出 MP4。'
 
 SAMPLE = '我还记得/黎明的颜色\n远处响起渐渐散去的声音\n现在还来得及吗？\n不想就这样*透明*地结束!'

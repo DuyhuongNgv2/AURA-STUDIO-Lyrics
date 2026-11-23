@@ -1,6 +1,6 @@
 """Test the After Effects CEP panel in a browser: the panel page (www/cepx = a copy of the built extension) runs with a mocked
-CEP bridge whose evalScript executes host.jsx + aura_core.jsx on the emulated AE object model (dev/aeom.js).
-usage: python3 build_cep.py && rm -rf dev/www/cepx && cp -r build/com.duyhuongngv2.aura dev/www/cepx && python3 dev/cep_test.py <outdir>"""
+CEP bridge whose evalScript executes host.jsx + lyricwave_core.jsx on the emulated AE object model (dev/aeom.js).
+usage: python3 build_cep.py && rm -rf dev/www/cepx && cp -r build/com.duyhuongngv2.lyricwave dev/www/cepx && python3 dev/cep_test.py <outdir>"""
 import asyncio, base64, json, os, sys
 from playwright.async_api import async_playwright
 OUT = sys.argv[1] if len(sys.argv) > 1 else 'shots/cep'
@@ -15,7 +15,7 @@ window.__H = { vfs: {}, links: [], log: [], errors: [] };
     await new Promise(r => { if (document.readyState !== 'loading') r(); else document.addEventListener('DOMContentLoaded', r); });
     for (const u of ['/acorn.js', '/aeom.js', '/aerender.js']) { const t = await (await fetch(u)).text(); (0, eval)(t); }
     H.vfs['/fake/ext/jsx/host.jsx'] = (await (await fetch('/cepx/jsx/host.jsx')).text()).replace(/^var JZCEP = /m, 'G.JZCEP = ');
-    H.vfs['/fake/ext/jsx/aura_core.jsx'] = await (await fetch('/cepx/jsx/aura_core.jsx')).text();
+    H.vfs['/fake/ext/jsx/lyricwave_core.jsx'] = await (await fetch('/cepx/jsx/lyricwave_core.jsx')).text();
     env = AEOM.makeEnv({ fonts: () => true, measureRect: (L, t) => AER.measureRect(L, t) });
     G = env.ctx; H.env = env;
     const fileOf = p => ({ fsName: p, name: p.split('/').pop(), get exists() { return p in H.vfs; }, get parent() { return fileOf(p.replace(/\/[^\/]*$/, '')); },
@@ -56,7 +56,7 @@ SCENE = r"""async () => {
 }"""
 
 RENDER = r"""(ts) => {
-  const env = __H.env, comp = env.comps.filter(c => /^AURA /.test(c.name)).pop(); env.refCheck = false;
+  const env = __H.env, comp = env.comps.filter(c => /^LyricWave /.test(c.name)).pop(); env.refCheck = false;
   const R = new AER.Renderer(); R.comps = env.comps;
   const urls = ts.map(t => { const cv = R.renderComp(comp, t, 0.25, 0); const o = document.createElement('canvas'); o.width = cv.width; o.height = cv.height; const x = o.getContext('2d'); x.fillStyle = '#000'; x.fillRect(0, 0, o.width, o.height); x.drawImage(cv, 0, 0); return o.toDataURL('image/png'); });
   return { name: comp.name, layers: comp._layers.map(l => l.name), urls, errors: [...R.ev.errors.keys()].slice(0, 5) };

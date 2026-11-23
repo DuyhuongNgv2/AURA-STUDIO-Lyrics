@@ -1,7 +1,7 @@
 {
-  "name": "aura-dev-tools",
+  "name": "lyricwave-dev-tools",
   "private": true,
-  "description": "Test tools for AURA (AE panel mock needs acorn). Install with: cd dev && npm install",
+  "description": "Test tools for LyricWave (AE panel mock needs acorn). Install with: cd dev && npm install",
   "devDependencies": {
     "acorn": "^8.14.0"
   }

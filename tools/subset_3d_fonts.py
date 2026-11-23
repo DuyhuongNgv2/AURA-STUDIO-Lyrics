@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the 3D font subsets for AURA P1 v0.19.0 M2 (real extrusion).
+"""Build the 3D font subsets for LyricWave P1 v0.19.0 M2 (real extrusion).
 
 For each Be Vietnam Pro weight (Regular 400, Bold 700):
   1. Subset the source TTF with fontTools (Vietnamese + Latin + punctuation).

@@ -1,4 +1,4 @@
-# AURA Motion Lyrics — Kinetic Lyrics & Typography Studio
+# LyricWave Studio — Kinetic Lyrics & Typography Studio
 
 > **Trình tạo video lời bài hát chữ nhảy (Kinetic Typography) chạy trực tiếp trên trình duyệt web, hỗ trợ 100% font tiếng Việt không vỡ dấu.**
 
@@ -11,7 +11,7 @@
 
 ## 🌟 Giới thiệu
 
-**AURA STUDIO** là công cụ chuyên nghiệp giúp biến lời bài hát thành video lyric chữ nhảy (*Kinetic Motion / Lyric PV*) mượt mà ngay trong trình duyệt mà **không cần cài đặt phần mềm nặng**.
+**LYRICWAVE STUDIO** là công cụ chuyên nghiệp giúp biến lời bài hát thành video lyric chữ nhảy (*Kinetic Motion / Lyric PV*) mượt mà ngay trong trình duyệt mà **không cần cài đặt phần mềm nặng**.
 
 Dự án được xây dựng và tối ưu riêng cho người dùng Việt Nam:
 * **Bản địa hóa 100% tiếng Việt:** Giao diện, nút bấm, bảng điều khiển, hướng dẫn phím tắt và thông báo lỗi hoàn toàn bằng tiếng Việt chuẩn ngữ cảnh dựng phim.
@@ -37,7 +37,7 @@ Dự án được xây dựng và tối ưu riêng cho người dùng Việt Nam
 
 ## 🔤 Kho Font chữ Việt hóa tích hợp sẵn
 
-AURA đã bundle sẵn các bộ font chuẩn bản quyền quốc tế (SIL Open Font License):
+LyricWave đã bundle sẵn các bộ font chuẩn bản quyền quốc tế (SIL Open Font License):
 
 | Nhóm phong cách | Bộ font | Đặc điểm & Ứng dụng |
 | :--- | :--- | :--- |
@@ -108,4 +108,4 @@ python tools/qa_vietnamese.py
 
 ---
 
-*Phát triển bởi đội ngũ AURA Music Studio — Tối ưu hóa trải nghiệm sáng tạo âm nhạc và video lyric tại Việt Nam.*
+*Phát triển bởi đội ngũ LyricWave Studio — Tối ưu hóa trải nghiệm sáng tạo âm nhạc và video lyric tại Việt Nam.*

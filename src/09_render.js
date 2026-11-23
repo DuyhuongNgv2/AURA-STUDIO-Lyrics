@@ -302,7 +302,11 @@ class Renderer {
     // 透過PNG 前景／後景 (opt.layer): 'back' = background graphic + the decorations behind the lyrics, 'front' = the rest
     const layer = opt.transparent ? opt.layer || null : null;
     if ((!opt.transparent || layer === 'back') && !key && mainCut && mainCut.bg && mainCut.bg !== 'none' && J.BG[mainCut.bg]) {
-      const env = this.makeEnv(ctx, plan, mainCut, sc, { pass: 'main', t: tq, lt: tq - mainCut.start, ltb: tq - mainCut.start, step, scale, allowFilter, energy, beat: beatInfo, bgOnly: true });
+      // M2 v0.27.0: the visualizer background reads the precomputed spectrum
+      // at this frame's time (null when the plan has no audio — the pack then
+      // draws its deterministic idle shape, so thumbnails still show it)
+      const viz = plan.viz ? J.vizFrame(plan.viz, tq) : null;
+      const env = this.makeEnv(ctx, plan, mainCut, sc, { pass: 'main', t: tq, lt: tq - mainCut.start, ltb: tq - mainCut.start, step, scale, allowFilter, energy, beat: beatInfo, bgOnly: true, freq: viz && viz.freq, wave: viz && viz.wave });
       ctx.save();
       try { J.BG[mainCut.bg].draw(env, mainCut.bgP || {}); } catch (e) { console.warn('bg', mainCut.bg, e); }
       ctx.restore();
@@ -321,6 +325,10 @@ class Renderer {
     const mPrev = MC ? plan.cuts[MC.index - 1] : null, mlt = MC ? tq - MC.start : 0;
     const morphOn = !!(MC && mPrev && mlt < MC.morph.dur && Math.abs(mPrev.end - MC.start) < 0.06);
     let mainBB = null, mainEnv = null;
+    // M7 v0.32.0: the main text bbox of this frame (full-frame design coords, drag offset applied)
+    // — hit-test target for canvas drag + anchor for the karaoke-duo line. Recursive frames
+    // (transition / morph / thumbnail) pass noHud and must not overwrite it.
+    if (!opt.noHud) this.lastMainBB = null;
     // camera blur (focus pulls etc.) is applied ONCE to the whole content layer — a blur filter on every
     // individual draw call is extremely slow when a layout draws many text rows
     let layerBlur = 0, LX = null;
@@ -370,14 +378,42 @@ class Renderer {
       if (cam.skx) X.transform(1, 0, Math.tan(cam.skx * J.DEG), 1, 0, 0);
       X.scale(cs * (cam.sx ?? 1), cs * (cam.sy ?? 1)); X.translate(-W / 2, -H / 2);
       if (P.pass !== 'main') X.globalCompositeOperation = J.lum(csc.bg) > 0.55 ? 'multiply' : 'source-over';
-      this.drawCut(env);
+      const cutBB = this.drawCut(env);
       X.restore();
-      if (P.pass === 'main' && cut === cut0) { mainEnv = env; }
+      if (P.pass === 'main' && cut === cut0) {
+        mainEnv = env; mainBB = cutBB;
+        // M7 v0.32.0: full-frame bbox = zone offset + layout bbox + drag offset (camera ignored: push zoom is centre-based)
+        if (!opt.noHud && cutBB && cut.line >= 0) {
+          const off = plan.lineOffsets && plan.lineOffsets[cut.line];
+          const ox = off ? off.dx * env.W : 0, oy = off ? off.dy * env.H : 0;
+          const zx = Z ? Z.x : 0, zy = Z ? Z.y : 0;
+          // bbox centre (not cutBB.cx — drawItem returns the item anchor there)
+          this.lastMainBB = { line: cut.line, W: plan.W, H: plan.H,
+            x0: zx + cutBB.x0 + ox, y0: zy + cutBB.y0 + oy, x1: zx + cutBB.x1 + ox, y1: zy + cutBB.y1 + oy,
+            cx: zx + (cutBB.x0 + cutBB.x1) / 2 + ox, cy: zy + (cutBB.y0 + cutBB.y1) / 2 + oy };
+        }
+      }
       }
     }
     if (LX) {
       ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
       ctx.filter = `blur(${(layerBlur * scale).toFixed(1)}px)`; ctx.drawImage(LX.canvas, 0, 0); ctx.restore();
+    }
+    // M7 v0.32.0: karaoke duo — the next singable line, dimmed, under the main text. Drawn here
+    // (after the content passes, before morph/transition) so the post pass grades it like the main
+    // text; skipped for the transparent 'back' layer and the recursive noHud frames, like stickers.
+    // Positioned from lastMainBB (full-frame design coords, drag offset already applied).
+    if (plan.duo && !opt.noHud && layer !== 'back') {
+      const LB = this.lastMainBB;
+      const curLn = LB && LB.line >= 0 && plan.lines[LB.line] && !plan.lines[LB.line].interlude ? plan.lines[LB.line] : null;
+      const nxt = curLn && J.duoNextLine ? J.duoNextLine(plan.lines, LB.line) : -1;
+      if (nxt >= 0 && plan.lines[nxt]) {
+        const mh = LB.y1 - LB.y0;
+        const size = J.clamp(mh * 0.5, H * 0.03, H * 0.06);
+        const dy = Math.min(LB.y1 + size * 0.9, H - size * 0.6);
+        const env2 = this.makeEnv(ctx, plan, mainCut, sc, { pass: 'main', t: tq, lt: 0, ltb: 0, step, scale, allowFilter, energy, beat: beatInfo });
+        try { env2.draw({ text: J.splitLines(plan.lines[nxt].text, 11), font: (plan.style.fonts.body || ['gothic_black'])[0], size, x: LB.cx, y: dy, track: 0.06, lead: 1.2, color: sc.sub, alpha: 0.5, ghost: false }); } catch (e) { console.warn('duo', e); }
+      }
     }
     if (morphOn && layer !== 'back') {
       const L = this.morphLogs(plan, mPrev, MC, cw, ch, scale, opt);
@@ -407,6 +443,10 @@ class Renderer {
     ctx.restore();
     // ---------- post ----------
     if (!opt.noPost) this.post(ctx, plan, t, tq, step, sc, scale, opt, allowFilter);
+    // M6 v0.31.0: Lottie stickers — foreground overlay like the HUD: after
+    // the post pass (grade/FX must not wash them), skipped for the transparent
+    // 'back' layer and for the recursive noHud frames (transition/morph/thumbnail)
+    if (!opt.noHud && layer !== 'back' && J.drawStickers) J.drawStickers(ctx, plan, t, scale);
     if (key && !opt.noPost) this.keyFinish(ctx, key, opt);
   }
 
@@ -563,9 +603,15 @@ class Renderer {
     const decor = cut.decor || [];
     if (env.layer !== 'front') for (const d of decor) { const D = J.DECOR[d.id]; if (D && D.layer === 'back') try { D.draw(env, null, d); } catch (e) { console.warn(e); } }
     if (env.layer === 'back') return null;                // 後景だけ: the lyrics and the front decorations go to the other layer
+    // M7 v0.32.0: per-line canvas-drag offset — the lyric and its front decor translate together,
+    // so the decor keeps its position relative to the text; ghost passes go through here too
+    const off = env.plan && env.plan.lineOffsets && cut.line >= 0 ? env.plan.lineOffsets[cut.line] : null;
+    const hasOff = !!(off && (off.dx || off.dy));
+    if (hasOff) { env.ctx.save(); env.ctx.translate(off.dx * env.W, off.dy * env.H); }
     let bb = null;
     try { bb = L.render(env); } catch (e) { console.warn('layout', cut.layout, e); }
     for (const d of decor) { const D = J.DECOR[d.id]; if (D && D.layer === 'front') try { D.draw(env, bb, d); } catch (e) { console.warn(e); } }
+    if (hasOff) env.ctx.restore();
     return bb;
   }
 
@@ -615,9 +661,15 @@ class Renderer {
   post(ctx, plan, t, tq, step, sc, scale, opt, allowFilter) {
     const cw = ctx.canvas.width, ch = ctx.canvas.height;
     const fx = plan.fx, st = plan.style;
+    // v0.30.0 M5: global colour grade (LUT preset) — null when off; the
+    // filter pass needs the scratch copy, overlays do not
+    const grade = (J.gradeOf) ? J.gradeOf(fx && fx.grade) : null;
+    const gradeOn = !!grade && allowFilter && !opt.transparent && !plan.keyBg;
+    const gradeParts = (gradeOn && J.gradeOverlays) ? J.gradeOverlays(grade.lut, grade.strength) : null;
+    const gradeFilter = (gradeOn && J.gradeFilter) ? J.gradeFilter(grade.lut, grade.strength) : '';
     const postBeat = plan.beats && plan.beats.length ? beatAt(plan.beats, t) : null;   // v0.14.0: screen effects may pulse on the beat
     const active = plan.events.filter(ev => t >= ev.t && t < ev.t + Math.max(ev.dur, 1 / plan.fps));
-    const needScratch = active.some(ev => ['slice', 'block', 'zoom', 'mosaic'].includes(ev.type) || (J.FXE[ev.type] && J.FXE[ev.type].scratch)) || (!opt.fast && (st.glow || 0) > 0);
+    const needScratch = active.some(ev => ['slice', 'block', 'zoom', 'mosaic'].includes(ev.type) || (J.FXE[ev.type] && J.FXE[ev.type].scratch)) || (!opt.fast && (st.glow || 0) > 0) || (gradeOn && gradeFilter);
     const S = needScratch ? this.ensure(this.scratch, cw, ch) : null;
     ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
     const copy = () => { const sx = S.getContext('2d'); sx.globalCompositeOperation = 'copy'; sx.drawImage(ctx.canvas, 0, 0); sx.globalCompositeOperation = 'source-over'; };
@@ -679,7 +731,7 @@ class Renderer {
       if (guard) guard.end();
     }
     // bloom
-    const glow = (st.glow || 0.6) * 0.5 * (fx.texture ?? 0.6);
+    const glow = (st.glow || 0.6) * 0.5 * (fx.texture ?? 0.6) + (gradeParts ? gradeParts.bloom : 0);
     if (!opt.fast && allowFilter && glow > 0.05 && !opt.transparent) {
       const sw = Math.round(cw / 4), sh = Math.round(ch / 4);
       const Sm = this.ensure(this.small, sw, sh), sx = Sm.getContext('2d');
@@ -695,7 +747,7 @@ class Renderer {
         ctx.save(); ctx.scale(k, k); ctx.globalCompositeOperation = 'multiply'; ctx.globalAlpha = scan * 0.28; ctx.fillStyle = pat; ctx.fillRect(0, 0, cw / k, ch / k); ctx.restore();
       }
       // grain
-      const gr = (st.texture.grain || 0) * (fx.texture ?? 0.6);
+      const gr = (st.texture.grain || 0) * (fx.texture ?? 0.6) + (gradeParts ? gradeParts.grain : 0);
       if (gr > 0.02) {
         const img = this.grain[((step % 4) + 4) % 4];
         const pat = ctx.createPattern(img, 'repeat');
@@ -709,8 +761,33 @@ class Renderer {
       }
       // vignette
       const vg = ctx.createRadialGradient(cw / 2, ch / 2, Math.min(cw, ch) * 0.35, cw / 2, ch / 2, Math.hypot(cw, ch) * 0.62);
-      vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, `rgba(0,0,0,${0.28 * (fx.texture ?? 0.6)})`);
+      vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, `rgba(0,0,0,${Math.min(0.85, 0.28 * (fx.texture ?? 0.6) + (gradeParts ? gradeParts.vignette : 0))})`);
       ctx.fillStyle = vg; ctx.fillRect(0, 0, cw, ch);
+    }
+    // v0.30.0 M5: colour grade — filter first (from the scratch copy),
+    // then the soft-light tone overlays on top of the graded frame
+    if (gradeParts && (gradeFilter || gradeParts.overlays.length)) {
+      ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+      if (gradeFilter && S) {
+        copy();
+        ctx.globalCompositeOperation = 'copy'; ctx.filter = gradeFilter; ctx.drawImage(S, 0, 0);
+        ctx.filter = 'none'; ctx.globalCompositeOperation = 'source-over';
+      }
+      for (const ov of gradeParts.overlays) {
+        ctx.globalCompositeOperation = ov.mode; ctx.globalAlpha = ov.alpha;
+        if (ov.where === 'top') {
+          const g = ctx.createLinearGradient(0, 0, 0, ch);
+          g.addColorStop(0, ov.color); g.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = g;
+        } else if (ov.where === 'bottom') {
+          const g = ctx.createLinearGradient(0, 0, 0, ch);
+          g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, ov.color);
+          ctx.fillStyle = g;
+        } else ctx.fillStyle = ov.color;
+        ctx.fillRect(0, 0, cw, ch);
+      }
+      ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+      ctx.restore();
     }
     ctx.restore();
   }

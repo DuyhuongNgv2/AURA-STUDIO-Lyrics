@@ -1,6 +1,6 @@
 """Vietnamese UI copy; format names, font names and project IDs are retained."""
 
-TITLE = 'AURA Motion Lyrics — Trình tạo video lời bài hát chữ nhảy (Kinetic Typography)'
+TITLE = 'LyricWave Studio — Trình tạo video lời bài hát chữ nhảy (Kinetic Typography)'
 
 DESCRIPTION = 'Tạo video lời bài hát chữ nhảy (kinetic typography lyric video) mượt mà trong trình duyệt, hỗ trợ tiếng Việt có dấu 100%, rồi xuất MP4.'
 
@@ -302,6 +302,7 @@ BODY = {'kinetic typography studio': 'trình tạo video chữ nhảy',
                                                                                                                              'tiếp '
                                                                                                                              'vào '
                                                                                                                              'tệp)</button>',
+ 'title="プレビューを再生しながらそのまま録画します（リアルタイム）。ブラウザによっては MP4 ではなく WebM になります">MP4 高速</button>': 'title="Ghi lại bản xem trước trong lúc phát (thời gian thực). Tùy trình duyệt có thể ra file WebM thay vì MP4">Xuất nhanh MP4</button>',
  '<span>中央を空ける（キャラクター用）<small>中央にキャラクターなどを重ねる前提で、文字と演出を横長の画面では左右、縦長の画面では上下に、行ごとに交互に置きます。背景と画面効果は全体のままです（プレビューには空ける範囲を点線で表示）</small></span>': '<span>Để '
                                                                                                                                              'trống '
                                                                                                                                              'giữa '
@@ -957,7 +958,7 @@ UI = {'`前後の行と順番が入れ替わらないよう ${w.toFixed(2)} 秒�
                                                                                                         "'Chọn tệp mp3 "
                                                                                                         'hoặc tệp '
                                                                                                         'tương tự: '
-                                                                                                        'AURA nhận '
+                                                                                                        'LyricWave nhận '
                                                                                                         'diện nhịp và '
                                                                                                         'căn chỉnh '
                                                                                                         'chuyển cảnh. '
@@ -1023,6 +1024,21 @@ UI = {'`前後の行と順番が入れ替わらないよう ${w.toFixed(2)} 秒�
  '背景の切替': 'Thay đổi nền',
  '動きの強さ': 'Cường độ chuyển động',
  '拍に合わせて動く': 'Nhảy theo phách nhạc',
+ 'カラーグレーディング': 'Chỉnh màu (LUT)',
+ 'グレーディングの強さ': 'Độ mạnh của chỉnh màu',
+ '粒子の層': 'Số lớp hạt',
+ '音楽に反応する粒子': 'Hạt phản ứng theo nhạc',
+ 'マスターEQ': 'EQ chính (Master EQ)', 'EQをバイパス': 'Bỏ qua EQ (bypass)', 'プリアンプ': 'Tiền khuếch đại',
+ 'ローカット': 'Cắt tần thấp', 'ハイカット': 'Cắt tần cao', 'オフ': 'Tắt',
+ 'ステッカー': 'Sticker', 'ステッカーを選択': 'Chọn sticker', 'ステッカーを追加': 'Thêm sticker',
+ '削除': 'Xóa', 'ステッカーなし': 'Chưa có sticker', '横の位置': 'Vị trí ngang',
+ '縦の位置': 'Vị trí dọc', '大きさ': 'Kích thước', '終了（秒）': 'Kết thúc (giây)',
+ 'ステッカーを選んでください': 'Hãy chọn một sticker',
+ '重なりを直す': 'Sửa chồng lấn', '2行カラオケ': 'Karaoke 2 dòng', '音節カラオケ': 'Karaoke âm tiết', '位置をリセット': 'Đặt lại vị trí',
+ '重なりはありませんでした': 'Không có chỗ chồng lấn',
+ 'ずらした行はありません': 'Chưa có dòng nào bị dịch vị trí', '文字の位置をリセットしました': 'Đã đặt lại vị trí chữ',
+ '件あります。「重なりを直す」で直せます': 'chỗ chồng lấn. Bấm "Sửa chồng lấn" để sửa',
+ '重なりが ': 'Phát hiện ', '重なりを ': 'Đã sửa ', '件直しました': 'chỗ chồng lấn', ' — まだ残りがあります': ' — vẫn còn chỗ chưa sửa',
  '拍の強さ': 'Độ mạnh theo phách',
  '拍の間隔': 'Khoảng phách',
  '毎拍': 'Mỗi phách',
@@ -1093,6 +1109,7 @@ UI = {'`前後の行と順番が入れ替わらないよう ${w.toFixed(2)} 秒�
  '秒': 'giây',
  '（保存はキャンセルされました）': '(hủy lưu)',
  'エラー: ': 'Lỗi:',
+ 'キャンセルしました': 'Đã hủy',
  '追加分の演出：使わない（最初の公開版の演出だけ）': 'Hiệu ứng mới: tắt (chỉ cài đặt ban đầu)',
  '追加分の演出：使う': 'Hiệu ứng mới: kích hoạt',
  '和風の演出：使わない（おまかせ・シャッフルで選ばれません）': 'Họa tiết Nhật Bản: tắt (không được chọn khi tự động/ngẫu nhiên)',
@@ -1103,9 +1120,20 @@ UI = {'`前後の行と順番が入れ替わらないよう ${w.toFixed(2)} 秒�
  '読み込めませんでした: ': 'Không thể tải:',
  '約': 'khoảng',
  '（PC）': '(đã cài đặt)',
- '字面': 'AURA',
+ '字面': 'LyricWave',
  '追加': 'Mới',
- '和': 'Nhật'}
+ '和': 'Nhật',
+ '高速書き出し中（リアルタイム） ': 'Đang xuất nhanh (thời gian thực) ',
+ '（リアルタイム）': '(thời gian thực)',
+ 'このブラウザは高速書き出し（MediaRecorder）に対応していません。MP4書き出し（オフライン）を使ってください。': 'Trình duyệt này không hỗ trợ xuất nhanh (MediaRecorder). Hãy dùng Xuất MP4 (offline).',
+ 'このブラウザは高速書き出しに対応していません。MP4書き出し（オフライン）を使ってください。': 'Trình duyệt này không hỗ trợ xuất nhanh. Hãy dùng Xuất MP4 (offline).',
+ 'プレビューが準備できていません。': 'Bản xem trước chưa sẵn sàng.',
+ 'プレビューの映像を取り込めませんでした。': 'Không lấy được hình ảnh từ bản xem trước.',
+ '書き出し中に画面が止まりました。タブを開いたまま、もう一度試してください。': 'Màn hình dừng trong lúc xuất. Giữ tab mở rồi thử lại.',
+ '高速書き出しが時間切れになりました。MP4書き出し（オフライン）を使ってください。': 'Xuất nhanh quá thời gian. Hãy dùng Xuất MP4 (offline).',
+ '録画データがありませんでした。もう一度試してください。': 'Không ghi được dữ liệu video. Thử lại.',
+ '。音声が入らなかったため、音声を WAV で別に保存しました': '. Không có tiếng trong file nên đã lưu riêng tiếng dưới dạng WAV',
+ '。音声なしで書き出しました': '. Đã xuất không có tiếng'}
 
 EXPORT = {"'[間奏]'": "'[interlude]'",
  "'ZIP が大きくなりすぎます（65,535 ファイル・4GB まで）。書き出す範囲を狭めるか、解像度を下げてください'": "'ZIP sẽ quá lớn (tối đa 65.535 tệp / 4 GB). Hãy chọn "
@@ -1132,6 +1160,17 @@ EXPORT = {"'[間奏]'": "'[interlude]'",
 
 
 BODY.update({
+    # M4 v0.29.0 playlist
+    '<h2>プレイリスト</h2>': '<h2>Playlist</h2>',
+    'title="今の曲（歌詞・タイミング・演出）をプレイリストに追加します">今の曲を追加': 'title="Thêm bài hiện tại (lời, thời gian, hiệu ứng) vào playlist">Thêm bài hiện tại',
+    'title="mp3 / wav / m4a など。1曲ずつ歌詞なしで追加されます">曲を追加': 'title="mp3 / wav / m4a… Thêm từng bài, chưa có lời">Thêm bài hát',
+    '次の曲を自動再生': 'Tự phát bài tiếp theo',
+    '<option value="all">すべて繰り返す</option>': '<option value="all">Lặp toàn bộ</option>',
+    '<option value="one">1曲繰り返す</option>': '<option value="one">Lặp 1 bài</option>',
+    '<option value="off">繰り返さない</option>': '<option value="off">Không lặp</option>',
+    '曲が終わると次の曲へ進みます。1曲だけのときは今まで通りです。曲ごとの歌詞・タイミング・演出は曲を切り替えると一緒に入れ替わります。': 'Hết bài sẽ tự chuyển sang bài tiếp theo. Chỉ có 1 bài thì hoạt động như trước. Lời, thời gian và hiệu ứng của từng bài sẽ đổi theo khi chuyển bài.',
+    'この曲だけ': 'Chỉ bài này',
+    'プレイリスト全体': 'Cả playlist',
     'title="ストック背景画像"': 'title="Kho ảnh nền Stock có sẵn"',
     '<option value="">ストック素材</option>': '<option value="">-- Kho Stock mẫu --</option>',
     '<option value="galaxy">🌌 宇宙ギャラクシー</option>': '<option value="galaxy">🌌 Vũ trụ Deep Galaxy</option>',
@@ -1180,6 +1219,21 @@ UI.update({
     '`画像を読み込みました：${file.name}`': '`Đã tải ảnh: ${file.name}`',
     "'画像を消しました'": "'Đã xóa ảnh nền'",
 
+    # M4 v0.29.0 playlist
+    '書き出し中は切り替えられません': 'Đang xuất, không thể chuyển bài',
+    '書き出し中は追加できません': 'Đang xuất, không thể thêm bài',
+    '書き出し中は削除できません': 'Đang xuất, không thể xóa bài',
+    '曲が読み込まれていません — 「曲を読み込む」から読み込み直してください': 'Chưa nạp bài hát — hãy nạp lại từ "Nạp bài hát"',
+    '（曲が読み込まれていません）': '(chưa nạp bài hát)',
+    '音声ファイルが見つかりませんでした': 'Không tìm thấy tệp âm thanh',
+    '`プレイリストに追加しました（${pl.items.length}曲）`': '`Đã thêm vào playlist (${pl.items.length} bài)`',
+    'プレイリストの次の曲に切り替えられませんでした。もう一度試してください。': 'Không chuyển được sang bài tiếp theo trong playlist. Thử lại.',
+    'プレイリストの曲を準備中…': 'Đang chuẩn bị các bài trong playlist…',
+    'この曲をプレイリストから削除しますか？': 'Xóa bài này khỏi playlist?',
+    '`・プレイリスト全${segs.length}曲`': '`Playlist đủ ${segs.length} bài`',
+    '`・プレイリスト全${plOpt.count}曲`': '`Playlist đủ ${plOpt.count} bài`',
+    '`${f.name} を読み込めませんでした`': '`Không nạp được ${f.name}`',
+
     # v0.18.0 Whisper: model choice, VAD, review screen
     '`モデル「${key}」を読み込んでいます（初回は約${spec.size}、次回からは保存済みを使います）…`': '`Đang tải model Whisper ${key} (lần đầu ~${spec.size}, lần sau dùng bản đã lưu)…`',
     '`モデル「${key}」を読み込んでいます — ${pct}%（初回は約${spec.size}、次回からは保存済みを使います）`': '`Đang tải model Whisper ${key} — ${pct}% (lần đầu ~${spec.size}, lần sau dùng bản đã lưu)`',
@@ -1225,6 +1279,14 @@ UI.update({
     "'このカットにはキーフレームがありません。「＋ 再生位置に追加」で追加します。'": "'Cut này chưa có keyframe. Bấm “+ Thêm tại playhead” để thêm.'",
     "'＋ 再生位置に追加'": "'+ Thêm tại playhead'",
     "'キーを削除'": "'Xóa key'",
+
+    # v0.26.1 Keyframe Easing (K4)
+    "'イージング'": "'Easing'",
+    "'リニア'": "'Tuyến tính'",
+    "'イーズイン'": "'Ease-in (chậm đầu)'",
+    "'イーズアウト'": "'Ease-out (chậm cuối)'",
+    "'イーズイン・アウト'": "'Ease in-out (chậm 2 đầu)'",
+    "'ホールド'": "'Giữ (hold)'",
 
     # v0.21.0 Waveform Word-Drag
     # v0.22.0 Whole-Word Drag: hint strings rewritten to cover the whole-word drag (old keys removed)

@@ -1,6 +1,6 @@
 """Build the single-file browser editions from src/, app/ and vendor/: Japanese, English, 繁體中文, 简体中文, 한국어, Bahasa Indonesia, Tiếng Việt.
 usage: python3 build.py            -> index.html, en/, zh-hant/, zh-hans/, ko/, id/, vi/ index.html (GitHub Pages)
-       python3 build.py --dev      -> also dev/www/aura.js + dev/www/test.html for the test tools"""
+       python3 build.py --dev      -> also dev/www/lyricwave.js + dev/www/test.html for the test tools"""
 import glob, os, sys, json, base64
 from app.english import localize_body, localize_js
 from app import i18n
@@ -11,6 +11,10 @@ VERSION = read('VERSION').strip()
 sources = sorted(glob.glob('src/*.js'))
 js = '\n'.join(read(f) for f in sources)
 mux = '/*! mp4-muxer v5.2.2 | MIT License | (c) 2023 Vanilagy | see THIRD_PARTY_NOTICES.md */\n' + read('vendor/mp4-muxer.min.js')
+# M6 v0.31.0: lottie-web 5.13.0 canvas renderer (MIT) — the Lottie sticker
+# player. Inlined like mp4-muxer so the single file works on a local server
+# AND file://. Checked: the bundle contains no '</script' sequence.
+LOTTIE = '/*! lottie-web 5.13.0 (canvas renderer) | MIT License | (c) 2015 Bodymovin | see THIRD_PARTY_NOTICES.md */\n' + read('vendor/lottie-web/lottie_canvas.min.js')
 # P1 v0.19.0: Three.js r170 vendored (MIT) — shipped as JSON strings so the runtime can
 # create blob URLs and dynamic-import them (no importmap, works on local server AND file://).
 # Escaped '</' so the payload can never terminate its own <script> block.
@@ -45,7 +49,7 @@ def build(lang):
     english = lang == 'en'
     local = lang in i18n.MODULES
     m = i18n.module(lang) if local else None
-    title = 'AURA Motion Lyrics — Kinetic Lyrics & Motion Video Studio' if english else m.TITLE if local else 'AURA — Kinetic Lyrics'
+    title = 'LyricWave Studio — Kinetic Lyrics & Motion Video Studio' if english else m.TITLE if local else 'LyricWave — Kinetic Lyrics'
     description = ('Create kinetic typography lyric videos in your browser and export MP4.' if english else m.DESCRIPTION if local else 'Trình tạo video lyric chuyển động chữ mượt mà')
     folder = dict((c, f) for c, f, _, _ in i18n.EDITIONS)[lang]
     canonical = i18n.BASE + (folder + '/' if folder else '')
@@ -93,10 +97,13 @@ html[lang=vi] {{ --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'B
 {mux}
 </script>
 <script>
-window.__AURA_THREE__ = {THREE_JSON};
+{LOTTIE}
 </script>
 <script>
-window.__AURA_FONTS3D__ = {FONTS3D_JSON};
+window.__LyricWave_THREE__ = {THREE_JSON};
+</script>
+<script>
+window.__LyricWave_FONTS3D__ = {FONTS3D_JSON};
 </script>
 <script>
 {script}
@@ -132,6 +139,6 @@ open('sitemap.xml', 'w', encoding='utf-8').write('<?xml version="1.0" encoding="
 print('sitemap.xml', len(i18n.EDITIONS), 'urls')
 if '--dev' in sys.argv:
     os.makedirs('dev/www', exist_ok=True)
-    open('dev/www/aura.js', 'w', encoding='utf-8').write(js)
+    open('dev/www/lyricwave.js', 'w', encoding='utf-8').write(js)
     open('dev/www/test.html', 'w', encoding='utf-8').write(read('dev/test.html'))
     print('dev/www ready: cd dev/www && python3 -m http.server 8765')

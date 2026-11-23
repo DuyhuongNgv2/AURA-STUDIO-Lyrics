@@ -19,7 +19,7 @@ const ICON = {
   x: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4l8 8M12 4l-8 8"/></svg>',
 };
 
-const S = { project: null, plan: null, audio: null, renderer: new J.Renderer(), playing: false, t: 0, t0: 0, loop: 'all', loopHold: null, need: true, exporting: null, tap: null, slow: false, lineEls: [], curLine: -2 };
+const S = { project: null, plan: null, audio: null, renderer: new J.Renderer(), playing: false, t: 0, t0: 0, loop: 'all', loopHold: null, need: true, exporting: null, fastExporting: false, tap: null, slow: false, lineEls: [], curLine: -2 };
 const LOOP_CYCLE = ['all', 'line', 'cut', false];
 const LOOP_COPY = {
   all:  { ja: 'ループ', en: 'Loop', titleJa: '全体を繰り返し', titleEn: 'Loop the whole piece' },
@@ -74,17 +74,79 @@ function syncLoopBtn() {
 /* WebAudio player (works inside sandboxed pages where blob media may be blocked) */
 const AP = {
   ctx: null, src: null, startAt: 0, base: 0, rate: 1, gain: null, vol: 0.8, muted: false,
+  exportGain: null, streamDest: null,
+  eqChain: null, eqOutGain: false, eqOutExport: false, srcToExport: false, eqBypassed: false,
+  /* M6 v0.31.0: the master EQ chain sits between the source and BOTH outputs
+     (preview gain + fast-export tap), so preview and fast export hear the
+     same EQ. Bypass is a real rewire, not "gain 0". */
+  eqOn() { return !!(this.eqChain && S.project && S.project.eq && !S.project.eq.bypass); },
+  ensureEq() {
+    if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!this.eqChain && J.buildEqChain) {
+      this.eqChain = J.buildEqChain(this.ctx, S.project && S.project.eq);
+      this.eqBypassed = !!(S.project && S.project.eq && S.project.eq.bypass);
+    }
+    return this.eqChain;
+  },
+  /* connect the EQ output to the preview gain and (when it exists) the export
+     tap — once each: a double connect would double the volume */
+  wireEqOut() {
+    if (!this.eqChain) return;
+    if (this.gain && !this.eqOutGain) { try { this.eqChain.output.connect(this.gain); this.eqOutGain = true; } catch (e) {} }
+    if (this.exportGain && !this.eqOutExport) { try { this.eqChain.output.connect(this.exportGain); this.eqOutExport = true; } catch (e) {} }
+  },
+  /* (re)connect the live source for the current bypass state — used by
+     play() and by a bypass toggle while playing */
+  routeSource() {
+    if (!this.src) return;
+    try { this.src.disconnect(); } catch (e) {}
+    this.srcToExport = false;
+    if (this.eqOn()) { this.src.connect(this.eqChain.input); this.wireEqOut(); }
+    else {
+      this.src.connect(this.gain);
+      if (this.exportGain) { this.src.connect(this.exportGain); this.srcToExport = true; }
+    }
+  },
+  /* retune the chain live; rewire only when the bypass state flipped */
+  applyEq() {
+    const eq = S.project && S.project.eq;
+    if (!eq) return;
+    this.ensureEq();
+    if (this.eqChain) this.eqChain.set(eq);
+    const nowBypassed = !!eq.bypass;
+    if (nowBypassed !== this.eqBypassed) { this.eqBypassed = nowBypassed; this.routeSource(); }
+  },
   play(buffer, offset, rate = 1) {
     if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
     if (this.ctx.state === 'suspended') this.ctx.resume();
     this.stop();
     if (!this.gain) { this.gain = this.ctx.createGain(); this.gain.connect(this.ctx.destination); this.applyVol(); }
-    const s = this.ctx.createBufferSource(); s.buffer = buffer; s.connect(this.gain);
+    this.ensureEq();
+    const s = this.ctx.createBufferSource(); s.buffer = buffer;
     const off = Math.max(0, Math.min(offset, buffer.duration - 0.01));
     this.rate = rate > 0 ? rate : 1; s.playbackRate.value = this.rate;
     s.start(0, off); this.src = s; this.startAt = this.ctx.currentTime; this.base = off;
+    this.routeSource();
   },
-  stop() { if (this.src) { try { this.src.stop(); } catch (e) {} try { this.src.disconnect(); } catch (e) {} this.src = null; } },
+  /* fast export (M1 v0.24.0): a tap of the preview audio at fixed full volume, independent of
+     preview volume/mute, on the same AudioContext and the same play() start — so sound and picture
+     share one clock. Returns the MediaStream for the recorder (null when unavailable). */
+  audioStream() {
+    if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+    if (!this.gain) { this.gain = this.ctx.createGain(); this.gain.connect(this.ctx.destination); this.applyVol(); }
+    this.ensureEq();
+    if (!this.streamDest) {
+      this.streamDest = this.ctx.createMediaStreamDestination();
+      this.exportGain = this.ctx.createGain(); this.exportGain.gain.value = 1;
+      this.exportGain.connect(this.streamDest);
+    }
+    // M6: the tap must come from the EQ output, not the raw source
+    if (this.eqOn()) this.wireEqOut();
+    else if (this.src && !this.srcToExport) { try { this.src.connect(this.exportGain); this.srcToExport = true; } catch (e) {} }
+    return this.streamDest.stream;
+  },
+  stop() { if (this.src) { try { this.src.stop(); } catch (e) {} try { this.src.disconnect(); } catch (e) {} this.src = null; } this.srcToExport = false; },
   time() { return this.ctx ? this.base + (this.ctx.currentTime - this.startAt) * this.rate : 0; },
   /* preview volume only (exports keep the original level) */
   setVol(v, muted) { if (v != null) this.vol = Math.max(0, Math.min(1, v)); if (muted != null) this.muted = !!muted; this.applyVol(); },
@@ -113,6 +175,12 @@ function mergeProject(p) {
   for (const g of Object.keys(en)) en[g] = Object.assign(en[g], ((p && p.enabled) || {})[g] || {});
   o.enabled = en;
   o.overrides = (p && p.overrides) || {};
+  o.playlist = J.playlistNormalize(p && p.playlist);   // M4 v0.29.0: empty playlist = the old single-song behaviour
+  o.eq = J.eqNormalize ? J.eqNormalize(p && p.eq) : null;   // M6 v0.31.0: master EQ (flat when missing)
+  o.stickers = J.stickerNormalize ? J.stickerNormalize(p && p.stickers) : [];   // M6 v0.31.0: Lottie overlays (none when missing)
+  o.duo = !!(p && p.duo);                                                      // M7 v0.32.0: karaoke 2 dòng (off for old projects)
+  o.syllableKaraoke = !!(p && p.syllableKaraoke);                              // P5 v0.34.0: karaoke theo âm tiết (off for old projects)
+  o.lineOffsets = J.lineOffsetsNormalize ? J.lineOffsetsNormalize(p && p.lineOffsets) : {};   // M7 v0.32.0: per-line canvas-drag offsets
   o.locks = { tech: {}, params: {} };
   // project files are untrusted: only plain keys may be locked, and only on (never a value we did not write)
   for (const [g, on] of Object.entries((p && p.locks && p.locks.tech) || {})) if (on === true && /^[\w-]+$/.test(g)) o.locks.tech[g] = true;
@@ -163,7 +231,17 @@ function setBadges(d) {
 function loadLocal() { try { const s = localStorage.getItem(LS_KEY); if (s) return mergeProject(JSON.parse(s)); } catch (e) {} return mergeProject(null); }
 let saveTimer = 0;
 function autosave() { clearTimeout(saveTimer); saveTimer = setTimeout(flushSave, 700); }
-function flushSave() { clearTimeout(saveTimer); try { localStorage.setItem(LS_KEY, JSON.stringify(S.project)); } catch (e) {} }
+/* M4: the live project is the working copy of the current playlist song —
+   fold its latest edits back into that item before anything is saved,
+   or the saved file would keep a stale copy of the song on screen */
+function snapshotCurrentItem() {
+  const pl = S.project && S.project.playlist;
+  if (pl && pl.items.length) {
+    const cur = pl.items[pl.current];
+    if (cur) pl.items[pl.current] = J.playlistSnapshot(S.project, S.audio, cur.id);
+  }
+}
+function flushSave() { clearTimeout(saveTimer); try { snapshotCurrentItem(); localStorage.setItem(LS_KEY, JSON.stringify(S.project)); } catch (e) {} }
 window.addEventListener('pagehide', () => { if (S.project) flushSave(); });
 
 /* ---------------- planning ---------------- */
@@ -247,6 +325,7 @@ const FIXED_MQ = window.matchMedia ? window.matchMedia('(min-width: 1181px) and 
 document.documentElement.classList.add('fixed-ok');
 function fixedLayout() { return !!(FIXED_MQ && FIXED_MQ.matches) && document.documentElement.classList.contains('fixed-ok'); }
 function sizeViewport() {
+  if (S.fastExporting) return;   // M1: the recorder owns the canvas size while it runs
   const vp = $('viewport'), c = $('view');
   const ar = S.plan.W / S.plan.H;
   let cssW = vp.clientWidth || 800, cssH = cssW / ar;
@@ -279,13 +358,23 @@ function draw() {
 }
 function tick(now) {
   requestAnimationFrame(tick);
-  if (S.exporting) return;
+  if (S.exporting && !S.fastExporting) return;   // M1: the fast export plays the preview live, so tick must keep running
   if (S.playing) {
     // rAF timestamps can precede the moment play()/seek() stamped t0 → clamp so t never goes negative
     let t = Math.max(0, S.audio ? AP.time() : (now - S.t0) / 1000 * playRate());
     const range = activeLoopRange();
     if (t >= range.end - 1e-3) {
-      if (S.loop && !S.tap) { seek(range.start); t = range.start; }
+      // M4 v0.29.0: continuous play — at the end of a song, move to the next one.
+      // In a playlist, loop 'all' means loop the WHOLE PLAYLIST (not the song);
+      // line/cut loops stay inside the song, and the fast export owns its own advance.
+      if (!S.tap && !S.fastExporting && J.playlistActive(S.project) && S.project.playlist.autoPlayNext
+          && (S.loop === 'all' || !S.loop)) {
+        const next = J.playlistNextIndex(S.project.playlist, S.project.playlist.current);
+        if (next >= 0 && next !== S.project.playlist.current) { switchTrack(next, { autoplay: true }); t = 0; }
+        else if (next === S.project.playlist.current) { seek(range.start); t = range.start; }   // repeat 'one': replay this song
+        else { pause(); t = Math.min(t, S.plan.duration - 1e-3); }                              // repeat 'off' at the last song: stop
+      }
+      else if (S.loop && S.loop !== 'off' && !S.tap) { seek(range.start); t = range.start; }
       else { pause(); t = Math.min(t, S.plan.duration - 1e-3); if (S.tap) stopTap(); }
     }
     S.t = t; S.need = true;
@@ -924,6 +1013,7 @@ function renderLines() {
   });
   $('linesInfo').textContent = `${S.plan.lines.length}行 / ${S.plan.cuts.length}カット`;
   syncRangeUI();
+  syncM7Bar();   // M7 v0.32.0: overlap count on the fix button + duo checkbox state
 }
 
 /* ---------------- 行から歌詞を直す ---------------- */
@@ -955,7 +1045,8 @@ function editLine(li, ln) {
 /* ---------------- 歌詞・タイミングの取り消し（Ctrl+Z） ---------------- */
 // separate from the ◀ ▶ history of looks: lyric edits, dragged / typed / tapped line times
 const ED = { undo: [], redo: [] };
-const edSnap = () => JSON.stringify({ lyrics: S.project.lyrics, lineTimes: S.project.timing.lineTimes || {}, wordTimes: S.project.timing.wordTimes || {} });
+const edSnap = () => JSON.stringify({ lyrics: S.project.lyrics, lineTimes: S.project.timing.lineTimes || {}, wordTimes: S.project.timing.wordTimes || {},
+  lineOffsets: S.project.lineOffsets || {}, stickers: S.project.stickers || [], duo: !!S.project.duo, syllableKaraoke: !!S.project.syllableKaraoke });   // M7 v0.32.0: drag offsets + stickers + duo join the undo snapshot; P5 v0.34.0: + syllable toggle
 function pushEdit() { const s = edSnap(); if (ED.undo[ED.undo.length - 1] !== s) ED.undo.push(s); if (ED.undo.length > 60) ED.undo.shift(); ED.redo = []; updateEditBtns(); }
 function edGo(d) {
   const from = d < 0 ? ED.undo : ED.redo, to = d < 0 ? ED.redo : ED.undo;
@@ -964,6 +1055,10 @@ function edGo(d) {
   if ('ov' in o) { cur.ov = S.project.overrides; cur.range = S.project.exportRange || null; }   // clearLyrics() also cleared these
   to.push(JSON.stringify(cur));
   S.project.lyrics = o.lyrics; S.project.timing.lineTimes = o.lineTimes || {}; S.project.timing.wordTimes = o.wordTimes || {}; $('lyrics').value = o.lyrics;
+  if ('lineOffsets' in o) S.project.lineOffsets = J.lineOffsetsNormalize ? J.lineOffsetsNormalize(o.lineOffsets) : (o.lineOffsets || {});   // M7 v0.32.0 (old snapshots lack these keys)
+  if ('stickers' in o) S.project.stickers = J.stickerNormalize ? J.stickerNormalize(o.stickers) : (o.stickers || []);
+  if ('duo' in o) S.project.duo = !!o.duo;
+  if ('syllableKaraoke' in o) S.project.syllableKaraoke = !!o.syllableKaraoke;   // P5 v0.34.0 (old snapshots lack the key)
   if ('ov' in o) { S.project.overrides = o.ov || {}; S.project.exportRange = o.range || null; }
   replan(); flushSave(); updateEditBtns();
   toast(d < 0 ? '元に戻しました' : 'やり直しました');
@@ -1019,7 +1114,7 @@ function kfAddKey() {
   const lt0 = J.clamp(S.t - cut.start, 0, cut.dur);
   if (!Array.isArray(cut.keyframes)) cut.keyframes = [];
   const pose = J.keyframePoseAt(cut, lt0); // a new key captures the pose already evaluated here, so the picture does not jump
-  const nk = { t: +lt0.toFixed(3), x: +pose.x.toFixed(1), y: +pose.y.toFixed(1), rot: +pose.rot.toFixed(1), scale: +pose.scale.toFixed(2), opacity: +pose.opacity.toFixed(2), rotY: +pose.rotY.toFixed(1), rotX: +pose.rotX.toFixed(1), dolly: +pose.dolly.toFixed(2), orbit: +pose.orbit.toFixed(1) };
+  const nk = { t: +lt0.toFixed(3), x: +pose.x.toFixed(1), y: +pose.y.toFixed(1), rot: +pose.rot.toFixed(1), scale: +pose.scale.toFixed(2), opacity: +pose.opacity.toFixed(2), rotY: +pose.rotY.toFixed(1), rotX: +pose.rotX.toFixed(1), dolly: +pose.dolly.toFixed(2), orbit: +pose.orbit.toFixed(1), ease: 'linear' }; // K4 v0.26.1: new keys start linear
   const dup = cut.keyframes.findIndex(k => Math.abs(k.t - nk.t) < 0.001);
   if (dup >= 0) { cut.keyframes[dup] = nk; KF.sel = dup; }
   else { cut.keyframes.push(nk); cut.keyframes.sort((a, b) => a.t - b.t); KF.sel = cut.keyframes.indexOf(nk); }
@@ -1043,6 +1138,7 @@ function kfSetKey(idx, prop, value) { // one field of one key, from the panel (c
   const k = cut.keyframes[idx];
   pushEditOv();
   if (prop === 't') { k.t = +J.clamp(+value || 0, 0, cut.dur).toFixed(3); cut.keyframes.sort((a, b) => a.t - b.t); KF.sel = cut.keyframes.indexOf(k); }
+  else if (prop === 'ease') k.ease = J.keyframeEaseValid(value); // K4 v0.26.1: string, validated (unknown -> 'linear')
   else if (prop === 'scale') k.scale = Math.max(0.05, +value || 1);
   else if (prop === 'opacity') k.opacity = J.clamp(+value || 0, 0, 1);
   else if (prop === 'dolly') k.dolly = J.clamp(+value || 0, -1, 2); // K2: dolly-out to strong dolly-in
@@ -1177,6 +1273,12 @@ function syncWdSnapBtn() { // toggle state: aria-pressed is styled by style.css 
   if (!b) return;
   b.setAttribute('aria-pressed', String(WD.snap));
 }
+/* P4.1 v0.35.1 — word-drag snap toggle persists across reloads (own key,
+   not the project: it is an editor preference, like aura.mode). '1'/'0'
+   like aura.mobileInit; absent/garbage keeps the in-memory default (ON). */
+const WD_SNAP_KEY = 'aura.wdSnap.v1';
+function wdSnapLoad() { try { const v = localStorage.getItem(WD_SNAP_KEY); if (v === '0') WD.snap = false; else if (v === '1') WD.snap = true; } catch (e) {} }
+function wdSnapSave() { try { localStorage.setItem(WD_SNAP_KEY, WD.snap ? '1' : '0'); } catch (e) {} }
 function syncWdHint() { // usage hint / live readout / no-audio note; cached — cheap to call from drawTimeline
   const el = $('wdHint');
   if (!el) return;
@@ -1207,6 +1309,10 @@ function updateKfPanelPose() { // called from updateTimeUI: cheap text update, f
   const live = $('kfLive');
   if (live) live.textContent = kfPoseText(cut);
 }
+/* K4 v0.26.1 — display labels for the keyframe easing select (Japanese
+   literals; vi/en live in app/i18n_vi.py + app/english.py, zh/ko/id show
+   Japanese as for the other new labels). Keys must match J.keyframeEase. */
+const K4_EASE_LABEL = { linear: 'リニア', 'ease-in': 'イーズイン', 'ease-out': 'イーズアウト', 'ease-in-out': 'イーズイン・アウト', hold: 'ホールド' };
 function renderKfPanel() { // full rebuild: header + live pose + key rows + add button
   const el = $('kfPanel');
   if (!el) return;
@@ -1248,7 +1354,7 @@ function renderKfPanel() { // full rebuild: header + live pose + key rows + add 
   keys.forEach((k, idx) => {
     const row = document.createElement('div');
     row.style.cssText = 'display:flex;gap:5px;align-items:center;flex-wrap:wrap;padding:2px 4px;border-radius:4px' + (idx === KF.sel ? ';background:rgba(245,165,12,0.14)' : '');
-    row.addEventListener('click', e => { if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return; KF.sel = idx; drawTimeline(); renderKfPanel(); });
+    row.addEventListener('click', e => { if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT') return; KF.sel = idx; drawTimeline(); renderKfPanel(); }); // K4: SELECT excluded too, or opening the ease dropdown would rebuild the panel under the pointer
     const dot = document.createElement('span');
     dot.textContent = '◆ ' + (idx + 1);
     dot.style.cssText = 'color:#f5a50c;font-size:12px;min-width:26px';
@@ -1281,6 +1387,24 @@ function renderKfPanel() { // full rebuild: header + live pose + key rows + add 
       inp.addEventListener('click', () => { KF.sel = idx; drawTimeline(); });
       row.appendChild(inp);
     }
+    // K4 v0.26.1: easing of the segment FROM this key TO the next one
+    const easeLb = document.createElement('span');
+    easeLb.className = 'muted';
+    easeLb.style.cssText = 'font-size:11px';
+    easeLb.textContent = 'イージング';
+    row.appendChild(easeLb);
+    const easeSel = document.createElement('select');
+    easeSel.style.cssText = 'padding:2px 4px';
+    easeSel.setAttribute('aria-label', `キー${idx + 1} イージング`);
+    for (const name of Object.keys(J.keyframeEase)) {
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = K4_EASE_LABEL[name];
+      if ((k.ease || 'linear') === name) opt.selected = true;
+      easeSel.appendChild(opt);
+    }
+    easeSel.addEventListener('change', e => { kfSetKey(idx, 'ease', e.target.value); });
+    row.appendChild(easeSel);
     const del = document.createElement('button');
     del.className = 'ghost small';
     del.textContent = 'キーを削除';
@@ -1307,6 +1431,11 @@ function loadLrc(text) {
   replan(); flushSave(); updateEditBtns(); seek(0);
   const n = parsedLrc.lines.filter(l => l.lrc != null).length;
   toast(nWords > 0 ? `LRC を読み込みました（時刻付き ${n} 行・単語 ${nWords} 語・「元に戻す」で戻せます）` : `LRC を読み込みました（時刻付き ${n} 行・「元に戻す」で戻せます）`);
+  // M7 v0.32.0: report overlaps after import, but never fix silently — the button does that, by hand
+  if (J.validateLyricsTimings) {
+    const v = J.validateLyricsTimings(S.project);
+    if (v.hasIssues) setTimeout(() => toast(`重なりが ${v.overlapCount + v.errorCount} 件あります。「重なりを直す」で直せます`), 1200);
+  }
 }
 function saveLrc() {
   const R = exportRangeLines(), r = exportRange();
@@ -1325,6 +1454,135 @@ function clearLyrics() {
   replan(); flushSave(); updateEditBtns(); seek(0);
   toast('歌詞を消しました（「元に戻す」か Ctrl+Z で戻せます）');
 }
+
+/* ---------------- M7 v0.32.0: auto-fix overlaps + karaoke duo + canvas drag ---------------- */
+function runAutoFix() {
+  if (!J.autoFixLyricsOverlaps || S.tap || S.exporting) return null;
+  pushEdit();
+  const rep = J.autoFixLyricsOverlaps(S.project);
+  replan(); flushSave(); renderLines();
+  if (!rep.fixed) toast('重なりはありませんでした');
+  else {
+    const byRule = {};
+    for (const d of rep.details) byRule[d.rule] = (byRule[d.rule] || 0) + 1;
+    const parts = Object.entries(byRule).map(([r, c]) => `${r}×${c}`);
+    toast(`重なりを ${rep.fixed} 件直しました（${parts.join('・')}）${rep.after.hasIssues ? ' — まだ残りがあります' : ''}`);
+  }
+  return rep;
+}
+function syncM7Bar() {
+  const btn = $('lyrFixOverlap'), note = $('lyrOverlapNote'), duo = $('lyrDuo'), syl = $('lyrSyllable');
+  if (!btn) return;
+  const v = J.validateLyricsTimings ? J.validateLyricsTimings(S.project) : { overlapCount: 0, errorCount: 0, hasIssues: false };
+  const n = v.overlapCount + v.errorCount;
+  btn.disabled = !v.hasIssues;
+  btn.textContent = n ? `重なりを直す（${n}）` : '重なりを直す';
+  if (note) note.textContent = n ? `重なり ${n} 件` : '';
+  if (duo) duo.checked = !!S.project.duo;
+  if (syl) syl.checked = !!S.project.syllableKaraoke;   // P5 v0.34.0
+}
+function initM7Bar() {
+  const list = $('lineList');
+  if (!list || $('lyrFixOverlap')) return;
+  const bar = document.createElement('div');
+  bar.className = 'row'; bar.style.cssText = 'gap:6px;flex-wrap:wrap;margin:6px 0';
+  bar.innerHTML = `<button type="button" id="lyrFixOverlap" class="ghost small">重なりを直す</button>`
+    + `<label class="row" style="gap:6px"><input id="lyrDuo" type="checkbox"> 2行カラオケ</label>`
+    + `<label class="row" style="gap:6px"><input id="lyrSyllable" type="checkbox"> 音節カラオケ</label>`
+    + `<button type="button" id="lyrResetPos" class="ghost small">位置をリセット</button>`
+    + `<span id="lyrOverlapNote" class="muted"></span>`;
+  list.before(bar);
+  bar.querySelector('#lyrFixOverlap').addEventListener('click', runAutoFix);
+  bar.querySelector('#lyrDuo').addEventListener('change', (ev) => {
+    pushEdit(); S.project.duo = !!ev.target.checked; replan(); flushSave();
+  });
+  bar.querySelector('#lyrSyllable').addEventListener('change', (ev) => {   // P5 v0.34.0: karaoke theo âm tiết
+    pushEdit(); S.project.syllableKaraoke = !!ev.target.checked; replan(); flushSave();
+  });
+  bar.querySelector('#lyrResetPos').addEventListener('click', () => {
+    if (!Object.keys(S.project.lineOffsets || {}).length) { toast('ずらした行はありません'); return; }
+    pushEdit(); S.project.lineOffsets = {}; replan(); flushSave(); toast('文字の位置をリセットしました');
+  });
+  syncM7Bar();
+}
+/* canvas drag: pointerdown on #view → hit-test (topmost sticker, then the main text bbox) → move on window.
+   SonaWave CanvasStage does the same (free drag, no snap, positions rounded to 0.1%). One drag = one
+   undo step (pushEdit at dragstart); live moves only update the project + replanSoon(120), like the
+   M6 sticker sliders — no replan per tick. */
+let CD = null;   // { kind: 'text'|'sticker', line | id, off0 | x0/y0, gx, gy }
+function canvasDesignPos(ev) {
+  const cv = $('view'), r = cv.getBoundingClientRect();
+  if (!r.width || !r.height) return null;
+  return { x: (ev.clientX - r.left) / r.width * S.plan.W, y: (ev.clientY - r.top) / r.height * S.plan.H };
+}
+function canvasHitTest(ev) {
+  const p = canvasDesignPos(ev);
+  if (!p || !S.plan) return null;
+  const W = S.plan.W, H = S.plan.H;
+  const sts = (S.plan.stickers || []);
+  for (let k = sts.length - 1; k >= 0; k--) {   // topmost sticker first (drawStickers paints in array order)
+    const s = sts[k];
+    if (!(S.t >= s.start && S.t < s.end)) continue;
+    const m = J.lottieMeta ? J.lottieMeta(s.anim) : null;
+    const sh = s.size * H, sw = sh * ((m && m.w && m.h) ? m.w / m.h : 1);
+    if (Math.abs(p.x - s.x * W) <= sw / 2 + 8 && Math.abs(p.y - s.y * H) <= sh / 2 + 8)
+      return { kind: 'sticker', id: s.id, x0: s.x, y0: s.y, gx: p.x, gy: p.y };
+  }
+  const bb = S.renderer.lastMainBB;
+  if (bb && bb.line >= 0 && S.plan.lines[bb.line] && !S.plan.lines[bb.line].interlude) {
+    if (p.x >= bb.x0 - 12 && p.x <= bb.x1 + 12 && p.y >= bb.y0 - 12 && p.y <= bb.y1 + 12) {
+      const off = (S.project.lineOffsets || {})[bb.line] || { dx: 0, dy: 0 };
+      return { kind: 'text', line: bb.line, off0: { dx: off.dx || 0, dy: off.dy || 0 }, gx: p.x, gy: p.y };
+    }
+  }
+  return null;
+}
+function initCanvasDrag() {
+  const cv = $('view');
+  if (!cv || cv.dataset.m7drag) return;
+  cv.dataset.m7drag = '1';
+  cv.addEventListener('pointerdown', (ev) => {
+    if (S.tap || S.exporting || CD) return;
+    const hit = canvasHitTest(ev);
+    if (!hit) return;
+    ev.preventDefault();
+    pushEdit();
+    CD = hit;
+    try { cv.setPointerCapture(ev.pointerId); } catch (e) {}
+  });
+  cv.addEventListener('pointermove', (ev) => {
+    if (CD) return;
+    cv.style.cursor = (S.tap || S.exporting) ? '' : (canvasHitTest(ev) ? 'grab' : '');
+  });
+  const move = (ev) => {
+    if (!CD) return;
+    const p = canvasDesignPos(ev);
+    if (!p) return;
+    const W = S.plan.W, H = S.plan.H;
+    if (CD.kind === 'text') {
+      const dx = Math.round((CD.off0.dx + (p.x - CD.gx) / W) * 1000) / 1000;
+      const dy = Math.round((CD.off0.dy + (p.y - CD.gy) / H) * 1000) / 1000;
+      const o = J.lineOffsetsNormalize({ [CD.line]: { dx, dy } });
+      if (!S.project.lineOffsets) S.project.lineOffsets = {};
+      if (o[CD.line]) S.project.lineOffsets[CD.line] = o[CD.line]; else delete S.project.lineOffsets[CD.line];
+    } else {
+      const s = (S.project.stickers || []).find(x => x.id === CD.id);
+      if (!s) return;
+      s.x = Math.round(J.clamp(CD.x0 + (p.x - CD.gx) / W, 0, 1) * 1000) / 1000;
+      s.y = Math.round(J.clamp(CD.y0 + (p.y - CD.gy) / H, 0, 1) * 1000) / 1000;
+    }
+    replanSoon(120);
+  };
+  const up = () => {
+    if (!CD) return;
+    CD = null;
+    cv.style.cursor = '';
+    replan(); flushSave();
+  };
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', up);
+  window.addEventListener('pointercancel', up);
+}
 // 初期化: back to a blank project — song (also the copy kept in this browser), settings and both histories go
 let audioNameDefault = '';
 async function resetAll() {
@@ -1333,7 +1591,7 @@ async function resetAll() {
   pause();
   audioSeq++;                                  // a song still being analysed must not come back after the reset
   S.project = mergeProject(null); S.project.lyrics = '';
-  S.audio = null; if ($('audioFile')) $('audioFile').value = '';
+  S.audio = null; lastAudioFile = null; audioCache.clear(); if ($('audioFile')) $('audioFile').value = '';
   if (J.forgetSong) await J.forgetSong();
   $('audioName').textContent = audioNameDefault;
   ED.undo = []; ED.redo = []; H.list = []; H.i = -1;
@@ -1774,6 +2032,15 @@ function mobileInit() {
 
 /* ---------------- fx tab ---------------- */
 const FX = [['motion', '動きの強さ'], ['glitch', 'グリッチ'], ['chroma', '色ズレ'], ['decor', '装飾の量'], ['density', 'カットの細かさ'], ['texture', '質感'], ['bgSwitch', '背景の切替']];
+/* M6 v0.31.0: the sticker selected in the FX panel (module state, not saved) */
+let selStickerId = null;
+/* default time span for a new sticker: the lyric line under the playhead, else the whole song */
+function stickerSpanForNow() {
+  const lines = (S.plan && S.plan.lines) || [];
+  const L = lines.find(l => S.t >= (l.start || 0) && S.t < (l.visEnd != null ? l.visEnd : (l.end || 0))) || lines[0];
+  if (L) return [+((L.start || 0).toFixed(2)), +(((L.visEnd != null ? L.visEnd : L.end) || 0).toFixed(2))];
+  return [0, S.plan ? S.plan.duration : 10];
+}
 function renderFx() {
   const box = $('fxSliders'); box.innerHTML = '';
   FX.forEach(([k, label]) => {
@@ -1834,6 +2101,120 @@ function renderFx() {
     replan();
   });
   tShadow.addEventListener('change', () => { tfx.threeShadow = tShadow.checked; replanSoon(120); });
+  // v0.30.0 M5: colour grade (LUT) + particles — global, live preview
+  const gfx = S.project.fx;
+  if (!gfx.grade || typeof gfx.grade !== 'object') gfx.grade = { lut: 'none', strength: 1 };
+  const gBox = document.createElement('div');
+  const lutCats = { cinema: '映画', vintage: 'ヴィンテージ', creative: 'クリエイティブ', moody: 'ムーディー', clean: 'クリーン' };
+  const lutOpts = (J.GRADE_LUTS || []).map(l => `<option value="${l.id}"${l.id === gfx.grade.lut ? ' selected' : ''}>${l.name}${lutCats[l.cat] ? '（' + lutCats[l.cat] + '）' : ''}</option>`).join('');
+  gBox.innerHTML = `<label class="field">カラーグレーディング<select id="fxGradeLut">${lutOpts}</select></label>`
+    + `<div class="slider"><label for="fxGradeStrength">グレーディングの強さ</label><input id="fxGradeStrength" type="range" min="0" max="1" step="0.01" value="${gfx.grade.strength ?? 1}"><output>${Math.round((gfx.grade.strength ?? 1) * 100)}</output></div>`
+    + `<div class="slider"><label for="fxParticleLayers">粒子の層</label><input id="fxParticleLayers" type="range" min="1" max="5" step="1" value="${gfx.particleLayers ?? 2}"><output>${gfx.particleLayers ?? 2}</output></div>`
+    + `<label class="row" style="gap:6px"><input id="fxParticleReact" type="checkbox"${gfx.particleReact !== false ? ' checked' : ''}> 音楽に反応する粒子</label>`;
+  box.appendChild(gBox);
+  const gLut = gBox.querySelector('#fxGradeLut'), gStr = gBox.querySelector('#fxGradeStrength'), gStrOut = gBox.querySelector('#fxGradeStrength + output'),
+    gLay = gBox.querySelector('#fxParticleLayers'), gLayOut = gBox.querySelector('#fxParticleLayers + output'), gReact = gBox.querySelector('#fxParticleReact');
+  gLut.addEventListener('change', () => { gfx.grade.lut = gLut.value; replan(); });
+  gStr.addEventListener('input', () => { gfx.grade.strength = +gStr.value; gStrOut.textContent = Math.round(gStr.value * 100); replanSoon(120); });
+  gLay.addEventListener('input', () => { gfx.particleLayers = +gLay.value; gLayOut.textContent = gLay.value; replanSoon(120); });
+  gReact.addEventListener('change', () => { gfx.particleReact = gReact.checked; replan(); });
+  // v0.31.0 M6: master EQ (10 bands) — global, live on the preview audio
+  const eqNow = () => S.project.eq || (S.project.eq = J.eqDefault());
+  const eBox = document.createElement('div');
+  const eqPresetOpts = (J.EQ_PRESETS || []).map(p => `<option value="${p.id}"${p.id === eqNow().preset ? ' selected' : ''}>${p.name}</option>`).join('')
+    + `<option value="custom"${eqNow().preset === 'custom' ? ' selected' : ''}>カスタム</option>`;
+  const bandRows = (J.EQ_BANDS || []).map(b => {
+    const v = eqNow().bands ? eqNow().bands[b.id] ?? 0 : 0;
+    return `<div class="slider"><label for="fxEqBand_${b.id}">${b.label}</label><input id="fxEqBand_${b.id}" type="range" min="-12" max="12" step="0.5" value="${v}"><output>${v > 0 ? '+' : ''}${v}</output></div>`;
+  }).join('');
+  eBox.innerHTML = `<label class="field">マスターEQ<select id="fxEqPreset">${eqPresetOpts}</select></label>`
+    + `<label class="row" style="gap:6px"><input id="fxEqBypass" type="checkbox"${eqNow().bypass ? ' checked' : ''}> EQをバイパス</label>`
+    + `<div class="slider"><label for="fxEqPreamp">プリアンプ</label><input id="fxEqPreamp" type="range" min="-6" max="6" step="0.5" value="${eqNow().preamp ?? 0}"><output>${(eqNow().preamp ?? 0) > 0 ? '+' : ''}${eqNow().preamp ?? 0}</output></div>`
+    + `<label class="field">ローカット<select id="fxEqLowCut">${[0, 20, 30, 40, 80].map(f => `<option value="${f}"${(eqNow().lowCut ?? 0) === f ? ' selected' : ''}>${f === 0 ? 'オフ' : f + 'Hz'}</option>`).join('')}</select></label>`
+    + `<label class="field">ハイカット<select id="fxEqHighCut">${[20000, 18000, 16000, 14000].map(f => `<option value="${f}"${(eqNow().highCut ?? 20000) === f ? ' selected' : ''}>${f === 20000 ? 'オフ' : (f / 1000) + 'kHz'}</option>`).join('')}</select></label>`
+    + bandRows;
+  box.appendChild(eBox);
+  const eqMarkCustom = () => { const e = eqNow(); if (e.preset !== 'custom') { e.preset = 'custom'; const ps = eBox.querySelector('#fxEqPreset'); if (ps) ps.value = 'custom'; } };
+  const eqOut = (id, v) => { const o = eBox.querySelector('#' + id + ' + output'); if (o) o.textContent = (v > 0 ? '+' : '') + v; };
+  const syncEqDis = () => { const dis = !!eqNow().bypass; eBox.querySelectorAll('select, input[type=range]').forEach(el => { if (el.id !== 'fxEqBypass') el.disabled = dis; }); };
+  const syncEqVals = () => {
+    const e = eqNow();
+    eBox.querySelector('#fxEqPreset').value = e.preset;
+    eBox.querySelector('#fxEqBypass').checked = !!e.bypass;
+    eBox.querySelector('#fxEqPreamp').value = e.preamp ?? 0; eqOut('fxEqPreamp', e.preamp ?? 0);
+    eBox.querySelector('#fxEqLowCut').value = String(e.lowCut ?? 0);
+    eBox.querySelector('#fxEqHighCut').value = String(e.highCut ?? 20000);
+    for (const b of J.EQ_BANDS || []) { const v = e.bands ? e.bands[b.id] ?? 0 : 0; eBox.querySelector('#fxEqBand_' + b.id).value = v; eqOut('fxEqBand_' + b.id, v); }
+    syncEqDis();
+  };
+  syncEqDis();
+  eBox.querySelector('#fxEqPreset').addEventListener('change', (ev) => {
+    const v = ev.target.value; if (v === 'custom') return;
+    S.project.eq = J.eqApplyPreset(v); AP.applyEq(); syncEqVals(); autosave();
+  });
+  eBox.querySelector('#fxEqBypass').addEventListener('change', (ev) => { eqNow().bypass = ev.target.checked; AP.applyEq(); syncEqDis(); autosave(); });
+  eBox.querySelector('#fxEqPreamp').addEventListener('input', (ev) => { eqNow().preamp = +ev.target.value; eqMarkCustom(); eqOut('fxEqPreamp', +ev.target.value); AP.applyEq(); autosave(); });
+  eBox.querySelector('#fxEqLowCut').addEventListener('change', (ev) => { eqNow().lowCut = +ev.target.value; eqMarkCustom(); AP.applyEq(); autosave(); });
+  eBox.querySelector('#fxEqHighCut').addEventListener('change', (ev) => { eqNow().highCut = +ev.target.value; eqMarkCustom(); AP.applyEq(); autosave(); });
+  for (const b of J.EQ_BANDS || []) {
+    eBox.querySelector('#fxEqBand_' + b.id).addEventListener('input', (ev) => {
+      eqNow().bands[b.id] = +ev.target.value; eqMarkCustom(); eqOut('fxEqBand_' + b.id, +ev.target.value); AP.applyEq(); autosave();
+    });
+  }
+  // v0.31.0 M6: Lottie stickers — global overlays, time-ranged
+  const stBox = document.createElement('div');
+  const stList0 = S.project.stickers || (S.project.stickers = []);
+  const stSel = stList0.find(s => s.id === selStickerId) || stList0[0] || null;
+  if (stSel) selStickerId = stSel.id; else selStickerId = null;
+  const stOpts = `<option value="none">ステッカーを選択</option>` + (J.LOTTIE_STICKERS || []).map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  const stItems = stList0.map(s => { const d = J.lottieSticker(s.anim); return `<button type="button" class="st-item${stSel && s.id === stSel.id ? ' on' : ''}" data-st="${s.id}">${d ? d.name : s.anim} ${s.start.toFixed(1)}–${s.end.toFixed(1)}s</button>`; }).join('') || '<span class="st-none">ステッカーなし</span>';
+  stBox.innerHTML = `<label class="field">ステッカー<select id="fxStickerSel">${stOpts}</select></label>`
+    + `<div class="row" style="gap:6px"><button type="button" id="fxStickerAdd" class="ghost">ステッカーを追加</button><button type="button" id="fxStickerRemove" class="ghost"${stSel ? '' : ' disabled'}>削除</button></div>`
+    + `<div id="fxStickerList">${stItems}</div>`
+    + (stSel ? `<div class="slider"><label for="fxStickerX">横の位置</label><input id="fxStickerX" type="range" min="0" max="100" step="1" value="${Math.round(stSel.x * 100)}"><output>${Math.round(stSel.x * 100)}%</output></div>`
+    + `<div class="slider"><label for="fxStickerY">縦の位置</label><input id="fxStickerY" type="range" min="0" max="100" step="1" value="${Math.round(stSel.y * 100)}"><output>${Math.round(stSel.y * 100)}%</output></div>`
+    + `<div class="slider"><label for="fxStickerSize">大きさ</label><input id="fxStickerSize" type="range" min="5" max="60" step="1" value="${Math.round(stSel.size * 100)}"><output>${Math.round(stSel.size * 100)}%</output></div>`
+    + `<label class="field">開始（秒）<input id="fxStickerStart" type="number" min="0" step="0.1" value="${stSel.start}"></label>`
+    + `<label class="field">終了（秒）<input id="fxStickerEnd" type="number" min="0" step="0.1" value="${stSel.end}"></label>` : '');
+  box.appendChild(stBox);
+  const stCur = () => (S.project.stickers || []).find(s => s.id === selStickerId) || null;
+  stBox.querySelector('#fxStickerAdd').addEventListener('click', () => {
+    const anim = stBox.querySelector('#fxStickerSel').value;
+    if (anim === 'none' || !J.lottieSticker(anim)) { toast('ステッカーを選んでください'); return; }
+    const [a, b] = stickerSpanForNow();
+    const st = J.stickerDefault(anim, a, b);
+    (S.project.stickers || (S.project.stickers = [])).push(st);
+    selStickerId = st.id; replan(); renderFx();
+  });
+  stBox.querySelector('#fxStickerRemove').addEventListener('click', () => {
+    if (!stSel) return;
+    S.project.stickers = (S.project.stickers || []).filter(s => s.id !== stSel.id);
+    selStickerId = null; replan(); renderFx();
+  });
+  stBox.querySelectorAll('#fxStickerList .st-item').forEach(btn => btn.addEventListener('click', () => { selStickerId = btn.dataset.st; renderFx(); }));
+  if (stSel) {
+    const stSlider = (id, key, div) => {
+      stBox.querySelector('#' + id).addEventListener('input', (ev) => {
+        const s = stCur(); if (!s) return;
+        s[key] = +ev.target.value / div;
+        const o = stBox.querySelector('#' + id + ' + output'); if (o) o.textContent = ev.target.value + '%';
+        replanSoon(120);
+      });
+    };
+    stSlider('fxStickerX', 'x', 100); stSlider('fxStickerY', 'y', 100); stSlider('fxStickerSize', 'size', 100);
+    stBox.querySelector('#fxStickerStart').addEventListener('change', (ev) => {
+      const s = stCur(); if (!s) return;
+      s.start = Math.max(0, parseFloat(ev.target.value) || 0);
+      if (s.end <= s.start) s.end = s.start + 0.5;
+      replan(); renderFx();
+    });
+    stBox.querySelector('#fxStickerEnd').addEventListener('change', (ev) => {
+      const s = stCur(); if (!s) return;
+      s.end = Math.max(0, parseFloat(ev.target.value) || 0);
+      if (s.end <= s.start) s.end = s.start + 0.5;
+      replan(); renderFx();
+    });
+  }
   lockBtn('flash', $('fxFlash').closest('label'));
   lockBtn('koma', $('fxKoma').closest('label'));
   $('fxFlash').checked = !!S.project.fx.flash;
@@ -2008,21 +2389,39 @@ async function codecNote() {
   $('codecNote').textContent = vc ? `このブラウザでは ${vc.label} で書き出します（${w}×${h} / ${S.project.fps}fps）。書き出し中はタブを開いたままにしてください。` : 'このブラウザは動画エンコード（WebCodecs）に対応していません。Chrome / Edge の最新版で開くか、連番PNGを使ってください。';
   $('btnMP4').disabled = !vc; $('eMP4').disabled = !vc;
   ['btnMP4File', 'eMP4File'].forEach(id => { $(id).hidden = !vc || !canPickFile(); });
+  // M1: fast export needs MediaRecorder with at least one supported mime
+  const fastOk = !!(J.fastExportSupported && J.fastExportSupported());
+  ['btnMP4Fast', 'eMP4Fast'].forEach(id => { $(id).disabled = !fastOk; });
+  if (!fastOk) ['btnMP4Fast', 'eMP4Fast'].forEach(id => { $(id).title = 'このブラウザは高速書き出し（MediaRecorder）に対応していません。MP4書き出し（オフライン）を使ってください。'; });
   if (!vc) $('eMP4').title = 'このブラウザは MP4 書き出しに対応していません（Chrome / Edge 推奨）';
 }
-const EXP_BTNS = ['btnMP4', 'btnPNG', 'btnPNGA', 'btnPNGL', 'eMP4', 'btnMP4File', 'eMP4File', 'ePNG', 'ePNGA', 'ePNGL'];
+const EXP_BTNS = ['btnMP4', 'btnMP4Fast', 'btnPNG', 'btnPNGA', 'btnPNGL', 'eMP4', 'btnMP4File', 'eMP4File', 'eMP4Fast', 'ePNG', 'ePNGA', 'ePNGL'];
+/* M1: fast-export failures arrive as codes from 14_mediarec.js (that file is not localised) */
+const FAST_ERR = {
+  'cancelled': 'キャンセルしました',
+  'no-recorder': 'このブラウザは高速書き出し（MediaRecorder）に対応していません。MP4書き出し（オフライン）を使ってください。',
+  'no-mime': 'このブラウザは高速書き出しに対応していません。MP4書き出し（オフライン）を使ってください。',
+  'no-view': 'プレビューが準備できていません。',
+  'no-video': 'プレビューの映像を取り込めませんでした。',
+  'stalled': '書き出し中に画面が止まりました。タブを開いたまま、もう一度試してください。',
+  'timeout': '高速書き出しが時間切れになりました。MP4書き出し（オフライン）を使ってください。',
+  'no-chunks': '録画データがありませんでした。もう一度試してください。',
+  'advance-failed': 'プレイリストの次の曲に切り替えられませんでした。もう一度試してください。',
+};
 function baseName() {
   const k = J.keyMode(S.project);
-  return ((S.project.title || 'aura').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 60) || 'aura') + (k ? (k === 'green' ? '_greenback' : '_blackback') : '');
+  return ((S.project.title || 'lyricwave').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 60) || 'lyricwave') + (k ? (k === 'green' ? '_greenback' : '_blackback') : '');
 }
 const canPickFile = () => typeof window.showSaveFilePicker === 'function' && !document.documentElement.classList.contains('cep') && typeof VideoEncoder !== 'undefined';
 async function runExport(kind) {
   if (S.exporting) return;
+  // M4: export scope — one song, or the whole playlist (radio in the out tab; only when 2+ songs)
+  const scopeAll = J.playlistActive(S.project) && (document.querySelector('input[name="expScope"]:checked') || {}).value === 'all';
   // 大きな動画用: the save dialog must open straight from the click (before anything is awaited)
   let file = null, fileName = '';
   if (kind === 'mp4file') {
     try {
-      const hnd = await window.showSaveFilePicker({ suggestedName: baseName() + rangeSuffix() + '.mp4', types: [{ description: 'MP4', accept: { 'video/mp4': ['.mp4'] } }] });
+      const hnd = await window.showSaveFilePicker({ suggestedName: baseName() + (scopeAll ? '_playlist' : rangeSuffix()) + '.mp4', types: [{ description: 'MP4', accept: { 'video/mp4': ['.mp4'] } }] });
       file = await hnd.createWritable(); fileName = hnd.name;
     } catch (e) { if (e && e.name === 'AbortError') return; toast('保存先を開けませんでした: ' + (e && e.message ? e.message : e)); return; }
   }
@@ -2046,13 +2445,58 @@ async function runExport(kind) {
     await J.ensureFonts(S.project.lyrics + (S.project.title || '') + (S.project.artist || '') + HUD_CHARS, J.fontsOfPlan(S.plan));
     const lost = J.missingUserFonts(J.fontsOfPlan(S.plan).concat(Object.values(S.project.fonts || {})));
     if (lost.length) throw new Error(`読み込んだ書体（${[...new Set(lost)].join('・')}）がこのブラウザにないため、書き出しを止めました。「フォント」から同じファイルを読み込み直すか、別の書体を選んでください`);
-    if (kind === 'mp4' || kind === 'mp4file') {
-      const plan = S.plan, range = exportRange(), span = J.exportSpan(plan, range);
-      const r = await J.exportMP4({ plan, project: proj, audio: S.project.includeAudio !== false ? S.audio : null, quality: S.project.quality || 'high', onProgress, signal: ac.signal, range, file });
+    if (kind === 'mp4fast') {
+      // M1 v0.24.0: realtime MediaRecorder capture of the live preview (a second export mode next to offline)
+      const range = scopeAll ? null : exportRange(), span = J.exportSpan(S.plan, range);
+      const fastProg = p => `高速書き出し中（リアルタイム） ${Math.floor(p * 100)}%`;
+      let plOpt = null;
+      if (scopeAll) {
+        // whole playlist: start at song 1 so the recording covers every song in order
+        if (S.project.playlist.current !== 0) await switchTrack(0, { autoplay: false, fromExport: true });
+        plOpt = {
+          total: J.playlistTotalDuration(S.project.playlist.items),
+          count: S.project.playlist.items.length,
+          advance: async (i) => {
+            const ok = await switchTrack(i, { autoplay: true, fromExport: true });
+            return ok ? { duration: S.plan.duration } : null;
+          },
+        };
+      }
+      const r = await J.exportFast({ plan: S.plan, project: proj, audio: S.project.includeAudio !== false ? S.audio : null, range, onProgress: (p) => onProgress(p, fastProg(p)), signal: ac.signal, playlist: plOpt });
+      S.fastLast = { mime: r.mime, label: r.info.label, audio: r.audio, audioWanted: r.audioWanted, width: r.width, height: r.height, duration: r.duration, wallMs: Math.round(r.wallMs) };
+      const ext = J.fastFileExt(r.mime);
+      const name = baseName() + (scopeAll ? '_playlist' : rangeSuffix()) + '_fast.' + ext;
+      txt.textContent = `完成 ${(r.blob.size / 1048576).toFixed(1)}MB・${r.info.label}・${((performance.now() - t0) / 1000).toFixed(0)}秒（リアルタイム）` + (scopeAll ? `・プレイリスト全${plOpt.count}曲` : '');
+      const res = await J.saveFile(name, r.blob);
+      if (res === 'declined') txt.textContent += '（保存はキャンセルされました）';
+      offerShare(boxes, r.blob, name);
+      // the recorder's mime is the truth: only fall back to WAV when the file really has no audio
+      if (r.audioWanted && !r.audio) {
+        if (scopeAll) {
+          for (let i = 0; i < S.project.playlist.items.length; i++) {
+            const a = await loadTrackAudio(S.project.playlist.items[i]);
+            if (a && a.buffer) await J.saveFile(baseName() + '_playlist_' + String(i + 1).padStart(2, '0') + '_audio.wav', J.audioWav(a.buffer, a.duration, 0));
+          }
+        } else {
+          await J.saveFile(baseName() + rangeSuffix() + '_audio.wav', J.audioWav(S.audio.buffer, span.dur, span.t0));
+        }
+        txt.textContent += '。音声が入らなかったため、音声を WAV で別に保存しました';
+      } else if (S.project.includeAudio !== false && !S.audio && S.project.audioName) txt.textContent += '。曲が読み込まれていないため音声なしです（「曲を読み込む」から読み込み直してください）';
+      else if (S.project.includeAudio === false) txt.textContent += '。音声なしで書き出しました';
+    } else if (kind === 'mp4' || kind === 'mp4file') {
+      const range = scopeAll ? null : exportRange(), span = J.exportSpan(S.plan, range);
+      let r, segs = null;
+      if (scopeAll) {
+        // M4: one MP4 for the whole playlist — segments are built from snapshots (the editor is untouched)
+        segs = await playlistSegments((done, total) => onProgress(done / total * 0.05, 'プレイリストの曲を準備中…'));
+        r = await J.exportMP4({ plan: segs[0].plan, project: proj, audio: segs[0].audio, quality: S.project.quality || 'high', onProgress, signal: ac.signal, range: null, file, segments: segs });
+      } else {
+        r = await J.exportMP4({ plan: S.plan, project: proj, audio: S.project.includeAudio !== false ? S.audio : null, quality: S.project.quality || 'high', onProgress, signal: ac.signal, range, file });
+      }
       file = null;
-      txt.textContent = `完成 ${r.blob ? (r.blob.size / 1048576).toFixed(1) + 'MB・' : ''}${r.codec}${r.audio ? ' + ' + r.audio.toUpperCase() : ''}・${((performance.now() - t0) / 1000).toFixed(0)}秒`;
+      txt.textContent = `完成 ${r.blob ? (r.blob.size / 1048576).toFixed(1) + 'MB・' : ''}${r.codec}${r.audio ? ' + ' + r.audio.toUpperCase() : ''}・${((performance.now() - t0) / 1000).toFixed(0)}秒` + (scopeAll ? `・プレイリスト全${segs.length}曲` : '');
       if (r.blob) {
-        const name = baseName() + rangeSuffix() + '.mp4';
+        const name = baseName() + (scopeAll ? '_playlist' : rangeSuffix()) + '.mp4';
         const res = await J.saveFile(name, r.blob);
         if (res === 'declined') txt.textContent += '（保存はキャンセルされました）';
         offerShare(boxes, r.blob, name);
@@ -2060,7 +2504,14 @@ async function runExport(kind) {
       if (r.tried && r.tried.length) txt.textContent += '（最初の方法では失敗したため、別のエンコーダーで書き出しました）';
       // audio that some players cannot play (Opus), or none at all: save the soundtrack as WAV next to it
       if (r.audioWanted && r.audio !== 'aac') {
-        await J.saveFile(baseName() + rangeSuffix() + '_audio.wav', J.audioWav(S.audio.buffer, span.dur, span.t0));
+        if (scopeAll) {
+          for (let i = 0; i < segs.length; i++) {
+            const sg = segs[i];
+            if (sg.audio && sg.audio.buffer) await J.saveFile(baseName() + '_playlist_' + String(i + 1).padStart(2, '0') + '_audio.wav', J.audioWav(sg.audio.buffer, sg.plan.duration, 0));
+          }
+        } else {
+          await J.saveFile(baseName() + rangeSuffix() + '_audio.wav', J.audioWav(S.audio.buffer, span.dur, span.t0));
+        }
         txt.textContent += r.audio ? '。このブラウザでは音声が Opus になり、iPhone・QuickTime などでは音が出ないことがあるため、音声を WAV でも保存しました' : '。このブラウザは音声を書き出せないため、音声を WAV で別に保存しました（動画編集ソフトで重ねてください）';
       } else if (S.project.includeAudio !== false && !S.audio && S.project.audioName) txt.textContent += '。曲が読み込まれていないため音声なしです（「曲を読み込む」から読み込み直してください）';
     } else {
@@ -2069,7 +2520,9 @@ async function runExport(kind) {
       await J.saveFile(baseName() + rangeSuffix() + (kind === 'pnga' ? '_alpha' : kind === 'pngl' ? '_layers' : '') + '_png.zip', blob);
     }
   } catch (e) {
-    txt.textContent = 'エラー: ' + (e && e.message ? e.message : e);
+    let msg = e && e.message ? e.message : e;
+    if (e && e.fastCode && FAST_ERR[e.fastCode]) msg = FAST_ERR[e.fastCode];   // M1: codes from 14_mediarec.js
+    txt.textContent = 'エラー: ' + msg;
     console.error(e);
     if (file) { try { await file.abort(); } catch (e2) {} }
   } finally {
@@ -2208,7 +2661,7 @@ function syncUI() {
   document.querySelectorAll('.typeset-toggle').forEach(el => { el.checked = S.project.typeset === true; });
   $('lyricLang').value = J.LANG_LABEL[S.project.lang] ? S.project.lang : 'auto'; langNote();
   document.querySelectorAll('.themeSel').forEach(el => { el.value = J.THEMES[S.project.themeId] ? S.project.themeId : ''; });
-  renderFontRoles(); renderColors(); renderFx(); renderTech(); syncOut(); drawStyleGrid(); syncImageUI();
+  renderFontRoles(); renderColors(); renderFx(); renderTech(); syncOut(); drawStyleGrid(); syncImageUI(); renderPlaylist();
 }
 
 /* ---------------- wiring ---------------- */
@@ -2256,6 +2709,22 @@ function bind() {
   $('snap').addEventListener('change', e => { S.project.timing.snap = e.target.checked; replan(); });
   $('btnResetTimes').addEventListener('click', () => { S.project.timing.lineTimes = {}; replan(); });
   $('audioFile').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; if (f) loadAudioFile(f); });
+  // M4 playlist
+  $('btnPlAdd').addEventListener('click', addCurrentToPlaylist);
+  $('plFiles').addEventListener('change', async e => { const fs = e.target.files; e.target.value = ''; if (fs && fs.length) await addPlaylistFiles(fs); });
+  $('plAutoNext').addEventListener('change', e => { S.project.playlist.autoPlayNext = e.target.checked; flushSave(); });
+  $('plRepeat').addEventListener('change', e => { S.project.playlist.repeat = e.target.value; flushSave(); });
+  $('playlistList').addEventListener('click', async e => {
+    const li = e.target.closest('li[data-i]');
+    if (!li) return;
+    const i = +li.dataset.i;
+    const btn = e.target.closest('button[data-act]');
+    const act = btn ? btn.dataset.act : null;
+    if (act === 'up') moveTrack(i, -1);
+    else if (act === 'down') moveTrack(i, 1);
+    else if (act === 'del') { if (window.confirm('この曲をプレイリストから削除しますか？')) await removeTrack(i); }
+    else await switchTrack(i);
+  });
   const imgFileInput = $('imageFile');
   if (imgFileInput) {
     imgFileInput.addEventListener('change', e => {
@@ -2411,11 +2880,11 @@ function bind() {
   sc.addEventListener('input', () => { S.scrubbing = true; seek(sc.value / 10000 * S.plan.duration); });
   sc.addEventListener('change', () => { S.scrubbing = false; });
   const tl = $('timeline');
-  let drag = false, raf = 0, wdRaf = 0, wdLastEv = null; // P3 v0.21.0: WD keeps its own rAF so pointerup can flush the last move
+  let drag = false, raf = 0, wdRaf = 0, wdLastEv = null, kfRaf = 0, kfLastEv = null; // P3 v0.21.0: WD keeps its own rAF so pointerup can flush the last move; P4.1 v0.35.1: KF gets the same treatment (was sharing `raf` with TL drag, last move lost on a fast flick+release)
   tl.addEventListener('pointerdown', e => {
     tl.setPointerCapture(e.pointerId);
     const ki = S.tap || S.exporting ? -1 : tlKeyAt(e); // P2 v0.20.0 K1: diamonds first — they sit inside the cut lane
-    if (ki >= 0) { if (kfDragStart(ki)) { pause(); tl.style.cursor = 'ew-resize'; drawTimeline(); renderKfPanel(); } return; }
+    if (ki >= 0) { if (kfDragStart(ki)) { kfLastEv = null; pause(); tl.style.cursor = 'ew-resize'; drawTimeline(); renderKfPanel(); } return; }
     const wd = S.tap || S.exporting ? null : tlWordAt(e); // P3 v0.21.0: word boundary next — wave lane only, never a diamond
     if (wd && wdDragStart(wd, e)) { wdLastEv = null; pause(); tl.style.cursor = 'ew-resize'; drawTimeline(); syncWdHint(); return; }
     const ww = S.tap || S.exporting ? null : tlWordWholeAt(e); // P4 v0.22.0: word body next — drag the whole word, duration fixed
@@ -2425,7 +2894,7 @@ function bind() {
     drag = true; timelineSeek(e);
   });
   tl.addEventListener('pointermove', e => {
-    if (KF.drag >= 0) { const ev = { clientX: e.clientX, clientY: e.clientY }; cancelAnimationFrame(raf); raf = requestAnimationFrame(() => kfDragTo(ev)); return; } // P2 v0.20.0 K1
+    if (KF.drag >= 0) { const ev = { clientX: e.clientX, clientY: e.clientY }; kfLastEv = ev; cancelAnimationFrame(kfRaf); kfRaf = requestAnimationFrame(() => kfDragTo(ev)); return; } // P2 v0.20.0 K1; P4.1 v0.35.1: own rAF + last-event stash, flushed on release
     if (WD.drag >= 0) { const ev = { clientX: e.clientX, clientY: e.clientY, shiftKey: e.shiftKey }; wdLastEv = ev; cancelAnimationFrame(wdRaf); wdRaf = requestAnimationFrame(() => wdDragTo(ev)); return; } // P3 v0.21.0
     if (TL.drag >= 0) { const ev = { clientX: e.clientX, clientY: e.clientY, shiftKey: e.shiftKey }; cancelAnimationFrame(raf); raf = requestAnimationFrame(() => tlDragTo(TL.drag, ev)); return; }
     if (drag) { timelineSeek(e); return; }
@@ -2433,7 +2902,7 @@ function bind() {
     if (hv !== TL.hover) { TL.hover = hv; tl.style.cursor = (hv >= 0 || wv) ? 'ew-resize' : wWhole ? 'grab' : 'pointer'; drawTimeline(); }
     else tl.style.cursor = (hv >= 0 || wv) ? 'ew-resize' : wWhole ? 'grab' : 'pointer';
   });
-  const endDrag = () => { if (KF.drag >= 0) { kfDragEnd(); tl.style.cursor = 'pointer'; } if (WD.drag >= 0) { cancelAnimationFrame(wdRaf); if (wdLastEv) wdDragTo(wdLastEv); wdDragEnd(); tl.style.cursor = 'pointer'; } if (TL.drag >= 0) { TL.drag = -1; flushSave(); renderLines(); drawTimeline(); } drag = false; }; // P2 v0.20.0 K1: key drag commits on release; P3 v0.21.0: flush the last deferred WD move so a fast flick+release cannot lose the final pixel
+  const endDrag = () => { if (KF.drag >= 0) { cancelAnimationFrame(kfRaf); if (kfLastEv) kfDragTo(kfLastEv); kfDragEnd(); tl.style.cursor = 'pointer'; } if (WD.drag >= 0) { cancelAnimationFrame(wdRaf); if (wdLastEv) wdDragTo(wdLastEv); wdDragEnd(); tl.style.cursor = 'pointer'; } if (TL.drag >= 0) { TL.drag = -1; flushSave(); renderLines(); drawTimeline(); } drag = false; }; // P2 v0.20.0 K1: key drag commits on release; P3 v0.21.0: flush the last deferred WD move so a fast flick+release cannot lose the final pixel; P4.1 v0.35.1: same flush for KF
   tl.addEventListener('pointerup', endDrag); tl.addEventListener('pointercancel', endDrag);
   tl.addEventListener('pointerleave', () => { if (TL.hover >= 0 && TL.drag < 0) { TL.hover = -1; drawTimeline(); } });
   tl.addEventListener('wheel', e => {
@@ -2445,7 +2914,7 @@ function bind() {
   $('tlIn').addEventListener('click', () => tlZoom(1.6));
   $('tlOut').addEventListener('click', () => tlZoom(1 / 1.6));
   $('tlFit').addEventListener('click', () => { TL.z = 1; TL.off = 0; drawTimeline(); });
-  $('btnWdSnap').addEventListener('click', () => { WD.snap = !WD.snap; syncWdSnapBtn(); syncWdHint(); }); // P3 v0.21.0: word-drag snap toggle (in-memory; defaults ON on reload)
+  $('btnWdSnap').addEventListener('click', () => { WD.snap = !WD.snap; wdSnapSave(); syncWdSnapBtn(); syncWdHint(); }); // P3 v0.21.0: word-drag snap toggle; P4.1 v0.35.1: persisted (aura.wdSnap.v1), defaults ON when unset
   $('btnKeyframe').addEventListener('click', kfAddKey); // P2 v0.20.0 K1: add a key at the playhead
   $('btnUndoEdit').addEventListener('click', () => edGo(-1));
   $('tapBack').addEventListener('click', tapBack);
@@ -2526,6 +2995,7 @@ function bind() {
     toast(e.target.checked ? `中央を空けました：文字と演出を${tall ? '上下' : '左右'}に置きます` : '中央を空けるのをやめました');
   }));
   $('btnMP4').addEventListener('click', () => runExport('mp4'));
+  $('btnMP4Fast').addEventListener('click', () => runExport('mp4fast'));
   ['btnMP4File', 'eMP4File'].forEach(id => $(id).addEventListener('click', () => runExport('mp4file')));
   $('btnPNG').addEventListener('click', () => runExport('png'));
   $('btnPNGA').addEventListener('click', () => runExport('pnga'));
@@ -2535,6 +3005,7 @@ function bind() {
   $('ePNGL').addEventListener('click', () => runExport('pngl'));
   document.querySelectorAll('.exp-cancel').forEach(b => b.addEventListener('click', () => { if (S.exporting) S.exporting.abort(); }));
   $('eMP4').addEventListener('click', () => runExport('mp4'));
+  $('eMP4Fast').addEventListener('click', () => runExport('mp4fast'));
   // かんたんモード
   $('modeEasy').addEventListener('click', () => setMode('easy'));
   $('modeMobile').addEventListener('click', () => setMode('mobile'));
@@ -2559,10 +3030,11 @@ function bind() {
   const openTerms = () => { if (dlg.showModal) { if (!dlg.open) dlg.showModal(); } else dlg.setAttribute('open', ''); };
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
-  $('btnSave').addEventListener('click', () => J.saveFile(baseName() + '.aura.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '@VERSION@' }), null, 1)));
+  $('btnSave').addEventListener('click', () => { snapshotCurrentItem(); J.saveFile(baseName() + '.lyricwave.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '@VERSION@' }), null, 1)); });
   $('btnAE').addEventListener('click', () => J.saveFile(baseName() + rangeSuffix() + '_ae.json', JSON.stringify(J.planForAE(S.plan, S.project, exportRange()), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
+  initM7Bar(); initCanvasDrag();   // M7 v0.32.0: overlap-fix button + duo toggle + canvas drag
   document.querySelectorAll('.themeSel').forEach(el => el.addEventListener('change', () => {
     S.project.themeId = J.THEMES[el.value] ? el.value : null;
     document.querySelectorAll('.themeSel').forEach(x => { x.value = el.value; });
@@ -2637,6 +3109,217 @@ function bind() {
   bindFollow();
 }
 
+/* ---------------- playlist (M4 v0.29.0) ---------------- */
+/* one song's decoded audio, keyed by playlist item, so switching back and
+   forth (and a playlist export) does not decode the same file again */
+const audioCache = new Map();
+let lastAudioFile = null;   // the File behind S.audio (for "add current song")
+function playlistState() {
+  const pl = S.project.playlist;
+  return {
+    count: pl.items.length, current: pl.current, autoPlayNext: pl.autoPlayNext, repeat: pl.repeat,
+    items: pl.items.map((it, i) => ({ i, id: it.id, title: J.playlistItemTitle(it, i), audioName: it.audioName, duration: it.duration })),
+    total: J.playlistTotalDuration(pl.items),
+  };
+}
+/* decoded audio for one item: the live buffer when it is already this song,
+   the small cache, else the file from IndexedDB (null = not stored yet) */
+async function loadTrackAudio(item) {
+  if (!item) return null;
+  if (S.audio && S.project.audioName === item.audioName && J.playlistCurrentItem(S.project) === item) return S.audio;
+  if (item.audioKey && audioCache.has(item.audioKey)) return audioCache.get(item.audioKey);
+  const f = item.audioKey && J.loadSongKey ? await J.loadSongKey(item.audioKey) : null;
+  if (!f) return null;
+  try {
+    const a = await J.analyzeAudio(f);
+    if (item.audioKey) {
+      if (audioCache.size >= 3) audioCache.delete(audioCache.keys().next().value);
+      audioCache.set(item.audioKey, a);
+    }
+    return a;
+  } catch (e) { return null; }
+}
+/* apply one item's song fields to the live project (no snapshot of the old song) */
+async function applyTrack(i, opts) {
+  opts = opts || {};
+  const pl = S.project.playlist, item = pl.items[i];
+  if (!item) return false;
+  J.playlistApply(S.project, item);
+  const a = await loadTrackAudio(item);
+  if (a) {
+    S.audio = a;
+    $('audioName').textContent = `${item.audioName}（${J.fmtTime(a.duration)}・約${a.bpm}BPM）`;
+  } else {
+    S.audio = null;
+    $('audioName').textContent = (item.audioName || '') + '（曲が読み込まれていません）';
+    if (item.audioName) toast('曲が読み込まれていません — 「曲を読み込む」から読み込み直してください');
+  }
+  syncUI(); replan(); seek(0); renderPlaylist(); flushSave();
+  if (opts.autoplay) play();
+  return true;
+}
+async function switchTrack(i, opts) {
+  opts = opts || {};
+  const pl = S.project.playlist;
+  if (!pl.items.length) return false;
+  i = Math.max(0, Math.min(pl.items.length - 1, i | 0));
+  if (i === pl.current && !opts.force) return false;
+  if (S.tap || S.switching) return false;
+  if (S.exporting && !opts.fromExport) { toast('書き出し中は切り替えられません'); return false; }
+  S.switching = true;
+  const wasPlaying = S.playing;
+  const autoplay = opts.autoplay != null ? opts.autoplay : wasPlaying;
+  try {
+    pause();
+    // undo belongs to one song: switching songs starts a fresh undo history
+    ED.undo = []; ED.redo = []; updateEditBtns();
+    // keep the edits of the song we are leaving (only when it is a real item)
+    if (pl.items.length) {
+      const cur = pl.items[pl.current];
+      if (cur) pl.items[pl.current] = J.playlistSnapshot(S.project, S.audio, cur.id);
+    }
+    pl.current = i;
+    return await applyTrack(i, { autoplay });
+  } finally { S.switching = false; }
+}
+function addCurrentToPlaylist() {
+  if (S.exporting || S.tap) { toast('書き出し中は追加できません'); return false; }
+  const pl = S.project.playlist;
+  // keep the edits of the song we are leaving before the new item copies the live project
+  if (pl.items.length) {
+    const cur = pl.items[pl.current];
+    if (cur) pl.items[pl.current] = J.playlistSnapshot(S.project, S.audio, cur.id);
+  }
+  const item = J.playlistSnapshot(S.project, S.audio);
+  pl.items.push(item);
+  pl.current = pl.items.length - 1;   // the song on screen IS the one just added
+  if (lastAudioFile && J.saveSongKey) J.saveSongKey(item.audioKey, lastAudioFile);
+  renderPlaylist(); flushSave();
+  toast(`プレイリストに追加しました（${pl.items.length}曲）`);
+  return true;
+}
+async function addPlaylistFiles(files) {
+  if (S.exporting || S.tap) { toast('書き出し中は追加できません'); return false; }
+  const list = Array.from(files || []).filter(f => f && /\.(mp3|wav|m4a|aac|ogg|flac)$/i.test(f.name || ''));
+  if (!list.length) { toast('音声ファイルが見つかりませんでした'); return false; }
+  const pl = S.project.playlist;
+  let added = 0;
+  for (const f of list) {
+    let a = null;
+    try { a = await J.analyzeAudio(f); } catch (e) { a = null; }
+    if (!a) { toast(`${f.name} を読み込めませんでした`); continue; }
+    // a new song starts with empty lyrics — it must NOT inherit the open song's words
+    const item = J.playlistBlankItem();
+    const base = f.name.replace(/\.[^.]+$/, '');
+    const parts = base.split(/\s+-\s+/);
+    if (parts.length > 1) { item.artist = parts[0].trim().slice(0, 120); item.title = parts.slice(1).join(' - ').trim().slice(0, 120); }
+    else item.title = base.slice(0, 120);
+    item.audioName = f.name; item.duration = +a.duration.toFixed(3);
+    if (J.saveSongKey) J.saveSongKey(item.audioKey, f);
+    if (pl.items.length) {
+      const cur = pl.items[pl.current];
+      if (cur) pl.items[pl.current] = J.playlistSnapshot(S.project, S.audio, cur.id);
+    }
+    pl.items.push(item);
+    pl.current = pl.items.length - 1;
+    if (audioCache.size >= 3) audioCache.delete(audioCache.keys().next().value);
+    audioCache.set(item.audioKey, a);
+    lastAudioFile = f;
+    J.playlistApply(S.project, item);
+    S.audio = a;
+    added++;
+  }
+  if (added) { syncUI(); replan(); seek(0); renderPlaylist(); flushSave(); toast(`プレイリストに追加しました（${pl.items.length}曲）`); }
+  return added > 0;
+}
+async function removeTrack(i) {
+  const pl = S.project.playlist;
+  if (!pl.items.length || i < 0 || i >= pl.items.length) return false;
+  if (S.exporting || S.tap) { toast('書き出し中は削除できません'); return false; }
+  pause();
+  const [removed] = pl.items.splice(i, 1);
+  if (removed && removed.audioKey) {
+    if (J.forgetSongKey) J.forgetSongKey(removed.audioKey);
+    audioCache.delete(removed.audioKey);
+  }
+  if (!pl.items.length) { pl.current = 0; renderPlaylist(); flushSave(); return true; }   // live project keeps the last song's content
+  if (i === pl.current) {
+    // the live project still holds the removed song — apply the neighbour directly (no snapshot back into it)
+    pl.current = Math.min(i, pl.items.length - 1);
+    await applyTrack(pl.current, { autoplay: false });
+  } else {
+    if (i < pl.current) pl.current--;
+    renderPlaylist(); flushSave();
+  }
+  return true;
+}
+function moveTrack(i, dir) {
+  const pl = S.project.playlist;
+  const to = i + dir;
+  if (to < 0 || to >= pl.items.length) return false;
+  const curId = pl.items[pl.current] && pl.items[pl.current].id;
+  J.playlistMove(pl.items, i, to);
+  pl.current = Math.max(0, pl.items.findIndex(it => it.id === curId));
+  renderPlaylist(); flushSave();
+  return true;
+}
+function renderPlaylist() {
+  const list = $('playlistList'); if (!list) return;
+  const pl = S.project.playlist;
+  list.textContent = '';
+  pl.items.forEach((it, i) => {
+    const li = document.createElement('li');
+    li.dataset.i = String(i);
+    if (i === pl.current) li.className = 'pl-cur';
+    const num = document.createElement('span'); num.className = 'pl-num muted mono'; num.textContent = String(i + 1);
+    const btn = document.createElement('button'); btn.className = 'pl-play'; btn.dataset.act = 'play';
+    btn.title = it.audioName || '';
+    btn.textContent = `${J.playlistItemTitle(it, i)}${it.duration > 0 ? ' — ' + J.fmtTime(it.duration) : ''}`;
+    li.appendChild(num); li.appendChild(btn);
+    for (const [act, label, title] of [['up', '↑', '上へ'], ['down', '↓', '下へ'], ['del', '✕', '削除']]) {
+      const b = document.createElement('button'); b.className = 'ghost small pl-btn'; b.dataset.act = act; b.textContent = label; b.title = title;
+      li.appendChild(b);
+    }
+    list.appendChild(li);
+  });
+  const total = $('plTotal');
+  if (total) total.textContent = pl.items.length ? `全 ${pl.items.length} 曲・合計 ${J.fmtTime(J.playlistTotalDuration(pl.items))}` : 'プレイリストは空です（今の曲だけの動作です）';
+  const an = $('plAutoNext'); if (an) an.checked = pl.autoPlayNext !== false;
+  const rp = $('plRepeat'); if (rp) rp.value = pl.repeat || 'all';
+  const row = $('expScopeRow');
+  if (row) row.hidden = pl.items.length < 2;
+  const all = $('expScopeAll'); if (all) all.disabled = pl.items.length < 2;
+}
+/* per-song plans for a playlist export — built from snapshots, the live
+   project and audio are untouched (the export must not move the editor) */
+function audioLikeFor(proj, audio) {
+  const T = proj.timing;
+  if (audio) {
+    const a = Object.assign({}, audio);
+    if (T.bpm > 0) a.beats = J.beatGrid(T.bpm, T.beatOffset || 0, audio.duration);
+    return a;
+  }
+  if (T.bpm > 0) return { beats: J.beatGrid(T.bpm, T.beatOffset || 0, 600) };
+  return null;
+}
+async function playlistSegments(onPrepare) {
+  const pl = S.project.playlist;
+  if (pl.items.length) {
+    const cur = pl.items[pl.current];
+    if (cur) pl.items[pl.current] = J.playlistSnapshot(S.project, S.audio, cur.id);
+  }
+  const out = [];
+  for (let i = 0; i < pl.items.length; i++) {
+    const item = pl.items[i];
+    const audio = await loadTrackAudio(item);
+    const proj = Object.assign({}, S.project);
+    J.playlistApply(proj, item);
+    out.push({ plan: J.plan(proj, audioLikeFor(proj, audio)), project: proj, audio: audio || null });
+    if (onPrepare) onPrepare(i + 1, pl.items.length);
+  }
+  return out;
+}
+
 /* song file -> beat analysis (file input, or a host such as the After Effects panel) */
 let audioSeq = 0;
 async function loadAudioFile(f, restored) {
@@ -2650,6 +3333,17 @@ async function loadAudioFile(f, restored) {
     $('audioName').textContent = `${f.name}（${J.fmtTime(S.audio.duration)}・約${S.audio.bpm}BPM）` + (restored ? '・前回の曲' : '');
     S.project.audioName = f.name;
     if (!restored && J.saveSong) J.saveSong(f);             // kept in this browser: a reload does not drop the song from exports
+    lastAudioFile = f;
+    // M4: the current playlist item points at this file from now on (same key, new audio)
+    const cur = J.playlistCurrentItem(S.project);
+    if (cur) {
+      cur.audioName = f.name;
+      if (!restored && J.saveSongKey && cur.audioKey) J.saveSongKey(cur.audioKey, f);
+      if (cur.audioKey) {
+        if (audioCache.size >= 3) audioCache.delete(audioCache.keys().next().value);
+        audioCache.set(cur.audioKey, a);
+      }
+    }
     S.project.timing.snap = true;
     syncUI(); replan();
     return true;
@@ -3086,7 +3780,7 @@ async function whisperRun() {
 function boot() {
   migrateLS();
   S.project = loadLocal();
-  bind(); initVolume(); syncUI(); syncLoopBtn(); syncWdSnapBtn(); syncWdHint(); replan(); // P3 v0.21.0: snap toggle + word-drag hint
+  bind(); initVolume(); syncUI(); syncLoopBtn(); wdSnapLoad(); syncWdSnapBtn(); syncWdHint(); replan(); // P3 v0.21.0: snap toggle + word-drag hint; P4.1 v0.35.1: restore persisted snap before UI sync
   restoreFonts(); restoreUserImage();
   // Always default to pro mode on desktop so all tabs, styles, effects and settings are immediately visible
   let mode = window.matchMedia && window.matchMedia('(max-width: 760px)').matches ? 'mobile' : 'pro';
@@ -3101,11 +3795,107 @@ function boot() {
   const c0 = S.plan.cuts.find(c => c.line >= 0);
   if (c0) seek(c0.start + Math.min(c0.dur * 0.6, c0.inDur + 0.25));
   requestAnimationFrame(tick);
-  // the song used last time (same name as the saved project's) comes back after a reload
-  if (J.loadSong && S.project.audioName) J.loadSong().then(f => { if (f && f.name === S.project.audioName && !S.audio) loadAudioFile(f, true); });
+  // the song used last time (same name as the saved project's) comes back after a reload:
+  // the current playlist song by its IndexedDB key, else the old single 'song' key
+  const curItem = J.playlistCurrentItem(S.project);
+  if (curItem && curItem.audioKey && J.loadSongKey) J.loadSongKey(curItem.audioKey).then(f => { if (f && f.name === curItem.audioName && !S.audio) loadAudioFile(f, true); });
+  else if (J.loadSong && S.project.audioName) J.loadSong().then(f => { if (f && f.name === S.project.audioName && !S.audio) loadAudioFile(f, true); });
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 J.ui = S;
 // hooks for hosts that embed the app (the After Effects CEP panel)
-J.uiApi = { toast, replan, syncUI, pause, seek, flushSave, loadAudioFile, restartPreview, exportRange, exportRangeLines };
+J.uiApi = { toast, replan, syncUI, pause, play, seek, flushSave, loadAudioFile, restartPreview, exportRange, exportRangeLines, audioStream: () => AP.audioStream(), switchTrack, playlistState, addCurrentToPlaylist, removeTrack, moveTrack,
+  gradeState: () => ({ grade: Object.assign({}, S.project.fx.grade), particleLayers: S.project.fx.particleLayers, particleReact: S.project.fx.particleReact }),
+  setGrade: (lut, strength) => { const g = S.project.fx.grade || (S.project.fx.grade = { lut: 'none', strength: 1 }); if (lut != null) g.lut = lut; if (strength != null) g.strength = strength; replan(); },
+  cutDecor: () => { const cut = S.plan && S.plan.cuts.length ? J.cutAt(S.plan, S.t) : null; return cut && cut.decor && cut.decor[0] ? cut.decor[0].id : null; },
+  setCutDecor: (key) => { const cut = S.plan && S.plan.cuts.length ? J.cutAt(S.plan, S.t) : null; if (!cut) return false; setCutTech(cut.line, lyricCutK(cut), 'decor', key); replan(); return true; },
+  /* M6 v0.31.0: sticker + EQ hooks for QA (and for hosts embedding the app) */
+  stickerState: () => ({ stickers: (S.project.stickers || []).map(s => Object.assign({}, s)), selected: selStickerId }),
+  addSticker: (anim, start, end) => {
+    if (!J.lottieSticker(anim)) return null;
+    const [a, b] = (start != null && end != null) ? [start, end] : stickerSpanForNow();
+    const st = J.stickerDefault(anim, a, b);
+    (S.project.stickers || (S.project.stickers = [])).push(st);
+    selStickerId = st.id; replan(); return st.id;
+  },
+  setSticker: (id, patch) => {
+    const s = (S.project.stickers || []).find(x => x.id === id); if (!s) return false;
+    for (const k of ['anim', 'x', 'y', 'size', 'start', 'end']) if (patch && patch[k] !== undefined) s[k] = patch[k];
+    S.project.stickers = J.stickerNormalize(S.project.stickers); replan(); return true;
+  },
+  removeSticker: (id) => {
+    const n = (S.project.stickers || []).length;
+    S.project.stickers = (S.project.stickers || []).filter(s => s.id !== id);
+    if (selStickerId === id) selStickerId = null;
+    if (S.project.stickers.length !== n) { replan(); return true; } return false;
+  },
+  selectSticker: (id) => { selStickerId = id; renderFx(); },
+  /* M7 v0.32.0: karaoke duo + auto-fix + canvas drag hooks for QA (and for hosts embedding the app) */
+  duoState: () => !!S.project.duo,
+  setDuo: (b) => { pushEdit(); S.project.duo = !!b; replan(); flushSave(); return !!S.project.duo; },
+  /* P5 v0.34.0: syllable karaoke hooks for QA (and for hosts embedding the app) */
+  syllableState: () => !!S.project.syllableKaraoke,
+  setSyllable: (b) => { pushEdit(); S.project.syllableKaraoke = !!b; replan(); flushSave(); return !!S.project.syllableKaraoke; },
+  lyricOverlapCount: () => J.validateLyricsTimings ? J.validateLyricsTimings(S.project) : { hasIssues: false, overlapCount: 0, errorCount: 0, issues: [] },
+  autoFixLyrics: () => runAutoFix(),
+  lineOffsetsState: () => JSON.parse(JSON.stringify(S.project.lineOffsets || {})),
+  setLineOffset: (i, dx, dy) => {
+    pushEdit();
+    const o = J.lineOffsetsNormalize({ [i]: { dx, dy } });
+    if (!S.project.lineOffsets) S.project.lineOffsets = {};
+    if (o[i]) S.project.lineOffsets[i] = o[i]; else delete S.project.lineOffsets[i];
+    replan(); flushSave(); return true;
+  },
+  resetLineOffset: (i) => {
+    if (!S.project.lineOffsets || !(i in S.project.lineOffsets)) return false;
+    pushEdit(); delete S.project.lineOffsets[i]; replan(); flushSave(); return true;
+  },
+  lineTimesState: () => ({ lineTimes: Object.assign({}, S.project.timing.lineTimes || {}), wordTimes: JSON.parse(JSON.stringify(S.project.timing.wordTimes || {})) }),
+  setLineTime: (i, t) => {
+    pushEdit();
+    if (!S.project.timing.lineTimes) S.project.timing.lineTimes = {};
+    S.project.timing.lineTimes[i] = +t;
+    replan(); flushSave(); return true;
+  },
+  setWordTime: (i, k, start, end) => {
+    pushEdit();
+    if (!S.project.timing.wordTimes) S.project.timing.wordTimes = {};
+    if (!S.project.timing.wordTimes[i]) {
+      const planWt = S.plan.lines[i] && S.plan.lines[i].wordTimes;
+      if (!planWt) return false;
+      S.project.timing.wordTimes[i] = planWt.map(w => ({ start: w.start, end: w.end, text: w.text }));
+    }
+    const arr = S.project.timing.wordTimes[i];
+    if (!arr[k]) return false;
+    if (start != null) arr[k].start = +start;
+    if (end !== undefined) arr[k].end = end == null ? null : +end;
+    replan(); flushSave(); return true;
+  },
+  canvasHit: () => {
+    const bb = S.renderer.lastMainBB;
+    const sts = (S.plan.stickers || []).filter(s => S.t >= s.start && S.t < s.end).map(s => {
+      const m = J.lottieMeta ? J.lottieMeta(s.anim) : null;
+      const sh = s.size * S.plan.H, sw = sh * ((m && m.w && m.h) ? m.w / m.h : 1);
+      return { id: s.id, anim: s.anim, x: s.x, y: s.y, cx: s.x * S.plan.W, cy: s.y * S.plan.H, w: sw, h: sh };
+    });
+    return { line: bb ? bb.line : -1, bb: bb ? { x0: bb.x0, y0: bb.y0, x1: bb.x1, y1: bb.y1, cx: bb.cx, cy: bb.cy } : null, W: S.plan.W, H: S.plan.H, stickers: sts, duo: !!S.project.duo };
+  },
+  eqState: () => { const e = J.eqNormalize(S.project.eq); return { bypass: e.bypass, preset: e.preset, preamp: e.preamp, lowCut: e.lowCut, highCut: e.highCut, bands: Object.assign({}, e.bands) }; },
+  setEq: (preset) => {
+    if (typeof preset === 'string') { if (preset === 'custom') return false; S.project.eq = J.eqApplyPreset(preset); }
+    else if (preset && typeof preset === 'object') S.project.eq = J.eqNormalize(preset);
+    else return false;
+    AP.applyEq(); autosave(); return true;
+  },
+  setEqBand: (id, val) => {
+    const e = S.project.eq || (S.project.eq = J.eqDefault());
+    if (!J.EQ_BANDS.some(b => b.id === id)) return false;
+    e.bands[id] = Math.max(-12, Math.min(12, +val || 0)); e.preset = 'custom';
+    AP.applyEq(); autosave(); return true;
+  },
+  setEqBypass: (b) => {
+    const e = S.project.eq || (S.project.eq = J.eqDefault());
+    e.bypass = !!b; AP.applyEq(); autosave(); return true;
+  },
+};
 })();

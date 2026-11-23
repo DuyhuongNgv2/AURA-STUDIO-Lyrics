@@ -378,6 +378,6 @@ MOODS = {'glitch': '글리치', 'calm': '잔잔함', 'pop': '팝', 'graphic': '�
 
 SAMPLE = '새벽의 색을/기억해\n멀어진 목소리가 아득히 울렸어\n아직 늦지 않았을까\n*투명*한 채로는 끝낼 수 없어!'
 
-TITLE = 'AURA Motion Lyrics — 가사 모션 영상 메이커'
+TITLE = 'LyricWave Studio — 가사 모션 영상 메이커'
 
 DESCRIPTION = '브라우저에서 가사를 움직이는 가사 영상으로 만들고 MP4로 내보내세요.'

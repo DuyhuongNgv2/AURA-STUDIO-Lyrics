@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="7.0" ExtensionBundleId="com.duyhuongngv2.aura" ExtensionBundleVersion="@VERSION@" ExtensionBundleName="AURA Motion Lyrics" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<ExtensionManifest Version="7.0" ExtensionBundleId="com.duyhuongngv2.lyricwave" ExtensionBundleVersion="@VERSION@" ExtensionBundleName="LyricWave Studio" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ExtensionList>
-    <Extension Id="com.duyhuongngv2.aura.panel" Version="@VERSION@"/>
+    <Extension Id="com.duyhuongngv2.lyricwave.panel" Version="@VERSION@"/>
   </ExtensionList>
   <ExecutionEnvironment>
     <HostList>
@@ -16,7 +16,7 @@
     </RequiredRuntimeList>
   </ExecutionEnvironment>
   <DispatchInfoList>
-    <Extension Id="com.duyhuongngv2.aura.panel">
+    <Extension Id="com.duyhuongngv2.lyricwave.panel">
       <DispatchInfo>
         <Resources>
           <MainPath>./index.html</MainPath>
@@ -30,7 +30,7 @@
         </Lifecycle>
         <UI>
           <Type>Panel</Type>
-          <Menu>AURA Motion Lyrics</Menu>
+          <Menu>LyricWave Studio</Menu>
           <Geometry>
             <Size>
               <Height>860</Height>

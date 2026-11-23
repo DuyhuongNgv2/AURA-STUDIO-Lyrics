@@ -620,7 +620,15 @@
     "tyGlyphBody": "Dòng thân chữ",
     "tyTextRule": "Đường kẻ chữ",
     "tyTypeScale": "Thang cỡ chữ",
-    "tyBigPunct": "Ngoặc kép lớn"
+    "tyBigPunct": "Ngoặc kép lớn",
+    "ptRain": "Mưa rơi",
+    "ptSnow": "Tuyết rơi",
+    "ptDust": "Bụi lofi trôi",
+    "ptStars": "Sao lấp lánh",
+    "ptEmbers": "Tàn lửa bay",
+    "ptBubbles": "Bong bóng cầu vồng",
+    "ptSpeed": "Vệt tốc độ",
+    "ptWarp": "Bay xuyên hyperspace"
   },
   "treat": {
     "none": "Không",
@@ -758,7 +766,15 @@
     "eqBars": "Vạch cân bằng âm",
     "borderFrame": "Khung viền",
     "letterbox": "Khung điện ảnh",
-    "noiseField": "Nhiễu chuyển động"
+    "noiseField": "Nhiễu chuyển động",
+    "vizBarsMirror": "Sóng cột đối xứng có đỉnh",
+    "vizFlame": "Ngọn lửa phổ âm",
+    "vizMatrix": "Ma trận số cyber",
+    "vizLaser": "Tia laser quét",
+    "vizStarburst": "Vụ nổ sao",
+    "vizDna": "Xoắn kép DNA",
+    "viz3dSolar": "Hệ mặt trời 3D",
+    "viz3dCubes": "Ma trận khối 3D"
   },
   "cam": {
     "push": "Tiến chậm",
@@ -869,7 +885,13 @@
     "zoomPunch": "Phóng giật mạnh",
     "lightSweep": "Quét sáng",
     "crtOff": "Tắt màn hình CRT",
-    "splitSlide": "Tách trượt"
+    "splitSlide": "Tách trượt",
+    "filmVintage": "Cháy phim 35mm cổ điển",
+    "filmAnamorphic": "Vệt sáng xanh điện ảnh",
+    "filmPrism": "Tán sắc lăng kính",
+    "filmGolden": "Nắng chiều hoàng hôn",
+    "filmNeon": "Cháy sáng neon cyber",
+    "filmLens": "Vệt lóa ống kính đa vòng"
   },
   "trans": {
     "hrStaticCut": "Cắt nhiễu",
@@ -909,6 +931,10 @@
     "glMorph": "Biến hình",
     "glGlitch": "Nhiễu ký ức",
     "glZoom": "Phóng mờ xuyên tâm",
-    "glDream": "Phóng xoay mơ màng"
+    "glDream": "Phóng xoay mơ màng",
+    "glSwirl": "Xoáy tròn",
+    "glKaleido": "Kính vạn hoa",
+    "glPinwheel": "Chong chóng quay",
+    "glTvStatic": "Nhiễu truyền hình"
   }
 }
