@@ -1,6 +1,6 @@
 # LyricWave Studio — 文字PV自動構成ツール
 
-**English edition:** [Open the app](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/en/) · [English guide](README.en.md)　／　**Bahasa Indonesia**：[Buka](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/id/) · [Panduan](README.id.md)　**Tiếng Việt**：[Mở](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/vi/) · [Hướng dẫn](README.vi.md)　**繁體中文**：[開啟](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/zh-hant/)　**简体中文**：[打开](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/zh-hans/)　**한국어**：[열기](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/ko/) · [한국어 가이드](README.ko.md)
+**English edition:** [Open the app](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/en/) · [English guide](README.en.md)　**Tiếng Việt**：[Mở](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/vi/) · [Hướng dẫn](README.vi.md)　**繁體中文**：[開啟](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/zh-hant/)　**简体中文**：[打开](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/zh-hans/)　**한국어**：[열기](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/ko/) · [한국어 가이드](README.ko.md)
 
 英語版 AE パネル：[ScriptUI](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/LyricWave_AE_en.jsx) · [CEP](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/LyricWave_CEP_en.zip)
 
@@ -179,7 +179,7 @@
 <details>
 <summary><h3>画面の言語</h3></summary>
 
-画面は 日本語 / English / Bahasa Indonesia / Tiếng Việt / 繁體中文 / 简体中文 / 한국어 で表示できます（右上の言語メニュー）。プロジェクトの保存形式は共通で、どの言語の画面でも同じファイルを開けます。演出部品の名前は、日本語以外の画面では英語で表示します。
+画面は 日本語 / English / Tiếng Việt / 繁體中文 / 简体中文 / 한국어 で表示できます（右上の言語メニュー）。プロジェクトの保存形式は共通で、どの言語の画面でも同じファイルを開けます。演出部品の名前は、日本語以外の画面では英語で表示します。
 
 </details>
 

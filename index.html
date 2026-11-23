@@ -11,7 +11,6 @@
 <link rel="alternate" hreflang="zh-Hant" href="https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/zh-hant/">
 <link rel="alternate" hreflang="zh-Hans" href="https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/zh-hans/">
 <link rel="alternate" hreflang="ko" href="https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/ko/">
-<link rel="alternate" hreflang="id-ID" href="https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/id/">
 <link rel="alternate" hreflang="vi" href="https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="LyricWave Studio — Trình tạo video lời bài hát chữ nhảy (Kinetic Typography)">
@@ -951,7 +950,7 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
         <span class="mark" aria-hidden="true">LyricWave</span>
         <span class="word">MOTION LYRICS</span>
       </div>
-      <span class="ver">v0.35.1</span>
+      <span class="ver">v0.36.0</span>
     </div>
     <div class="proj">
       <input id="songTitle" type="text" placeholder="Tên bài hát (hiển thị trên tiêu đề và HUD)" aria-label="Tên bài hát">
@@ -960,14 +959,14 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
     <span class="gpu">● WEBGPU <em>CANVAS 60FPS · NVENC</em></span>
     <button id="btnOmakaseTop" class="primary omk-top" title="Chọn ngẫu nhiên toàn bộ phong cách, bầu không khí, hiệu ứng và bảng màu">Ngẫu nhiên</button>
     <button id="btnDiversityTop" class="primary omk-top div-top" title="Tự động áp dụng hiệu ứng CapCut độc bản, không trùng lặp cho từng câu hát (Phím D)">Độc bản</button>
-    <button id="btnMenu" class="ghost menu-btn" aria-expanded="false" aria-controls="appTrình đơn">Trình đơn</button>
+    <button id="btnMenu" class="ghost menu-btn" aria-expanded="false" aria-controls="appMenu">Trình đơn</button>
     <div class="modes" role="group" aria-label="Chế độ soạn thảo">
       <button id="modeMobile" class="mode-mobile" aria-pressed="false" title="Giao diện cho điện thoại (nút Ngẫu nhiên cố định ở trên, các dòng được thu gọn)">Điện thoại</button>
       <button id="modeEasy" aria-pressed="false" title="Giao diện đơn giản tập trung vào việc tạo tự động">Cơ bản</button>
       <button id="modePro" aria-pressed="true" title="Hiển thị tất cả cài đặt">Nâng cao</button>
       <button id="btnTour" class="ghost tour-btn" title="Hướng dẫn nhanh về chế độ đơn giản" aria-label="Hướng dẫn sử dụng">?</button>
     </div>
-    <label class="lang-switch"><span class="sr-only">Ngôn ngữ</span><select aria-label="Ngôn ngữ" onchange="if(this.value)location.href=this.value"><option value="index.html" lang="vi" selected>VI · Tiếng Việt</option><option value="en/index.html" lang="en">EN · Tiếng Anh</option><option value="ja/index.html" lang="ja">JA · Tiếng Nhật</option><option value="zh-hant/index.html" lang="zh-Hant">ZH-HANT · Tiếng Trung phồn thể</option><option value="zh-hans/index.html" lang="zh-Hans">ZH-HANS · Tiếng Trung giản thể</option><option value="ko/index.html" lang="ko">KO · Tiếng Hàn</option><option value="id/index.html" lang="id-ID">ID · Bahasa Indonesia</option></select></label>
+    <label class="lang-switch"><span class="sr-only">Ngôn ngữ</span><select aria-label="Ngôn ngữ" onchange="if(this.value)location.href=this.value"><option value="index.html" lang="vi" selected>VI · Tiếng Việt</option><option value="en/index.html" lang="en">EN · Tiếng Anh</option><option value="ja/index.html" lang="ja">JA · Tiếng Nhật</option><option value="zh-hant/index.html" lang="zh-Hant">ZH-HANT · Tiếng Trung phồn thể</option><option value="zh-hans/index.html" lang="zh-Hans">ZH-HANS · Tiếng Trung giản thể</option><option value="ko/index.html" lang="ko">KO · Tiếng Hàn</option></select></label>
     <div class="acts">
       <label class="file" title="Mở dự án đã lưu (.json)">Mở dự án<input id="fileProject" type="file" accept=".json,application/json"></label>
       <button id="btnSave" title="Lưu dự án dưới dạng .json">Lưu</button>
@@ -1022,11 +1021,11 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
           <label class="file" title="MP3, WAV, M4A, v.v...">Chọn tệp<input id="audioFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac"></label>
           <button id="btnTap" title="Nhấn vào đầu mỗi dòng trong khi bài hát đang phát">Đặt điểm chuyển cảnh</button>
           <button id="btnWhisper" title="Nghe audio để căn thời điểm bắt đầu từng dòng (chạy trong trình duyệt)">Whisper tự căn lời</button>
-          <button id="btnAlign1Click" class="primary" title="音声を聴いて各行のタイミングを合わせ、確認画面を開きます">Căn lời 1-Click</button>
+          <button id="btnAlign1Click" class="primary" title="Nghe audio để căn thời gian từng dòng và mở màn kiểm tra">Căn lời 1-Click</button>
         </div>
         <div id="whisperStatus" class="muted audio-name">Chưa chạy — cần audio thật + lời đã nhập.</div>
         <div class="row pro-only" style="margin-top:6px">
-          <label class="row" style="gap:6px">Model Whisper<select id="whisperModel" aria-label="Whisperモデル"></select></label>
+          <label class="row" style="gap:6px">Model Whisper<select id="whisperModel" aria-label="Model Whisper"></select></label>
           <button id="btnWhisperCancel" class="ghost small" hidden>Đã hủy</button>
         </div>
         <div class="fields pro-only">
@@ -1050,7 +1049,7 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
         </div>
         <div class="row" style="flex-wrap:wrap; gap:6px; margin-top:6px;">
           <label class="row" style="gap:6px"><input id="plAutoNext" type="checkbox" checked> Tự phát bài tiếp theo</label>
-          <label class="row" style="gap:6px">繰り返し<select id="plRepeat" aria-label="繰り返し"><option value="all">Lặp toàn bộ</option><option value="one">Lặp 1 bài</option><option value="off">Không lặp</option></select></label>
+          <label class="row" style="gap:6px">Lặp lại<select id="plRepeat" aria-label="Lặp lại"><option value="all">Lặp toàn bộ</option><option value="one">Lặp 1 bài</option><option value="off">Không lặp</option></select></label>
         </div>
         <p class="note">Hết bài sẽ tự chuyển sang bài tiếp theo. Chỉ có 1 bài thì hoạt động như trước. Lời, thời gian và hiệu ứng của từng bài sẽ đổi theo khi chuyển bài.</p>
       </div>
@@ -4872,7 +4871,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'LyricWave', appVersion: '0.35.1', title, artist, W, H, fps: project.fps || 24,
+    version: 1, generator: 'LyricWave', appVersion: '0.36.0', title, artist, W, H, fps: project.fps || 24,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -7367,16 +7366,16 @@ J.EQ_BANDS = [
 ];
 /* band gains in dB — exactly SonaWave's MASTER_EQ_PRESETS_DATA values */
 J.EQ_PRESETS = [
-  { id: 'flat', name: 'フラット', vi: 'Mặc Định Gốc (Flat)', en: 'Flat / Bypass', preamp: 0, lowCut: 0, highCut: 20000, bands: { b32: 0, b64: 0, b125: 0, b250: 0, b500: 0, b1k: 0, b2k: 0, b4k: 0, b8k: 0, b16k: 0 } },
-  { id: 'bass-boost', name: 'バスブースト', vi: 'Tăng Cường Bass', en: 'Bass Booster', preamp: -2, lowCut: 20, highCut: 20000, bands: { b32: 6.5, b64: 8.0, b125: 4.5, b250: 1.5, b500: 0, b1k: 0, b2k: 1.0, b4k: 2.0, b8k: 3.5, b16k: 2.0 } },
-  { id: 'sub-punch', name: 'サブパンチ', vi: 'Trống Sub Nặng', en: 'Sub-Punch', preamp: -2.5, lowCut: 20, highCut: 20000, bands: { b32: 8.5, b64: 9.0, b125: 3.5, b250: -1.0, b500: 0, b1k: 0.5, b2k: 1.5, b4k: 3.0, b8k: 2.5, b16k: 1.5 } },
-  { id: 'vocal-clarity', name: 'ボーカルクリア', vi: 'Sáng Giọng Ca', en: 'Vocal Clarity & Air', preamp: -1, lowCut: 40, highCut: 20000, bands: { b32: -3.0, b64: -2.0, b125: -1.5, b250: 1.0, b500: 2.0, b1k: 3.5, b2k: 5.5, b4k: 6.0, b8k: 4.5, b16k: 3.5 } },
-  { id: 'acoustic-warmth', name: 'アコースティック', vi: 'Ấm Áp Mộc', en: 'Acoustic Warmth', preamp: 0, lowCut: 0, highCut: 18000, bands: { b32: 1.0, b64: 2.5, b125: 4.0, b250: 3.5, b500: 1.5, b1k: 0, b2k: -1.0, b4k: -1.5, b8k: 1.5, b16k: 2.5 } },
-  { id: 'edm-club', name: 'EDMクラブ', vi: 'Đại Tiệc EDM', en: 'EDM Festival Punch', preamp: -3, lowCut: 20, highCut: 20000, bands: { b32: 7.0, b64: 8.5, b125: 4.0, b250: -2.0, b500: -2.5, b1k: 0, b2k: 2.5, b4k: 4.5, b8k: 6.5, b16k: 7.0 } },
-  { id: 'rock-metal', name: 'ロック／メタル', vi: 'Rock / Metal Mạnh Mẽ', en: 'Rock / Metal Drive', preamp: -2, lowCut: 30, highCut: 20000, bands: { b32: 4.5, b64: 6.0, b125: 3.5, b250: -1.5, b500: -3.0, b1k: -1.5, b2k: 2.5, b4k: 4.5, b8k: 5.5, b16k: 4.0 } },
-  { id: 'lofi-vintage', name: 'ローファイ', vi: 'Lofi Cổ Điển Băng Từ', en: 'Lofi Vintage Warmth', preamp: 0.5, lowCut: 30, highCut: 14000, bands: { b32: 3.0, b64: 4.5, b125: 3.5, b250: 2.5, b500: 1.0, b1k: -1.0, b2k: -2.5, b4k: -4.5, b8k: -7.0, b16k: -10.0 } },
-  { id: 'cinematic-air', name: 'シネマティック', vi: 'Điện Ảnh Không Gian', en: 'Cinematic Master', preamp: -1.5, lowCut: 0, highCut: 20000, bands: { b32: 6.0, b64: 5.0, b125: 2.0, b250: 0, b500: 1.0, b1k: 2.0, b2k: 2.5, b4k: 4.0, b8k: 6.0, b16k: 7.5 } },
-  { id: 'podcast-clean', name: 'ポッドキャスト', vi: 'Thu Âm / Giọng Nói Sạch', en: 'Podcast / Clean Speech', preamp: 0, lowCut: 80, highCut: 16000, bands: { b32: -12.0, b64: -8.0, b125: -3.0, b250: -2.0, b500: 1.0, b1k: 2.5, b2k: 4.0, b4k: 4.5, b8k: 2.0, b16k: 0 } },
+  { id: 'flat', name: 'フラット', vi: 'Mặc Định Gốc (Flat)', en: 'Flat / Bypass', zhHans: '平坦 / 直通', zhHant: '平坦 / 直通', ko: '플랫 / 기본', preamp: 0, lowCut: 0, highCut: 20000, bands: { b32: 0, b64: 0, b125: 0, b250: 0, b500: 0, b1k: 0, b2k: 0, b4k: 0, b8k: 0, b16k: 0 } },
+  { id: 'bass-boost', name: 'バスブースト', vi: 'Tăng Cường Bass', en: 'Bass Booster', zhHans: '低音增强', zhHant: '低音增強', ko: '베이스 부스트', preamp: -2, lowCut: 20, highCut: 20000, bands: { b32: 6.5, b64: 8.0, b125: 4.5, b250: 1.5, b500: 0, b1k: 0, b2k: 1.0, b4k: 2.0, b8k: 3.5, b16k: 2.0 } },
+  { id: 'sub-punch', name: 'サブパンチ', vi: 'Trống Sub Nặng', en: 'Sub-Punch', zhHans: '超低音冲击', zhHant: '超低音衝擊', ko: '서브 펀치', preamp: -2.5, lowCut: 20, highCut: 20000, bands: { b32: 8.5, b64: 9.0, b125: 3.5, b250: -1.0, b500: 0, b1k: 0.5, b2k: 1.5, b4k: 3.0, b8k: 2.5, b16k: 1.5 } },
+  { id: 'vocal-clarity', name: 'ボーカルクリア', vi: 'Sáng Giọng Ca', en: 'Vocal Clarity & Air', zhHans: '人声清晰', zhHant: '人聲清晰', ko: '보컬 선명', preamp: -1, lowCut: 40, highCut: 20000, bands: { b32: -3.0, b64: -2.0, b125: -1.5, b250: 1.0, b500: 2.0, b1k: 3.5, b2k: 5.5, b4k: 6.0, b8k: 4.5, b16k: 3.5 } },
+  { id: 'acoustic-warmth', name: 'アコースティック', vi: 'Ấm Áp Mộc', en: 'Acoustic Warmth', zhHans: '原声温暖', zhHant: '原聲溫暖', ko: '어쿠스틱 웜', preamp: 0, lowCut: 0, highCut: 18000, bands: { b32: 1.0, b64: 2.5, b125: 4.0, b250: 3.5, b500: 1.5, b1k: 0, b2k: -1.0, b4k: -1.5, b8k: 1.5, b16k: 2.5 } },
+  { id: 'edm-club', name: 'EDMクラブ', vi: 'Đại Tiệc EDM', en: 'EDM Festival Punch', zhHans: 'EDM 派对', zhHant: 'EDM 派對', ko: 'EDM 클럽', preamp: -3, lowCut: 20, highCut: 20000, bands: { b32: 7.0, b64: 8.5, b125: 4.0, b250: -2.0, b500: -2.5, b1k: 0, b2k: 2.5, b4k: 4.5, b8k: 6.5, b16k: 7.0 } },
+  { id: 'rock-metal', name: 'ロック／メタル', vi: 'Rock / Metal Mạnh Mẽ', en: 'Rock / Metal Drive', zhHans: '摇滚 / 金属', zhHant: '搖滾 / 金屬', ko: '록 / 메탈', preamp: -2, lowCut: 30, highCut: 20000, bands: { b32: 4.5, b64: 6.0, b125: 3.5, b250: -1.5, b500: -3.0, b1k: -1.5, b2k: 2.5, b4k: 4.5, b8k: 5.5, b16k: 4.0 } },
+  { id: 'lofi-vintage', name: 'ローファイ', vi: 'Lofi Cổ Điển Băng Từ', en: 'Lofi Vintage Warmth', zhHans: '复古 Lo-Fi', zhHant: '復古 Lo-Fi', ko: '로파이 빈티지', preamp: 0.5, lowCut: 30, highCut: 14000, bands: { b32: 3.0, b64: 4.5, b125: 3.5, b250: 2.5, b500: 1.0, b1k: -1.0, b2k: -2.5, b4k: -4.5, b8k: -7.0, b16k: -10.0 } },
+  { id: 'cinematic-air', name: 'シネマティック', vi: 'Điện Ảnh Không Gian', en: 'Cinematic Master', zhHans: '电影空间感', zhHant: '電影空間感', ko: '시네마틱', preamp: -1.5, lowCut: 0, highCut: 20000, bands: { b32: 6.0, b64: 5.0, b125: 2.0, b250: 0, b500: 1.0, b1k: 2.0, b2k: 2.5, b4k: 4.0, b8k: 6.0, b16k: 7.5 } },
+  { id: 'podcast-clean', name: 'ポッドキャスト', vi: 'Thu Âm / Giọng Nói Sạch', en: 'Podcast / Clean Speech', zhHans: '播客 / 清晰人声', zhHant: '播客 / 清晰人聲', ko: '팟캐스트 / 클린 보이스', preamp: 0, lowCut: 80, highCut: 16000, bands: { b32: -12.0, b64: -8.0, b125: -3.0, b250: -2.0, b500: 1.0, b1k: 2.5, b2k: 4.0, b4k: 4.5, b8k: 2.0, b16k: 0 } },
 ];
 J.eqPreset = (id) => J.EQ_PRESETS.find(p => p.id === id) || J.EQ_PRESETS[0];
 J.eqDefault = () => ({ bypass: false, preset: 'flat', preamp: 0, lowCut: 0, highCut: 20000, bands: { b32: 0, b64: 0, b125: 0, b250: 0, b500: 0, b1k: 0, b2k: 0, b4k: 0, b8k: 0, b16k: 0 } });
@@ -20723,31 +20722,31 @@ const clamp = J.clamp;
    and the numeric config exactly as in SonaWave's presets.ts. Missing
    fields default to 0 / null. */
 J.GRADE_LUTS = [
-  { id: 'none', cat: 'clean', name: 'オリジナル', vi: 'Nguyên Bản (Tự Nhiên)', en: 'Original / Neutral',
+  { id: 'none', cat: 'clean', name: 'オリジナル', vi: 'Nguyên Bản (Tự Nhiên)', en: 'Original / Neutral', zhHans: '原色（自然）', zhHant: '原色（自然）', ko: '원본 (내추럴)',
     cfg: {} },
-  { id: 'teal-orange', cat: 'cinema', name: 'ティール＆オレンジ', vi: 'Xanh Teal & Cam Hollywood', en: 'Teal & Orange Hollywood',
+  { id: 'teal-orange', cat: 'cinema', name: 'ティール＆オレンジ', vi: 'Xanh Teal & Cam Hollywood', en: 'Teal & Orange Hollywood', zhHans: '青橙好莱坞', zhHant: '青橙好萊塢', ko: '틸 & 오렌지',
     cfg: { brightness: 0, contrast: 18, saturation: 15, exposure: 0, temperature: 15, tint: -6, hueRotate: 0, sepia: 0, shadowsLift: 5, highlightsTint: '#fed7aa', shadowsTint: '#083344', splitToneIntensity: 55, vignette: 25, filmGrain: 0, bloomGlow: 0 } },
-  { id: 'cinematic-warm', cat: 'cinema', name: 'シネマティック・ウォーム', vi: 'Điện Ảnh Kodachrome Ấm', en: 'Cinematic Kodachrome',
+  { id: 'cinematic-warm', cat: 'cinema', name: 'シネマティック・ウォーム', vi: 'Điện Ảnh Kodachrome Ấm', en: 'Cinematic Kodachrome', zhHans: '暖调电影柯达', zhHant: '暖調電影柯達', ko: '시네마틱 웜',
     cfg: { brightness: 2, contrast: 20, saturation: 10, exposure: 0, temperature: 32, tint: 6, sepia: 8, shadowsLift: 0, highlightsTint: '#fef08a', shadowsTint: '#451a03', splitToneIntensity: 45, vignette: 30, filmGrain: 10, bloomGlow: 10 } },
-  { id: 'bleach-bypass', cat: 'creative', name: 'ブリーチバイパス', vi: 'Bleach Bypass Bạc (Hành Động)', en: 'Bleach Bypass Action',
+  { id: 'bleach-bypass', cat: 'creative', name: 'ブリーチバイパス', vi: 'Bleach Bypass Bạc (Hành Động)', en: 'Bleach Bypass Action', zhHans: '跳漂银盐（动作）', zhHant: '跳漂銀鹽（動作）', ko: '블리치 바이패스',
     cfg: { brightness: -4, contrast: 42, saturation: -45, exposure: 5, temperature: -10, tint: 0, shadowsLift: 15, vignette: 40, filmGrain: 25, bloomGlow: 0 } },
-  { id: 'cyberpunk-neon', cat: 'creative', name: 'サイバーパンク・ネオン', vi: 'Cyberpunk Neon Tương Lai', en: 'Cyberpunk Neon 2077',
+  { id: 'cyberpunk-neon', cat: 'creative', name: 'サイバーパンク・ネオン', vi: 'Cyberpunk Neon Tương Lai', en: 'Cyberpunk Neon 2077', zhHans: '赛博朋克霓虹', zhHant: '賽博龐克霓虹', ko: '사이버펑크 네온',
     cfg: { brightness: 2, contrast: 26, saturation: 45, exposure: 0, temperature: -12, tint: 38, hueRotate: 0, shadowsLift: 0, highlightsTint: '#f43f5e', shadowsTint: '#06b6d4', splitToneIntensity: 65, vignette: 35, bloomGlow: 30 } },
-  { id: 'vintage-70s', cat: 'vintage', name: 'ヴィンテージ70s', vi: 'Hoài Niệm Vintage 70s', en: 'Vintage 70s Polaroid',
+  { id: 'vintage-70s', cat: 'vintage', name: 'ヴィンテージ70s', vi: 'Hoài Niệm Vintage 70s', en: 'Vintage 70s Polaroid', zhHans: '复古 70 年代', zhHant: '復古 70 年代', ko: '빈티지 70s',
     cfg: { brightness: 4, contrast: -8, saturation: -15, temperature: 28, tint: -6, sepia: 30, shadowsLift: 28, vignette: 35, filmGrain: 35, bloomGlow: 15 } },
-  { id: 'golden-hour', cat: 'cinema', name: 'ゴールデンアワー', vi: 'Hoàng Hôn Nắng Vàng', en: 'Golden Hour Sunset',
+  { id: 'golden-hour', cat: 'cinema', name: 'ゴールデンアワー', vi: 'Hoàng Hôn Nắng Vàng', en: 'Golden Hour Sunset', zhHans: '黄金时刻日落', zhHant: '黃金時刻日落', ko: '골든 아워',
     cfg: { brightness: 6, contrast: 10, saturation: 22, temperature: 55, tint: 10, highlightsTint: '#f59e0b', shadowsTint: '#78350f', splitToneIntensity: 50, vignette: 20, bloomGlow: 25 } },
-  { id: 'black-and-white', cat: 'clean', name: 'モノクロ', vi: 'Đen Trắng Nghệ Thuật (B&W)', en: 'Noir Monochrome Classic',
+  { id: 'black-and-white', cat: 'clean', name: 'モノクロ', vi: 'Đen Trắng Nghệ Thuật (B&W)', en: 'Noir Monochrome Classic', zhHans: '经典黑白', zhHant: '經典黑白', ko: '흑백 모노크롬',
     cfg: { brightness: 0, contrast: 38, saturation: -100, exposure: 0, temperature: 0, tint: 0, shadowsLift: 10, vignette: 45, filmGrain: 25 } },
-  { id: 'faded-film', cat: 'vintage', name: 'フェイデッド・フィルム', vi: 'Phim Mờ Matte Faded', en: 'Matte Faded Film',
+  { id: 'faded-film', cat: 'vintage', name: 'フェイデッド・フィルム', vi: 'Phim Mờ Matte Faded', en: 'Matte Faded Film', zhHans: '褪色胶片', zhHant: '褪色底片', ko: '페이디드 필름',
     cfg: { brightness: 6, contrast: -15, saturation: -18, temperature: 12, shadowsLift: 45, vignette: 25, filmGrain: 20 } },
-  { id: 'retro-vhs', cat: 'vintage', name: 'レトロVHS', vi: 'Băng Từ VHS Thập Niên 90', en: 'Retro 90s VHS Tape',
+  { id: 'retro-vhs', cat: 'vintage', name: 'レトロVHS', vi: 'Băng Từ VHS Thập Niên 90', en: 'Retro 90s VHS Tape', zhHans: '复古 90s VHS', zhHant: '復古 90s VHS', ko: '레트로 VHS',
     cfg: { brightness: 2, contrast: 15, saturation: 25, temperature: 10, tint: 18, hueRotate: 8, shadowsLift: 22, vignette: 30, filmGrain: 45 } },
-  { id: 'matrix-green', cat: 'creative', name: 'マトリックス・グリーン', vi: 'Xanh Ma Trận Matrix', en: 'Matrix Cyber Emerald',
+  { id: 'matrix-green', cat: 'creative', name: 'マトリックス・グリーン', vi: 'Xanh Ma Trận Matrix', en: 'Matrix Cyber Emerald', zhHans: '黑客帝国绿', zhHant: '駭客任務綠', ko: '매트릭스 그린',
     cfg: { brightness: -5, contrast: 22, saturation: -12, temperature: -15, tint: -70, highlightsTint: '#86efac', shadowsTint: '#064e3b', splitToneIntensity: 70, vignette: 35, filmGrain: 15 } },
-  { id: 'moody-blue', cat: 'moody', name: 'ムーディー・ブルー', vi: 'Xanh Đêm Lạnh Tối Giản', en: 'Midnight Moody Blue',
+  { id: 'moody-blue', cat: 'moody', name: 'ムーディー・ブルー', vi: 'Xanh Đêm Lạnh Tối Giản', en: 'Midnight Moody Blue', zhHans: '午夜冷蓝', zhHant: '午夜冷藍', ko: '무디 블루',
     cfg: { brightness: -8, contrast: 22, saturation: -8, temperature: -65, tint: 12, highlightsTint: '#e0f2fe', shadowsTint: '#082f49', splitToneIntensity: 65, vignette: 40, filmGrain: 10 } },
-  { id: 'candy-pop', cat: 'creative', name: 'キャンディ・ポップ', vi: 'Kẹo Ngọt Candy Pop Rực Rỡ', en: 'Vibrant Candy Pop',
+  { id: 'candy-pop', cat: 'creative', name: 'キャンディ・ポップ', vi: 'Kẹo Ngọt Candy Pop Rực Rỡ', en: 'Vibrant Candy Pop', zhHans: '糖果波普', zhHant: '糖果波普', ko: '캔디 팝',
     cfg: { brightness: 6, contrast: 18, saturation: 55, temperature: 8, tint: 12, bloomGlow: 20, vignette: 15 } },
 ];
 J.gradeLut = id => J.GRADE_LUTS.find(l => l.id === id) || J.GRADE_LUTS[0];
@@ -40472,6 +40471,16 @@ const LOOP_COPY = {
   off:  { ja: 'Vòng lặp', en: 'Loop', titleJa: 'Không lặp', titleEn: 'No loop' },
 };
 const isEn = () => document.documentElement.lang === 'en';
+function uiLabel(item) {
+  if (!item) return '';
+  const lang = document.documentElement.lang || 'ja';
+  if (lang === 'vi' && item.vi) return item.vi;
+  if (lang === 'en' && item.en) return item.en;
+  if (lang === 'zh-Hans' && item.zhHans) return item.zhHans;
+  if (lang === 'zh-Hant' && item.zhHant) return item.zhHant;
+  if (lang === 'ko' && item.ko) return item.ko;
+  return item.name || '';
+}
 function cutAround(t) {
   const c = J.cutAt(S.plan, t);
   if (c) return c;
@@ -41303,7 +41312,7 @@ function fillCutPick() {
 // word-time editor: which lines have their word rows open (renderLines rebuilds the rows on every replan)
 const wordEdOpen = new Set();
 function wordEditRows(ln, i) {
-  const rows = (ln.wordTimes || []).map((w, k) => `<span class="wrow"><span class="w">${escapeHtml(w.text || '')}</span><input class="wstart mono" type="number" step="0.01" min="0" value="${w.start.toFixed(2)}" data-k="${k}" title="Bắt đầu (giây)" aria-label="${i + 1}dòng目 ${escapeHtml(w.text || '')} の開始giây"><span class="wend mono">〜 ${w.end.toFixed(2)}</span></span>`).join('');
+  const rows = (ln.wordTimes || []).map((w, k) => `<span class="wrow"><span class="w">${escapeHtml(w.text || '')}</span><input class="wstart mono" type="number" step="0.01" min="0" value="${w.start.toFixed(2)}" data-k="${k}" title="Bắt đầu (giây)" aria-label="Giờ bắt đầu của ${escapeHtml(w.text || '')} ở dòng ${i + 1}"><span class="wend mono">〜 ${w.end.toFixed(2)}</span></span>`).join('');
   return `<span class="whead">Giờ từng từ</span>${rows}`;
 }
 function renderLines() {
@@ -41331,7 +41340,7 @@ function renderLines() {
       <div class="meta"><span class="cuts"></span>
       <span class="tools">
         <button class="icon ghost edit" title="Chỉnh sửa lời bài hát" aria-label="Chỉnh sửa lời bài hát trên ${i + 1}">${ICON.pen}</button>
-        ${hasWords ? `<button class="icon ghost wtog" title="Giờ từng từ" aria-label="${i + 1}dòng目のGiờ từng từ" aria-pressed="${wordEdOpen.has(i) ? 'true' : 'false'}">${ICON.clock}</button><button class="icon ghost wdel" title="Xóa giờ từng từ của dòng này" aria-label="${i + 1}dòng目の単語時刻を消す">${ICON.x}</button>` : ''}
+        ${hasWords ? `<button class="icon ghost wtog" title="Giờ từng từ" aria-label="Giờ từng từ dòng ${i + 1}" aria-pressed="${wordEdOpen.has(i) ? 'true' : 'false'}">${ICON.clock}</button><button class="icon ghost wdel" title="Xóa giờ từng từ của dòng này" aria-label="Xóa giờ từng từ dòng ${i + 1}">${ICON.x}</button>` : ''}
         ${ln.interlude ? '' : `<select class="ncut" aria-label="Số lần cắt trong hàng ${i + 1}">${cutOpts}</select>`}
         ${ln.interlude ? '' : `<select class="lay pro-only" aria-label="Chọn bố cục"></select>`}
         <button class="icon ghost tapfrom" title="Đặt lại điểm đánh dấu chuyển cảnh" aria-label="Đồng bộ hóa với các nhịp bắt đầu từ hàng ${i + 1}">${ICON.tap}</button>
@@ -41826,7 +41835,7 @@ function renderKfPanel() { // full rebuild: header + live pose + key rows + add 
       if (min != null) inp.min = String(min);
       if (max != null) inp.max = String(max);
       inp.style.cssText = `width:${w}px;padding:2px 4px`;
-      inp.setAttribute('aria-label', `キー${idx + 1} ${label}`);
+      inp.setAttribute('aria-label', `Key ${idx + 1} ${label}`);
       inp.addEventListener('change', e => { const v = parseFloat(e.target.value); if (isFinite(v)) kfSetKey(idx, prop, v); else renderKfPanel(); });
       inp.addEventListener('click', () => { KF.sel = idx; drawTimeline(); });
       row.appendChild(inp);
@@ -41839,7 +41848,7 @@ function renderKfPanel() { // full rebuild: header + live pose + key rows + add 
     row.appendChild(easeLb);
     const easeSel = document.createElement('select');
     easeSel.style.cssText = 'padding:2px 4px';
-    easeSel.setAttribute('aria-label', `キー${idx + 1} イージング`);
+    easeSel.setAttribute('aria-label', `Key ${idx + 1} Easing`);
     for (const name of Object.keys(J.keyframeEase)) {
       const opt = document.createElement('option');
       opt.value = name;
@@ -41920,8 +41929,8 @@ function syncM7Bar() {
   const v = J.validateLyricsTimings ? J.validateLyricsTimings(S.project) : { overlapCount: 0, errorCount: 0, hasIssues: false };
   const n = v.overlapCount + v.errorCount;
   btn.disabled = !v.hasIssues;
-  btn.textContent = n ? `Sửa chồng lấn（${n}）` : 'Sửa chồng lấn';
-  if (note) note.textContent = n ? `重なり ${n} 件` : '';
+  btn.textContent = n ? `Sửa chồng lấn (${n})` : 'Sửa chồng lấn';
+  if (note) note.textContent = n ? `${n} chỗ chồng lấn` : '';
   if (duo) duo.checked = !!S.project.duo;
   if (syl) syl.checked = !!S.project.syllableKaraoke;   // P5 v0.34.0
 }
@@ -42549,8 +42558,8 @@ function renderFx() {
   const gfx = S.project.fx;
   if (!gfx.grade || typeof gfx.grade !== 'object') gfx.grade = { lut: 'none', strength: 1 };
   const gBox = document.createElement('div');
-  const lutCats = { cinema: '映画', vintage: 'ヴィンテージ', creative: 'クリエイティブ', moody: 'ムーディー', clean: 'クリーン' };
-  const lutOpts = (J.GRADE_LUTS || []).map(l => `<option value="${l.id}"${l.id === gfx.grade.lut ? ' selected' : ''}>${l.name}${lutCats[l.cat] ? '（' + lutCats[l.cat] + '）' : ''}</option>`).join('');
+  const lutCats = { cinema: 'Điện ảnh', vintage: 'Cổ điển', creative: 'Sáng tạo', moody: 'Trầm lắng', clean: 'Tự nhiên' };
+  const lutOpts = (J.GRADE_LUTS || []).map(l => `<option value="${l.id}"${l.id === gfx.grade.lut ? ' selected' : ''}>${uiLabel(l)}${lutCats[l.cat] ? '（' + lutCats[l.cat] + '）' : ''}</option>`).join('');
   gBox.innerHTML = `<label class="field">Chỉnh màu (LUT)<select id="fxGradeLut">${lutOpts}</select></label>`
     + `<div class="slider"><label for="fxGradeStrength">Độ mạnh của chỉnh màu</label><input id="fxGradeStrength" type="range" min="0" max="1" step="0.01" value="${gfx.grade.strength ?? 1}"><output>${Math.round((gfx.grade.strength ?? 1) * 100)}</output></div>`
     + `<div class="slider"><label for="fxParticleLayers">Số lớp hạt</label><input id="fxParticleLayers" type="range" min="1" max="5" step="1" value="${gfx.particleLayers ?? 2}"><output>${gfx.particleLayers ?? 2}</output></div>`
@@ -42565,7 +42574,7 @@ function renderFx() {
   // v0.31.0 M6: master EQ (10 bands) — global, live on the preview audio
   const eqNow = () => S.project.eq || (S.project.eq = J.eqDefault());
   const eBox = document.createElement('div');
-  const eqPresetOpts = (J.EQ_PRESETS || []).map(p => `<option value="${p.id}"${p.id === eqNow().preset ? ' selected' : ''}>${p.name}</option>`).join('')
+  const eqPresetOpts = (J.EQ_PRESETS || []).map(p => `<option value="${p.id}"${p.id === eqNow().preset ? ' selected' : ''}>${uiLabel(p)}</option>`).join('')
     + `<option value="custom"${eqNow().preset === 'custom' ? ' selected' : ''}>Tùy chỉnh</option>`;
   const bandRows = (J.EQ_BANDS || []).map(b => {
     const v = eqNow().bands ? eqNow().bands[b.id] ?? 0 : 0;
@@ -42610,8 +42619,8 @@ function renderFx() {
   const stList0 = S.project.stickers || (S.project.stickers = []);
   const stSel = stList0.find(s => s.id === selStickerId) || stList0[0] || null;
   if (stSel) selStickerId = stSel.id; else selStickerId = null;
-  const stOpts = `<option value="none">Chọn sticker</option>` + (J.LOTTIE_STICKERS || []).map(s => `<option value="${s.id}">${s.name}</option>`).join('');
-  const stItems = stList0.map(s => { const d = J.lottieSticker(s.anim); return `<button type="button" class="st-item${stSel && s.id === stSel.id ? ' on' : ''}" data-st="${s.id}">${d ? d.name : s.anim} ${s.start.toFixed(1)}–${s.end.toFixed(1)}s</button>`; }).join('') || '<span class="st-none">Chưa có sticker</span>';
+  const stOpts = `<option value="none">Chọn sticker</option>` + (J.LOTTIE_STICKERS || []).map(s => `<option value="${s.id}">${uiLabel(s)}</option>`).join('');
+  const stItems = stList0.map(s => { const d = J.lottieSticker(s.anim); return `<button type="button" class="st-item${stSel && s.id === stSel.id ? ' on' : ''}" data-st="${s.id}">${d ? uiLabel(d) : s.anim} ${s.start.toFixed(1)}–${s.end.toFixed(1)}s</button>`; }).join('') || '<span class="st-none">Chưa có sticker</span>';
   stBox.innerHTML = `<label class="field">Sticker<select id="fxStickerSel">${stOpts}</select></label>`
     + `<div class="row" style="gap:6px"><button type="button" id="fxStickerAdd" class="ghost">Thêm sticker</button><button type="button" id="fxStickerRemove" class="ghost"${stSel ? '' : ' disabled'}>Xóa</button></div>`
     + `<div id="fxStickerList">${stItems}</div>`
@@ -43201,15 +43210,7 @@ function bind() {
       res.img.onload = () => {
         J.userImageElement = res.img;
         J.userImageData = res.dataUrl;
-        const nameMap = {
-          galaxy: '🌌 Vũ trụ Deep Galaxy',
-          cyberpunk: '🌃 Thành phố Cyberpunk',
-          lofi_sunset: '☕ Hoàng hôn Lo-Fi Chill',
-          stage: '🎙️ Sân khấu Spotlight',
-          night_rain: '🌧️ Mưa đêm thành phố',
-          retro_vinyl: '📼 Đĩa than Vinyl cổ điển',
-          dark_minimal: '🖤 Đen khói huyền bí'
-        };
+        const opt = stockPresetSel.options[stockPresetSel.selectedIndex];
         const motionMap = {
           galaxy: 'float',
           cyberpunk: 'beatpulse',
@@ -43219,7 +43220,7 @@ function bind() {
           retro_vinyl: 'spin',
           dark_minimal: 'kenburns'
         };
-        const stockName = nameMap[val] || val;
+        const stockName = (opt && opt.textContent) || val;
         J.userImageName = stockName;
         J.userImageMode = motionMap[val] || 'kenburns';
         J.userImageDim = 0.45;
@@ -43474,7 +43475,7 @@ function bind() {
   const openTerms = () => { if (dlg.showModal) { if (!dlg.open) dlg.showModal(); } else dlg.setAttribute('open', ''); };
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
-  $('btnSave').addEventListener('click', () => { snapshotCurrentItem(); J.saveFile(baseName() + '.lyricwave.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '0.35.1' }), null, 1)); });
+  $('btnSave').addEventListener('click', () => { snapshotCurrentItem(); J.saveFile(baseName() + '.lyricwave.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '0.36.0' }), null, 1)); });
   $('btnAE').addEventListener('click', () => J.saveFile(baseName() + rangeSuffix() + '_ae.json', JSON.stringify(J.planForAE(S.plan, S.project, exportRange()), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
@@ -43718,16 +43719,17 @@ function renderPlaylist() {
     const num = document.createElement('span'); num.className = 'pl-num muted mono'; num.textContent = String(i + 1);
     const btn = document.createElement('button'); btn.className = 'pl-play'; btn.dataset.act = 'play';
     btn.title = it.audioName || '';
-    btn.textContent = `${J.playlistItemTitle(it, i)}${it.duration > 0 ? ' — ' + J.fmtTime(it.duration) : ''}`;
+    const rawTitle = (it.title && it.title.trim()) || (it.audioName && it.audioName.replace(/\.[^.]+$/, '')) || `Bài ${i + 1}`;
+    btn.textContent = `${rawTitle}${it.duration > 0 ? ' — ' + J.fmtTime(it.duration) : ''}`;
     li.appendChild(num); li.appendChild(btn);
-    for (const [act, label, title] of [['up', '↑', '上へ'], ['down', '↓', '下へ'], ['del', '✕', 'Xóa']]) {
+    for (const [act, label, title] of [['up', '↑', 'Lên trên'], ['down', '↓', 'Xuống dưới'], ['del', '✕', 'Xóa']]) {
       const b = document.createElement('button'); b.className = 'ghost small pl-btn'; b.dataset.act = act; b.textContent = label; b.title = title;
       li.appendChild(b);
     }
     list.appendChild(li);
   });
   const total = $('plTotal');
-  if (total) total.textContent = pl.items.length ? `全 ${pl.items.length} 曲·合計 ${J.fmtTime(J.playlistTotalDuration(pl.items))}` : 'プレイリストは空です（今の曲だけの動作です）';
+  if (total) total.textContent = pl.items.length ? `Tổng ${pl.items.length} bài · ${J.fmtTime(J.playlistTotalDuration(pl.items))}` : 'Playlist đang trống (chỉ phát bài hiện tại)';
   const an = $('plAutoNext'); if (an) an.checked = pl.autoPlayNext !== false;
   const rp = $('plRepeat'); if (rp) rp.value = pl.repeat || 'all';
   const row = $('expScopeRow');
@@ -45643,14 +45645,14 @@ J.viz3dCubeBin = (dist, n) => Math.min(n - 1, Math.floor(dist * n * 0.65));
 /* id, Japanese display name, Vietnamese, English — the picker shows the
    Japanese literal (i18n pass) like every other effect name. */
 J.LOTTIE_STICKERS = [
-  { id: 'stVinyl', name: 'レコード', vi: 'Đĩa than xoay', en: 'Spinning vinyl' },
-  { id: 'stEqualizer', name: 'イコライザー', vi: 'Sóng nhạc equalizer', en: 'Equalizer wave' },
-  { id: 'stHeart', name: 'ハート', vi: 'Trái tim neon đập', en: 'Neon beating heart' },
-  { id: 'stNotes', name: '音符', vi: 'Nốt nhạc bay', en: 'Dancing music notes' },
-  { id: 'stLightning', name: '雷', vi: 'Tia sét cyber', en: 'Cyber lightning bolt' },
-  { id: 'stSpeaker', name: 'スピーカー', vi: 'Loa bass nảy', en: 'Pumping bass speaker' },
-  { id: 'stSparkle', name: '星', vi: 'Sao lấp lánh', en: 'Sparkling stars' },
-  { id: 'stFlame', name: '炎', vi: 'Ngọn lửa theo nhạc', en: 'Fire flame beat' },
+  { id: 'stVinyl', name: 'レコード', vi: 'Đĩa than xoay', en: 'Spinning vinyl', zhHans: '旋转黑胶', zhHant: '旋轉黑膠', ko: '회전 바이닐' },
+  { id: 'stEqualizer', name: 'イコライザー', vi: 'Sóng nhạc equalizer', en: 'Equalizer wave', zhHans: '均衡器音波', zhHant: '等化器音波', ko: '이퀄라이저 파형' },
+  { id: 'stHeart', name: 'ハート', vi: 'Trái tim neon đập', en: 'Neon beating heart', zhHans: '霓虹跳动爱心', zhHant: '霓虹跳動愛心', ko: '네온 하트' },
+  { id: 'stNotes', name: '音符', vi: 'Nốt nhạc bay', en: 'Dancing music notes', zhHans: '跃动音符', zhHant: '躍動音符', ko: '춤추는 음표' },
+  { id: 'stLightning', name: '雷', vi: 'Tia sét cyber', en: 'Cyber lightning bolt', zhHans: '赛博闪电', zhHant: '賽博閃電', ko: '사이버 번개' },
+  { id: 'stSpeaker', name: 'スピーカー', vi: 'Loa bass nảy', en: 'Pumping bass speaker', zhHans: '重低音音箱', zhHant: '重低音喇叭', ko: '베이스 스피커' },
+  { id: 'stSparkle', name: '星', vi: 'Sao lấp lánh', en: 'Sparkling stars', zhHans: '闪烁星星', zhHant: '閃爍星星', ko: '반짝이는 별' },
+  { id: 'stFlame', name: '炎', vi: 'Ngọn lửa theo nhạc', en: 'Fire flame beat', zhHans: '节拍火焰', zhHant: '節拍火焰', ko: '비트 불꽃' },
 ];
 J.lottieSticker = (id) => J.LOTTIE_STICKERS.find(s => s.id === id) || null;
 /* { w, h, fr, ip, op } of an embedded animation, or null when unknown */

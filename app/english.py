@@ -740,3 +740,35 @@ UI.update({
     '`単語「${w.text}」 ${WD.t.toFixed(2)}〜${(WD.t + WD.dur).toFixed(2)}秒`': '`Word “${w.text}” ${WD.t.toFixed(2)}–${(WD.t + WD.dur).toFixed(2)}s`',
     "'（カットなし）'": "'(no cut)'",
 })
+
+# v0.36.0 i18n cleanup (appended updates — same keys as the in-block additions in the Gate 0 patch)
+BODY.update({
+    'title="見出し [Verse] を挿入"': 'title="Insert [Verse] header"',
+    'title="見出し [Chorus] を挿入"': 'title="Insert [Chorus] header"',
+    'title="見出し [Bridge] を挿入"': 'title="Insert [Bridge] header"',
+    'title="カット区切り / を挿入">+ 区切り ( / )': 'title="Insert cut marker /">+ Cut ( / )',
+    'title="強調記号 *語* を挿入">+ 強調 ( * )': 'title="Insert emphasis *word*">+ Emphasis ( * )',
+    'aria-label="Whisperモデル"': 'aria-label="Whisper model"',
+    'title="音声を聴いて各行のタイミングを合わせ、確認画面を開きます"': 'title="Listen to the audio, align each line and open the review dialog"',
+    '繰り返し<select id="plRepeat" aria-label="繰り返し">': 'Repeat<select id="plRepeat" aria-label="Repeat">',
+})
+
+UI.update({
+    "`全 ${pl.items.length} 曲・合計 ${J.fmtTime(J.playlistTotalDuration(pl.items))}`": "`${pl.items.length} songs · total ${J.fmtTime(J.playlistTotalDuration(pl.items))}`",
+    "'プレイリストは空です（今の曲だけの動作です）'": "'Playlist is empty (single-song mode)'",
+    "`曲 ${i + 1}`": "`Song ${i + 1}`",
+    "'上へ'": "'Move up'",
+    "'下へ'": "'Move down'",
+    "cinema: '映画'": "cinema: 'Cinema'",
+    "vintage: 'ヴィンテージ'": "vintage: 'Vintage'",
+    "creative: 'クリエイティブ'": "creative: 'Creative'",
+    "moody: 'ムーディー'": "moody: 'Moody'",
+    "clean: 'クリーン'": "clean: 'Clean'",
+    "`キー${idx + 1} ${label}`": "`Key ${idx + 1} ${label}`",
+    "`キー${idx + 1} イージング`": "`Key ${idx + 1} Easing`",
+    'aria-label="${i + 1}行目の単語の時刻"': 'aria-label="Word timings for line ${i + 1}"',
+    'aria-label="${i + 1}行目の単語時刻を消す"': 'aria-label="Clear word timings for line ${i + 1}"',
+    'aria-label="${i + 1}行目 ${escapeHtml(w.text || \'\')} の開始秒"': 'aria-label="Start time of ${escapeHtml(w.text || \'\')} on line ${i + 1}"',
+    "`重なり ${n} 件`": "`${n} overlaps`",
+    "`重なりを直す（${n}）`": "`Fix overlaps (${n})`",
+})

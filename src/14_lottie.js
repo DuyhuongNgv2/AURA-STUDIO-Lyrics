@@ -15,14 +15,14 @@
 /* id, Japanese display name, Vietnamese, English — the picker shows the
    Japanese literal (i18n pass) like every other effect name. */
 J.LOTTIE_STICKERS = [
-  { id: 'stVinyl', name: 'レコード', vi: 'Đĩa than xoay', en: 'Spinning vinyl' },
-  { id: 'stEqualizer', name: 'イコライザー', vi: 'Sóng nhạc equalizer', en: 'Equalizer wave' },
-  { id: 'stHeart', name: 'ハート', vi: 'Trái tim neon đập', en: 'Neon beating heart' },
-  { id: 'stNotes', name: '音符', vi: 'Nốt nhạc bay', en: 'Dancing music notes' },
-  { id: 'stLightning', name: '雷', vi: 'Tia sét cyber', en: 'Cyber lightning bolt' },
-  { id: 'stSpeaker', name: 'スピーカー', vi: 'Loa bass nảy', en: 'Pumping bass speaker' },
-  { id: 'stSparkle', name: '星', vi: 'Sao lấp lánh', en: 'Sparkling stars' },
-  { id: 'stFlame', name: '炎', vi: 'Ngọn lửa theo nhạc', en: 'Fire flame beat' },
+  { id: 'stVinyl', name: 'レコード', vi: 'Đĩa than xoay', en: 'Spinning vinyl', zhHans: '旋转黑胶', zhHant: '旋轉黑膠', ko: '회전 바이닐' },
+  { id: 'stEqualizer', name: 'イコライザー', vi: 'Sóng nhạc equalizer', en: 'Equalizer wave', zhHans: '均衡器音波', zhHant: '等化器音波', ko: '이퀄라이저 파형' },
+  { id: 'stHeart', name: 'ハート', vi: 'Trái tim neon đập', en: 'Neon beating heart', zhHans: '霓虹跳动爱心', zhHant: '霓虹跳動愛心', ko: '네온 하트' },
+  { id: 'stNotes', name: '音符', vi: 'Nốt nhạc bay', en: 'Dancing music notes', zhHans: '跃动音符', zhHant: '躍動音符', ko: '춤추는 음표' },
+  { id: 'stLightning', name: '雷', vi: 'Tia sét cyber', en: 'Cyber lightning bolt', zhHans: '赛博闪电', zhHant: '賽博閃電', ko: '사이버 번개' },
+  { id: 'stSpeaker', name: 'スピーカー', vi: 'Loa bass nảy', en: 'Pumping bass speaker', zhHans: '重低音音箱', zhHant: '重低音喇叭', ko: '베이스 스피커' },
+  { id: 'stSparkle', name: '星', vi: 'Sao lấp lánh', en: 'Sparkling stars', zhHans: '闪烁星星', zhHant: '閃爍星星', ko: '반짝이는 별' },
+  { id: 'stFlame', name: '炎', vi: 'Ngọn lửa theo nhạc', en: 'Fire flame beat', zhHans: '节拍火焰', zhHant: '節拍火焰', ko: '비트 불꽃' },
 ];
 J.lottieSticker = (id) => J.LOTTIE_STICKERS.find(s => s.id === id) || null;
 /* { w, h, fr, ip, op } of an embedded animation, or null when unknown */

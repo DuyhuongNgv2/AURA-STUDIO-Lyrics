@@ -11,7 +11,6 @@
 <link rel="alternate" hreflang="zh-Hant" href="https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/zh-hant/">
 <link rel="alternate" hreflang="zh-Hans" href="https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/zh-hans/">
 <link rel="alternate" hreflang="ko" href="https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/ko/">
-<link rel="alternate" hreflang="id-ID" href="https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/id/">
 <link rel="alternate" hreflang="vi" href="https://DuyhuongNgv2.github.io/AURA-STUDIO-Lyrics/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="LyricWave Studio — 動態歌詞影片製作工具">
@@ -951,7 +950,7 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
         <span class="mark" aria-hidden="true">LyricWave</span>
         <span class="word">MOTION LYRICS</span>
       </div>
-      <span class="ver">v0.35.1</span>
+      <span class="ver">v0.36.0</span>
     </div>
     <div class="proj">
       <input id="songTitle" type="text" placeholder="歌名（顯示在標題卡與 HUD）" aria-label="歌名">
@@ -959,7 +958,7 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
     </div>
     <span class="gpu">● WEBGPU <em>CANVAS 60FPS · NVENC</em></span>
     <button id="btnOmakaseTop" class="primary omk-top" title="隨機決定風格、氛圍、效果與配色">隨機生成一版</button>
-    <button id="btnDiversityTop" class="primary omk-top div-top" title="各行に重複のないCapCut效果を自動割り当て">独創</button>
+    <button id="btnDiversityTop" class="primary omk-top div-top" title="為每行自動分配不重複的特效（快捷鍵 D）">獨創</button>
     <button id="btnMenu" class="ghost menu-btn" aria-expanded="false" aria-controls="appMenu">選單</button>
     <div class="modes" role="group" aria-label="顯示模式">
       <button id="modeMobile" class="mode-mobile" aria-pressed="false" title="手機版面（隨機按鈕固定在上方，句子收合顯示）">手機</button>
@@ -967,7 +966,7 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
       <button id="modePro" aria-pressed="true" title="顯示所有設定">進階</button>
       <button id="btnTour" class="ghost tour-btn" title="簡易模式的使用導覽" aria-label="使用導覽">?</button>
     </div>
-    <label class="lang-switch"><span class="sr-only">Language</span><select aria-label="Language" onchange="if(this.value)location.href=this.value"><option value="../index.html" lang="vi">VI · Tiếng Việt</option><option value="../en/index.html" lang="en">EN · English</option><option value="../ja/index.html" lang="ja">日本語</option><option value="../zh-hant/index.html" lang="zh-Hant" selected>繁體中文</option><option value="../zh-hans/index.html" lang="zh-Hans">简体中文</option><option value="../ko/index.html" lang="ko">한국어</option><option value="../id/index.html" lang="id-ID">Bahasa Indonesia</option></select></label>
+    <label class="lang-switch"><span class="sr-only">Language</span><select aria-label="Language" onchange="if(this.value)location.href=this.value"><option value="../index.html" lang="vi">VI · Tiếng Việt</option><option value="../en/index.html" lang="en">EN · English</option><option value="../ja/index.html" lang="ja">日本語</option><option value="../zh-hant/index.html" lang="zh-Hant" selected>繁體中文</option><option value="../zh-hans/index.html" lang="zh-Hans">简体中文</option><option value="../ko/index.html" lang="ko">한국어</option></select></label>
     <div class="acts">
       <label class="file" title="開啟已儲存的專案（.json）">開啟<input id="fileProject" type="file" accept=".json,application/json"></label>
       <button id="btnSave" title="將專案儲存為 .json">儲存</button>
@@ -989,14 +988,14 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
           <button id="tapStop" class="ghost">結束</button>
       </div>
       <div class="sec">
-        <div class="sec-h"><h2>歌詞</h2><span class="sec-btns"><label class="file ghost small" title="字幕・LRC ファイル（タイムスタンプ付きの歌詞）を読み込み、今の歌詞と置き換えます（「元に戻す」で戻せます）">字幕・LRC を読み込む<input id="fileLrc" type="file" accept=".lrc,.txt,.srt,.vtt,.ass,.ssa,text/plain"></label><button id="btnClearLyrics" class="ghost small" title="清除歌詞，以及各行的時間點、逐行設定與匯出範圍（可用「復原」或 Ctrl+Z 找回）">清除歌詞</button><button id="btnSyntax" class="ghost small" aria-expanded="false">語法</button></span></div>
+        <div class="sec-h"><h2>歌詞</h2><span class="sec-btns"><label class="file ghost small" title="讀取字幕或 LRC 檔（附時間標記的歌詞），取代目前的歌詞（可用「復原」還原）">讀取字幕 / LRC<input id="fileLrc" type="file" accept=".lrc,.txt,.srt,.vtt,.ass,.ssa,text/plain"></label><button id="btnClearLyrics" class="ghost small" title="清除歌詞，以及各行的時間點、逐行設定與匯出範圍（可用「復原」或 Ctrl+Z 找回）">清除歌詞</button><button id="btnSyntax" class="ghost small" aria-expanded="false">語法</button></span></div>
         <textarea id="lyrics" rows="9" spellcheck="false" aria-label="歌詞（1 行 = 1 句）"></textarea>
         <div class="lyric-tags">
-          <button type="button" class="tag" data-tag="Verse" title="Thêm tiêu đề [Verse]">+ Verse</button>
-          <button type="button" class="tag" data-tag="Chorus" title="Thêm tiêu đề [Chorus]">+ Chorus</button>
-          <button type="button" class="tag" data-tag="Bridge" title="Thêm tiêu đề [Bridge]">+ Bridge</button>
-          <button type="button" class="tag" data-tag="Cut" title="Chèn dấu cắt câu /">+ Cắt ( / )</button>
-          <button type="button" class="tag" data-tag="Impact" title="Chèn dấu nhấn mạnh *từ*">+ Nhấn ( * )</button>
+          <button type="button" class="tag" data-tag="Verse" title="插入 [Verse] 標題">+ Verse</button>
+          <button type="button" class="tag" data-tag="Chorus" title="插入 [Chorus] 標題">+ Chorus</button>
+          <button type="button" class="tag" data-tag="Bridge" title="插入 [Bridge] 標題">+ Bridge</button>
+          <button type="button" class="tag" data-tag="Cut" title="插入片段切分符 /">+ 切分 ( / )</button>
+          <button type="button" class="tag" data-tag="Impact" title="插入強調符號 *詞*">+ 強調 ( * )</button>
           <span id="lyricCount" class="lyric-counter muted mono"></span>
         </div>
         <label class="lang-row">歌詞語言<select id="lyricLang"><option value="auto">自動偵測</option><option value="ja">日本語</option><option value="zh-Hant">繁體中文</option><option value="zh-Hans">简体中文</option><option value="ko">한국어</option><option value="en">English</option><option value="vi">Tiếng Việt</option></select><span id="langNote" class="muted"></span></label>
@@ -1008,7 +1007,7 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
             <li>行尾的 <code>!</code> … 加入閃光與震動</li>
             <li><code>歌詞|讀音或註解</code> … 註解版面中的小字</li>
             <li><code>[01:23.45]歌詞</code> … 直接使用 LRC 時間戳記</li>
-            <li><code>SRT / VTT / SSA・ASS</code> … 字幕ファイルも読み込めます（開始時刻と <code>\k</code> の単語時刻を取り込みます）</li>
+            <li><code>SRT / VTT / SSA・ASS</code> … 也可讀取字幕檔（匯入開始時間與 <code>\k</code> 逐詞時間）</li>
             <li><code>[間奏 8]</code> … 8 秒的間奏（不顯示歌詞，只有背景與裝飾）。省略秒數時為 4 秒，也可用點擊同步或標記調整長度</li>
             <li><code>#</code> 開頭的行 … 註解（會被忽略）</li>
           </ul>
@@ -1021,19 +1020,19 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
         <div class="row">
           <label class="file" title="mp3 / wav / m4a 等格式">匯入歌曲<input id="audioFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac"></label>
           <button id="btnTap" title="播放歌曲時，在每一行開頭點一下">點擊對拍</button>
-          <button id="btnWhisper" title="音声を聴いて各行の開始を合わせる（ブラウザ内で実行）">Whisperで自動同期</button>
-          <button id="btnAlign1Click" class="primary" title="音声を聴いて各行のタイミングを合わせ、確認画面を開きます">歌詞を1クリックで合わせる</button>
+          <button id="btnWhisper" title="聆聽音訊對齊每行開始時間（在瀏覽器內執行）">Whisper 自動同步</button>
+          <button id="btnAlign1Click" class="primary" title="聆聽音訊對齊每行時間，並開啟確認畫面">一鍵對齊歌詞</button>
         </div>
-        <div id="whisperStatus" class="muted audio-name">未実行 — 本物の音声と歌詞が必要です</div>
+        <div id="whisperStatus" class="muted audio-name">尚未執行 — 需要真實音訊與歌詞</div>
         <div class="row pro-only" style="margin-top:6px">
-          <label class="row" style="gap:6px">Whisperモデル<select id="whisperModel" aria-label="Whisperモデル"></select></label>
+          <label class="row" style="gap:6px">Whisper 模型<select id="whisperModel" aria-label="Whisper 模型"></select></label>
           <button id="btnWhisperCancel" class="ghost small" hidden>取消</button>
         </div>
         <div class="fields pro-only">
           <label class="field">BPM<input id="bpm" type="number" min="0" max="300" step="0.1" placeholder="自動"></label>
           <label class="field">起始（秒）<input id="offset" type="number" min="0" step="0.05"></label>
           <label class="field">每行長度<input id="lineScale" type="number" min="0.4" max="3" step="0.05"></label>
-          <label class="field">初拍のズレ(秒)<input id="beatOffset" type="number" min="-2" max="2" step="0.01"></label>
+          <label class="field">首拍偏移（秒）<input id="beatOffset" type="number" min="-2" max="2" step="0.01"></label>
         </div>
         <div class="row pro-only">
           <label class="row" style="gap:6px"><input id="snap" type="checkbox"> 對齊節拍</label>
@@ -1042,47 +1041,47 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
       </div>
 
       <div class="sec" id="secPlaylist">
-        <div class="sec-h"><h2>プレイリスト</h2><span id="plTotal" class="muted mono"></span></div>
+        <div class="sec-h"><h2>播放清單</h2><span id="plTotal" class="muted mono"></span></div>
         <ol id="playlistList" class="pl-list"></ol>
         <div class="row" style="flex-wrap:wrap; gap:6px;">
-          <button id="btnPlAdd" title="今の曲（歌詞・タイミング・效果）をプレイリストに新增します">今の曲を新增</button>
-          <label class="file" title="mp3 / wav / m4a 等格式。1曲ずつ歌詞なしで新增されます">曲を新增<input id="plFiles" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac" multiple></label>
+          <button id="btnPlAdd" title="將目前歌曲（歌詞、時間、特效）加入播放清單">加入目前歌曲</button>
+          <label class="file" title="mp3 / wav / m4a 等，逐首加入（無歌詞）">加入歌曲<input id="plFiles" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac" multiple></label>
         </div>
         <div class="row" style="flex-wrap:wrap; gap:6px; margin-top:6px;">
-          <label class="row" style="gap:6px"><input id="plAutoNext" type="checkbox" checked> 次の曲を自動播放</label>
-          <label class="row" style="gap:6px">繰り返し<select id="plRepeat" aria-label="繰り返し"><option value="all">すべて繰り返す</option><option value="one">1曲繰り返す</option><option value="off">繰り返さない</option></select></label>
+          <label class="row" style="gap:6px"><input id="plAutoNext" type="checkbox" checked> 自動播放下一首</label>
+          <label class="row" style="gap:6px">循環<select id="plRepeat" aria-label="循環"><option value="all">全部循環</option><option value="one">單曲循環</option><option value="off">不循環</option></select></label>
         </div>
-        <p class="note">曲が終わると次の曲へ進みます。1曲だけのときは今まで通りです。曲ごとの歌詞・タイミング・效果は曲を切り替えると一緒に入れ替わります。</p>
+        <p class="note">播完自動進入下一首；僅 1 首時與以往相同。切換歌曲時，對應的歌詞、時間與特效會一併切換。</p>
       </div>
 
       <div class="sec" id="secImage">
-        <div class="sec-h"><h2>背景画像・效果</h2><span class="stock-badge">STOCK CANVAS</span></div>
-        <div id="imageName" class="muted audio-name">画像なし（読み込むと背景に配置されます）</div>
+        <div class="sec-h"><h2>背景圖片與動效</h2><span class="stock-badge">STOCK CANVAS</span></div>
+        <div id="imageName" class="muted audio-name">無圖片（匯入後將作為背景）</div>
         <div class="row" style="flex-wrap:wrap; gap:6px;">
-          <label class="file" title="JPG / PNG / WebP を背景画像として読み込みます">画像を読み込む<input id="imageFile" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.gif"></label>
-          <select id="stockPresetSel" title="ストック背景画像">
-            <option value="">ストック素材</option>
-            <option value="galaxy">🌌 宇宙ギャラクシー</option>
-            <option value="cyberpunk">🌃 サイバーパンク</option>
-            <option value="lofi_sunset">☕ ローファイ夕日</option>
-            <option value="stage">🎙️ ステージライト</option>
-            <option value="night_rain">🌧️ 雨の夜</option>
-            <option value="retro_vinyl">📼 レコード盤</option>
-            <option value="dark_minimal">🖤 スモーキーダーク</option>
+          <label class="file" title="匯入 JPG / PNG / WebP 作為背景圖片">匯入圖片<input id="imageFile" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.gif"></label>
+          <select id="stockPresetSel" title="內建背景素材">
+            <option value="">內建素材</option>
+            <option value="galaxy">🌌 宇宙星河</option>
+            <option value="cyberpunk">🌃 賽博龐克城市</option>
+            <option value="lofi_sunset">☕ Lo-Fi 日落</option>
+            <option value="stage">🎙️ 舞台燈光</option>
+            <option value="night_rain">🌧️ 雨夜城市</option>
+            <option value="retro_vinyl">📼 復古黑膠</option>
+            <option value="dark_minimal">🖤 暗黑煙霧</option>
           </select>
-          <button id="btnClearImage" class="ghost small">画像を消す</button>
+          <button id="btnClearImage" class="ghost small">清除圖片</button>
         </div>
         <div class="fields">
-          <label class="field">動き
+          <label class="field">動態
             <select id="imageModeSel">
-              <option value="kenburns">Ken Burns（ズーム＆パン）</option>
-              <option value="beatpulse">ビートパルス（低音連動）</option>
-              <option value="flip3d">3Dチルト（立体反転）</option>
-              <option value="float">フロート（浮遊パララックス）</option>
-              <option value="spin">回転（スロースピン）</option>
+              <option value="kenburns">Ken Burns（縮放與平移）</option>
+              <option value="beatpulse">節拍脈衝（低音聯動）</option>
+              <option value="flip3d">3D 傾斜翻轉</option>
+              <option value="float">漂浮視差</option>
+              <option value="spin">緩慢旋轉</option>
             </select>
           </label>
-          <label class="field">暗さ（文字強調）
+          <label class="field">暗度（突顯文字）
             <input id="imageDim" type="range" min="0" max="90" value="45" step="5">
             <span id="imageDimVal" class="mono muted">45%</span>
           </label>
@@ -1111,17 +1110,17 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
         <button id="btnShuffle" class="accent" title="保留設定，只重新抽選編排（已鎖定的行不變）">重新排列</button>
         <select class="themeSel" aria-label="隨機生成的主題" title="隨機生成的主題（選擇後，會在該方向內隨機生成，並開啟所需的部件開關）"><option value="">不指定主題</option><option value="lyricpv">文字PV</option><option value="kinetic">動態文字</option><option value="wa">和風</option><option value="horror">恐怖</option><option value="pop">流行</option><option value="ballad">抒情</option></select>
         <button id="btnOmakase" class="primary" title="風格、氛圍、效果、配色全部隨機（快捷鍵 R）">隨機生成</button>
-        <button id="btnDiversity" class="primary div-btn" title="各行に重複のないCapCut效果を自動割り当て">独創</button>
+        <button id="btnDiversity" class="primary div-btn" title="為每行自動分配不重複的特效（快捷鍵 D）">獨創</button>
       </div>
       <div class="tl-bar">
-        <span class="tl-hint muted">拖曳行的分隔（上方刻度）即可移動。按住 <span class="kbd">Shift</span> 不吸附節拍。波形を見ながら合わせられます</span>
+        <span class="tl-hint muted">拖曳行分隔標記（上方刻度）可調整位置。按住 <span class="kbd">Shift</span> 不吸附節拍，可對照波形對齊</span>
         <span class="tl-btns">
           <button id="btnUndoEdit" class="ghost small" title="復原歌詞與時間的變更（Ctrl+Z）" disabled>復原</button>
           <button id="tlOut" class="ghost small icon-txt" title="縮小" aria-label="縮小時間軸">−</button>
           <button id="tlIn" class="ghost small icon-txt" title="放大（也可在時間軸上用滾輪）" aria-label="放大時間軸">+</button>
           <button id="tlFit" class="ghost small" title="顯示全曲">全曲</button>
-          <button id="btnWdSnap" class="ghost small" title="単語ドラッグのスナップ ON/OFF（0.05秒）" aria-pressed="true">Snap 0.05s</button>
-          <button id="btnKeyframe" class="ghost small" title="播放位置にキーフレームを新增（行をロックします）">＋キーフレーム</button>
+          <button id="btnWdSnap" class="ghost small" title="開關逐詞拖曳吸附（0.05 秒）" aria-pressed="true">Snap 0.05s</button>
+          <button id="btnKeyframe" class="ghost small" title="在目前播放位置新增關鍵影格（會鎖定該行）">＋關鍵影格</button>
         </span>
       </div>
       <canvas id="timeline" aria-label="時間軸（點擊跳轉，拖曳行的分隔可調整）"></canvas>
@@ -1144,7 +1143,7 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
       <div id="easyPanel" class="easy" hidden>
         <div class="easy-hero">
           <button id="btnOmakaseBig" class="omakase">隨機生成一版</button>
-          <button id="btnDiversityBig" class="omakase div-big" title="各行に重複のないCapCut效果を自動割り当て">独創で作る</button>
+          <button id="btnDiversityBig" class="omakase div-big" title="為每行自動分配不重複的特效（快捷鍵 D）">獨創生成</button>
           <label class="theme-row">主題<select class="themeSel" aria-label="隨機生成的主題"><option value="">不指定主題</option><option value="lyricpv">文字PV</option><option value="kinetic">動態文字</option><option value="wa">和風</option><option value="horror">恐怖</option><option value="pop">流行</option><option value="ballad">抒情</option></select><small class="muted">選擇後，會在該方向內隨機生成</small></label>
           <p class="hint">每按一次，風格、氛圍、動態、配色與編排都會整組換新。也可以按鍵盤的 <span class="kbd">R</span> 執行。</p>
           <div class="hist-row">
@@ -1186,8 +1185,8 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
           <label class="check center-free"><input id="eCenter" class="center-toggle" type="checkbox"><span>保留畫面中央（放角色用）<small>以在中央疊加角色等素材為前提，把文字與效果放在橫式畫面的左右、直式畫面的上下，並逐行交替。背景與畫面效果仍覆蓋整個畫面（預覽會以虛線標出保留的範圍）</small></span></label>
           <label class="row center-dir" hidden>直式畫面時<select class="centerDirSel" aria-label="直式畫面的分法"><option value="tb">分成上下</option><option value="lr">分成左右</option></select></label>
           <div class="rng-row"><span class="rng-lab">匯出範圍</span><select class="rngFrom" aria-label="匯出範圍的第一行"></select><span class="muted">~</span><select class="rngTo" aria-label="匯出範圍的最後一行"></select><span class="rngInfo muted mono"></span></div>
-          <div class="rng-row" id="expScopeRow" hidden><span class="rng-lab">匯出範圍</span><label class="row" style="gap:4px"><input type="radio" name="expScope" id="expScopeOne" value="one" checked> この曲だけ</label><label class="row" style="gap:4px"><input type="radio" name="expScope" id="expScopeAll" value="all"> プレイリスト全体</label></div>
-        <div class="outbtns"><button id="eMP4" class="primary">匯出 MP4</button><button id="eMP4Fast" class="ghost" title="預覽を播放しながらそのまま録画します（リアルタイム）。ブラウザによっては MP4 ではなく WebM になります">MP4 高速</button><button id="eMP4File" class="ghost mp4file" hidden title="先選擇要儲存的檔案，直接寫入該檔案。長歌曲或 1080p 以上因瀏覽器記憶體不足而失敗時使用（Chrome / Edge）">大型影片用（直接存成檔案）</button><button id="eLRC" class="ghost" title="匯出附有每行開始時間的歌詞（.lrc）。選擇了匯出範圍時，只匯出那些行，時間從影片開頭算起">匯出 LRC</button></div>
+          <div class="rng-row" id="expScopeRow" hidden><span class="rng-lab">匯出範圍</span><label class="row" style="gap:4px"><input type="radio" name="expScope" id="expScopeOne" value="one" checked> 僅目前歌曲</label><label class="row" style="gap:4px"><input type="radio" name="expScope" id="expScopeAll" value="all"> 整個播放清單</label></div>
+        <div class="outbtns"><button id="eMP4" class="primary">匯出 MP4</button><button id="eMP4Fast" class="ghost" title="播放預覽的同時即時錄製。部分瀏覽器會輸出 WebM 而非 MP4">MP4 快速</button><button id="eMP4File" class="ghost mp4file" hidden title="先選擇要儲存的檔案，直接寫入該檔案。長歌曲或 1080p 以上因瀏覽器記憶體不足而失敗時使用（Chrome / Edge）">大型影片用（直接存成檔案）</button><button id="eLRC" class="ghost" title="匯出附有每行開始時間的歌詞（.lrc）。選擇了匯出範圍時，只匯出那些行，時間從影片開頭算起">匯出 LRC</button></div>
           <div class="outbtns out-png"><button id="ePNG" class="ghost">PNG 序列圖（ZIP）</button><button id="ePNGA" class="ghost">微光 PNG（ZIP，無背景）</button><button id="ePNGL" class="ghost" title="將後景（背景圖形與歌詞後方的裝飾）和前景（歌詞及其裝飾、殘影）分別匯出為微光 PNG，存放在不同資料夾（back / front）。全畫面效果會同時套用在兩者，把前景疊在後景上就是一般的畫面。">微光 PNG 前景／後景（ZIP）</button></div>
           <button class="terms-open linkish">關於匯出影片的權利</button>
           <div class="exp-box" hidden>
@@ -1275,7 +1274,7 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
         <div class="rng-row"><span class="rng-lab">匯出範圍</span><select class="rngFrom" aria-label="匯出範圍的第一行"></select><span class="muted">~</span><select class="rngTo" aria-label="匯出範圍的最後一行"></select><span class="rngInfo muted mono"></span></div>
         <div class="outbtns">
           <button id="btnMP4" class="primary">匯出 MP4</button>
-          <button id="btnMP4Fast" class="mp4fast" title="預覽を播放しながらそのまま録画します（リアルタイム）。ブラウザによっては MP4 ではなく WebM になります">MP4 高速</button>
+          <button id="btnMP4Fast" class="mp4fast" title="播放預覽的同時即時錄製。部分瀏覽器會輸出 WebM 而非 MP4">MP4 快速</button>
           <button id="btnMP4File" class="mp4file" hidden title="先選擇要儲存的檔案，直接寫入該檔案。長歌曲或 1080p 以上因瀏覽器記憶體不足而失敗時使用（Chrome / Edge）">MP4（大型影片用，直接存成檔案）</button>
           <button id="btnPNG">PNG 序列圖（ZIP）</button>
           <button id="btnPNGA">微光 PNG（ZIP，無背景）</button>
@@ -1327,11 +1326,11 @@ html[lang=vi] { --ui: 'Be Vietnam Pro','Noto Sans',Arial,sans-serif; --mono: 'Be
 </dialog>
 <dialog id="whisperReviewDlg" class="terms" aria-labelledby="whisperReviewTitle">
   <form method="dialog">
-    <h2 id="whisperReviewTitle">歌詞のタイミングを確認</h2>
+    <h2 id="whisperReviewTitle">確認歌詞時間</h2>
     <p id="whisperReviewSummary" class="terms-sub"></p>
     <p id="whisperReviewHint" class="muted terms-note"></p>
     <div id="whisperReviewRows" style="max-height:320px;overflow-y:auto"></div>
-    <div class="terms-foot"><span></span><span class="row"><button value="skip" class="ghost">適用しない</button><button value="apply" class="primary" autofocus>選択した行を適用</button></span></div>
+    <div class="terms-foot"><span></span><span class="row"><button value="skip" class="ghost">不套用</button><button value="apply" class="primary" autofocus>套用所選行</button></span></div>
   </form>
 </dialog>
 
@@ -4872,7 +4871,7 @@ J.plan = (project, audio) => {
   const zoneOf = () => (zones ? Object.assign({}, zones[0]) : null);
   if (zones && en.bg) en.bg.bigChar = false;               // the one background that draws the lyric itself (big, centred)
   const plan = {
-    version: 1, generator: 'LyricWave', appVersion: '0.35.1', title, artist, W, H, fps: project.fps || 24,
+    version: 1, generator: 'LyricWave', appVersion: '0.36.0', title, artist, W, H, fps: project.fps || 24,
     duration: tm.duration, styleKey: project.style, style: st, fx, seed: project.seed,
     lines: [], cuts: [], events: [], beats: audio && audio.beats ? audio.beats.slice() : [],
     hud: fx.hud === 'on' ? true : fx.hud === 'off' ? false : !!st.hud,
@@ -7367,16 +7366,16 @@ J.EQ_BANDS = [
 ];
 /* band gains in dB — exactly SonaWave's MASTER_EQ_PRESETS_DATA values */
 J.EQ_PRESETS = [
-  { id: 'flat', name: 'フラット', vi: 'Mặc Định Gốc (Flat)', en: 'Flat / Bypass', preamp: 0, lowCut: 0, highCut: 20000, bands: { b32: 0, b64: 0, b125: 0, b250: 0, b500: 0, b1k: 0, b2k: 0, b4k: 0, b8k: 0, b16k: 0 } },
-  { id: 'bass-boost', name: 'バスブースト', vi: 'Tăng Cường Bass', en: 'Bass Booster', preamp: -2, lowCut: 20, highCut: 20000, bands: { b32: 6.5, b64: 8.0, b125: 4.5, b250: 1.5, b500: 0, b1k: 0, b2k: 1.0, b4k: 2.0, b8k: 3.5, b16k: 2.0 } },
-  { id: 'sub-punch', name: 'サブパンチ', vi: 'Trống Sub Nặng', en: 'Sub-Punch', preamp: -2.5, lowCut: 20, highCut: 20000, bands: { b32: 8.5, b64: 9.0, b125: 3.5, b250: -1.0, b500: 0, b1k: 0.5, b2k: 1.5, b4k: 3.0, b8k: 2.5, b16k: 1.5 } },
-  { id: 'vocal-clarity', name: 'ボーカルクリア', vi: 'Sáng Giọng Ca', en: 'Vocal Clarity & Air', preamp: -1, lowCut: 40, highCut: 20000, bands: { b32: -3.0, b64: -2.0, b125: -1.5, b250: 1.0, b500: 2.0, b1k: 3.5, b2k: 5.5, b4k: 6.0, b8k: 4.5, b16k: 3.5 } },
-  { id: 'acoustic-warmth', name: 'アコースティック', vi: 'Ấm Áp Mộc', en: 'Acoustic Warmth', preamp: 0, lowCut: 0, highCut: 18000, bands: { b32: 1.0, b64: 2.5, b125: 4.0, b250: 3.5, b500: 1.5, b1k: 0, b2k: -1.0, b4k: -1.5, b8k: 1.5, b16k: 2.5 } },
-  { id: 'edm-club', name: 'EDMクラブ', vi: 'Đại Tiệc EDM', en: 'EDM Festival Punch', preamp: -3, lowCut: 20, highCut: 20000, bands: { b32: 7.0, b64: 8.5, b125: 4.0, b250: -2.0, b500: -2.5, b1k: 0, b2k: 2.5, b4k: 4.5, b8k: 6.5, b16k: 7.0 } },
-  { id: 'rock-metal', name: 'ロック／メタル', vi: 'Rock / Metal Mạnh Mẽ', en: 'Rock / Metal Drive', preamp: -2, lowCut: 30, highCut: 20000, bands: { b32: 4.5, b64: 6.0, b125: 3.5, b250: -1.5, b500: -3.0, b1k: -1.5, b2k: 2.5, b4k: 4.5, b8k: 5.5, b16k: 4.0 } },
-  { id: 'lofi-vintage', name: 'ローファイ', vi: 'Lofi Cổ Điển Băng Từ', en: 'Lofi Vintage Warmth', preamp: 0.5, lowCut: 30, highCut: 14000, bands: { b32: 3.0, b64: 4.5, b125: 3.5, b250: 2.5, b500: 1.0, b1k: -1.0, b2k: -2.5, b4k: -4.5, b8k: -7.0, b16k: -10.0 } },
-  { id: 'cinematic-air', name: 'シネマティック', vi: 'Điện Ảnh Không Gian', en: 'Cinematic Master', preamp: -1.5, lowCut: 0, highCut: 20000, bands: { b32: 6.0, b64: 5.0, b125: 2.0, b250: 0, b500: 1.0, b1k: 2.0, b2k: 2.5, b4k: 4.0, b8k: 6.0, b16k: 7.5 } },
-  { id: 'podcast-clean', name: 'ポッドキャスト', vi: 'Thu Âm / Giọng Nói Sạch', en: 'Podcast / Clean Speech', preamp: 0, lowCut: 80, highCut: 16000, bands: { b32: -12.0, b64: -8.0, b125: -3.0, b250: -2.0, b500: 1.0, b1k: 2.5, b2k: 4.0, b4k: 4.5, b8k: 2.0, b16k: 0 } },
+  { id: 'flat', name: 'フラット', vi: 'Mặc Định Gốc (Flat)', en: 'Flat / Bypass', zhHans: '平坦 / 直通', zhHant: '平坦 / 直通', ko: '플랫 / 기본', preamp: 0, lowCut: 0, highCut: 20000, bands: { b32: 0, b64: 0, b125: 0, b250: 0, b500: 0, b1k: 0, b2k: 0, b4k: 0, b8k: 0, b16k: 0 } },
+  { id: 'bass-boost', name: 'バスブースト', vi: 'Tăng Cường Bass', en: 'Bass Booster', zhHans: '低音增强', zhHant: '低音增強', ko: '베이스 부스트', preamp: -2, lowCut: 20, highCut: 20000, bands: { b32: 6.5, b64: 8.0, b125: 4.5, b250: 1.5, b500: 0, b1k: 0, b2k: 1.0, b4k: 2.0, b8k: 3.5, b16k: 2.0 } },
+  { id: 'sub-punch', name: 'サブパンチ', vi: 'Trống Sub Nặng', en: 'Sub-Punch', zhHans: '超低音冲击', zhHant: '超低音衝擊', ko: '서브 펀치', preamp: -2.5, lowCut: 20, highCut: 20000, bands: { b32: 8.5, b64: 9.0, b125: 3.5, b250: -1.0, b500: 0, b1k: 0.5, b2k: 1.5, b4k: 3.0, b8k: 2.5, b16k: 1.5 } },
+  { id: 'vocal-clarity', name: 'ボーカルクリア', vi: 'Sáng Giọng Ca', en: 'Vocal Clarity & Air', zhHans: '人声清晰', zhHant: '人聲清晰', ko: '보컬 선명', preamp: -1, lowCut: 40, highCut: 20000, bands: { b32: -3.0, b64: -2.0, b125: -1.5, b250: 1.0, b500: 2.0, b1k: 3.5, b2k: 5.5, b4k: 6.0, b8k: 4.5, b16k: 3.5 } },
+  { id: 'acoustic-warmth', name: 'アコースティック', vi: 'Ấm Áp Mộc', en: 'Acoustic Warmth', zhHans: '原声温暖', zhHant: '原聲溫暖', ko: '어쿠스틱 웜', preamp: 0, lowCut: 0, highCut: 18000, bands: { b32: 1.0, b64: 2.5, b125: 4.0, b250: 3.5, b500: 1.5, b1k: 0, b2k: -1.0, b4k: -1.5, b8k: 1.5, b16k: 2.5 } },
+  { id: 'edm-club', name: 'EDMクラブ', vi: 'Đại Tiệc EDM', en: 'EDM Festival Punch', zhHans: 'EDM 派对', zhHant: 'EDM 派對', ko: 'EDM 클럽', preamp: -3, lowCut: 20, highCut: 20000, bands: { b32: 7.0, b64: 8.5, b125: 4.0, b250: -2.0, b500: -2.5, b1k: 0, b2k: 2.5, b4k: 4.5, b8k: 6.5, b16k: 7.0 } },
+  { id: 'rock-metal', name: 'ロック／メタル', vi: 'Rock / Metal Mạnh Mẽ', en: 'Rock / Metal Drive', zhHans: '摇滚 / 金属', zhHant: '搖滾 / 金屬', ko: '록 / 메탈', preamp: -2, lowCut: 30, highCut: 20000, bands: { b32: 4.5, b64: 6.0, b125: 3.5, b250: -1.5, b500: -3.0, b1k: -1.5, b2k: 2.5, b4k: 4.5, b8k: 5.5, b16k: 4.0 } },
+  { id: 'lofi-vintage', name: 'ローファイ', vi: 'Lofi Cổ Điển Băng Từ', en: 'Lofi Vintage Warmth', zhHans: '复古 Lo-Fi', zhHant: '復古 Lo-Fi', ko: '로파이 빈티지', preamp: 0.5, lowCut: 30, highCut: 14000, bands: { b32: 3.0, b64: 4.5, b125: 3.5, b250: 2.5, b500: 1.0, b1k: -1.0, b2k: -2.5, b4k: -4.5, b8k: -7.0, b16k: -10.0 } },
+  { id: 'cinematic-air', name: 'シネマティック', vi: 'Điện Ảnh Không Gian', en: 'Cinematic Master', zhHans: '电影空间感', zhHant: '電影空間感', ko: '시네마틱', preamp: -1.5, lowCut: 0, highCut: 20000, bands: { b32: 6.0, b64: 5.0, b125: 2.0, b250: 0, b500: 1.0, b1k: 2.0, b2k: 2.5, b4k: 4.0, b8k: 6.0, b16k: 7.5 } },
+  { id: 'podcast-clean', name: 'ポッドキャスト', vi: 'Thu Âm / Giọng Nói Sạch', en: 'Podcast / Clean Speech', zhHans: '播客 / 清晰人声', zhHant: '播客 / 清晰人聲', ko: '팟캐스트 / 클린 보이스', preamp: 0, lowCut: 80, highCut: 16000, bands: { b32: -12.0, b64: -8.0, b125: -3.0, b250: -2.0, b500: 1.0, b1k: 2.5, b2k: 4.0, b4k: 4.5, b8k: 2.0, b16k: 0 } },
 ];
 J.eqPreset = (id) => J.EQ_PRESETS.find(p => p.id === id) || J.EQ_PRESETS[0];
 J.eqDefault = () => ({ bypass: false, preset: 'flat', preamp: 0, lowCut: 0, highCut: 20000, bands: { b32: 0, b64: 0, b125: 0, b250: 0, b500: 0, b1k: 0, b2k: 0, b4k: 0, b8k: 0, b16k: 0 } });
@@ -20723,31 +20722,31 @@ const clamp = J.clamp;
    and the numeric config exactly as in SonaWave's presets.ts. Missing
    fields default to 0 / null. */
 J.GRADE_LUTS = [
-  { id: 'none', cat: 'clean', name: 'オリジナル', vi: 'Nguyên Bản (Tự Nhiên)', en: 'Original / Neutral',
+  { id: 'none', cat: 'clean', name: 'オリジナル', vi: 'Nguyên Bản (Tự Nhiên)', en: 'Original / Neutral', zhHans: '原色（自然）', zhHant: '原色（自然）', ko: '원본 (내추럴)',
     cfg: {} },
-  { id: 'teal-orange', cat: 'cinema', name: 'ティール＆オレンジ', vi: 'Xanh Teal & Cam Hollywood', en: 'Teal & Orange Hollywood',
+  { id: 'teal-orange', cat: 'cinema', name: 'ティール＆オレンジ', vi: 'Xanh Teal & Cam Hollywood', en: 'Teal & Orange Hollywood', zhHans: '青橙好莱坞', zhHant: '青橙好萊塢', ko: '틸 & 오렌지',
     cfg: { brightness: 0, contrast: 18, saturation: 15, exposure: 0, temperature: 15, tint: -6, hueRotate: 0, sepia: 0, shadowsLift: 5, highlightsTint: '#fed7aa', shadowsTint: '#083344', splitToneIntensity: 55, vignette: 25, filmGrain: 0, bloomGlow: 0 } },
-  { id: 'cinematic-warm', cat: 'cinema', name: 'シネマティック・ウォーム', vi: 'Điện Ảnh Kodachrome Ấm', en: 'Cinematic Kodachrome',
+  { id: 'cinematic-warm', cat: 'cinema', name: 'シネマティック・ウォーム', vi: 'Điện Ảnh Kodachrome Ấm', en: 'Cinematic Kodachrome', zhHans: '暖调电影柯达', zhHant: '暖調電影柯達', ko: '시네마틱 웜',
     cfg: { brightness: 2, contrast: 20, saturation: 10, exposure: 0, temperature: 32, tint: 6, sepia: 8, shadowsLift: 0, highlightsTint: '#fef08a', shadowsTint: '#451a03', splitToneIntensity: 45, vignette: 30, filmGrain: 10, bloomGlow: 10 } },
-  { id: 'bleach-bypass', cat: 'creative', name: 'ブリーチバイパス', vi: 'Bleach Bypass Bạc (Hành Động)', en: 'Bleach Bypass Action',
+  { id: 'bleach-bypass', cat: 'creative', name: 'ブリーチバイパス', vi: 'Bleach Bypass Bạc (Hành Động)', en: 'Bleach Bypass Action', zhHans: '跳漂银盐（动作）', zhHant: '跳漂銀鹽（動作）', ko: '블리치 바이패스',
     cfg: { brightness: -4, contrast: 42, saturation: -45, exposure: 5, temperature: -10, tint: 0, shadowsLift: 15, vignette: 40, filmGrain: 25, bloomGlow: 0 } },
-  { id: 'cyberpunk-neon', cat: 'creative', name: 'サイバーパンク・ネオン', vi: 'Cyberpunk Neon Tương Lai', en: 'Cyberpunk Neon 2077',
+  { id: 'cyberpunk-neon', cat: 'creative', name: 'サイバーパンク・ネオン', vi: 'Cyberpunk Neon Tương Lai', en: 'Cyberpunk Neon 2077', zhHans: '赛博朋克霓虹', zhHant: '賽博龐克霓虹', ko: '사이버펑크 네온',
     cfg: { brightness: 2, contrast: 26, saturation: 45, exposure: 0, temperature: -12, tint: 38, hueRotate: 0, shadowsLift: 0, highlightsTint: '#f43f5e', shadowsTint: '#06b6d4', splitToneIntensity: 65, vignette: 35, bloomGlow: 30 } },
-  { id: 'vintage-70s', cat: 'vintage', name: 'ヴィンテージ70s', vi: 'Hoài Niệm Vintage 70s', en: 'Vintage 70s Polaroid',
+  { id: 'vintage-70s', cat: 'vintage', name: 'ヴィンテージ70s', vi: 'Hoài Niệm Vintage 70s', en: 'Vintage 70s Polaroid', zhHans: '复古 70 年代', zhHant: '復古 70 年代', ko: '빈티지 70s',
     cfg: { brightness: 4, contrast: -8, saturation: -15, temperature: 28, tint: -6, sepia: 30, shadowsLift: 28, vignette: 35, filmGrain: 35, bloomGlow: 15 } },
-  { id: 'golden-hour', cat: 'cinema', name: 'ゴールデンアワー', vi: 'Hoàng Hôn Nắng Vàng', en: 'Golden Hour Sunset',
+  { id: 'golden-hour', cat: 'cinema', name: 'ゴールデンアワー', vi: 'Hoàng Hôn Nắng Vàng', en: 'Golden Hour Sunset', zhHans: '黄金时刻日落', zhHant: '黃金時刻日落', ko: '골든 아워',
     cfg: { brightness: 6, contrast: 10, saturation: 22, temperature: 55, tint: 10, highlightsTint: '#f59e0b', shadowsTint: '#78350f', splitToneIntensity: 50, vignette: 20, bloomGlow: 25 } },
-  { id: 'black-and-white', cat: 'clean', name: 'モノクロ', vi: 'Đen Trắng Nghệ Thuật (B&W)', en: 'Noir Monochrome Classic',
+  { id: 'black-and-white', cat: 'clean', name: 'モノクロ', vi: 'Đen Trắng Nghệ Thuật (B&W)', en: 'Noir Monochrome Classic', zhHans: '经典黑白', zhHant: '經典黑白', ko: '흑백 모노크롬',
     cfg: { brightness: 0, contrast: 38, saturation: -100, exposure: 0, temperature: 0, tint: 0, shadowsLift: 10, vignette: 45, filmGrain: 25 } },
-  { id: 'faded-film', cat: 'vintage', name: 'フェイデッド・フィルム', vi: 'Phim Mờ Matte Faded', en: 'Matte Faded Film',
+  { id: 'faded-film', cat: 'vintage', name: 'フェイデッド・フィルム', vi: 'Phim Mờ Matte Faded', en: 'Matte Faded Film', zhHans: '褪色胶片', zhHant: '褪色底片', ko: '페이디드 필름',
     cfg: { brightness: 6, contrast: -15, saturation: -18, temperature: 12, shadowsLift: 45, vignette: 25, filmGrain: 20 } },
-  { id: 'retro-vhs', cat: 'vintage', name: 'レトロVHS', vi: 'Băng Từ VHS Thập Niên 90', en: 'Retro 90s VHS Tape',
+  { id: 'retro-vhs', cat: 'vintage', name: 'レトロVHS', vi: 'Băng Từ VHS Thập Niên 90', en: 'Retro 90s VHS Tape', zhHans: '复古 90s VHS', zhHant: '復古 90s VHS', ko: '레트로 VHS',
     cfg: { brightness: 2, contrast: 15, saturation: 25, temperature: 10, tint: 18, hueRotate: 8, shadowsLift: 22, vignette: 30, filmGrain: 45 } },
-  { id: 'matrix-green', cat: 'creative', name: 'マトリックス・グリーン', vi: 'Xanh Ma Trận Matrix', en: 'Matrix Cyber Emerald',
+  { id: 'matrix-green', cat: 'creative', name: 'マトリックス・グリーン', vi: 'Xanh Ma Trận Matrix', en: 'Matrix Cyber Emerald', zhHans: '黑客帝国绿', zhHant: '駭客任務綠', ko: '매트릭스 그린',
     cfg: { brightness: -5, contrast: 22, saturation: -12, temperature: -15, tint: -70, highlightsTint: '#86efac', shadowsTint: '#064e3b', splitToneIntensity: 70, vignette: 35, filmGrain: 15 } },
-  { id: 'moody-blue', cat: 'moody', name: 'ムーディー・ブルー', vi: 'Xanh Đêm Lạnh Tối Giản', en: 'Midnight Moody Blue',
+  { id: 'moody-blue', cat: 'moody', name: 'ムーディー・ブルー', vi: 'Xanh Đêm Lạnh Tối Giản', en: 'Midnight Moody Blue', zhHans: '午夜冷蓝', zhHant: '午夜冷藍', ko: '무디 블루',
     cfg: { brightness: -8, contrast: 22, saturation: -8, temperature: -65, tint: 12, highlightsTint: '#e0f2fe', shadowsTint: '#082f49', splitToneIntensity: 65, vignette: 40, filmGrain: 10 } },
-  { id: 'candy-pop', cat: 'creative', name: 'キャンディ・ポップ', vi: 'Kẹo Ngọt Candy Pop Rực Rỡ', en: 'Vibrant Candy Pop',
+  { id: 'candy-pop', cat: 'creative', name: 'キャンディ・ポップ', vi: 'Kẹo Ngọt Candy Pop Rực Rỡ', en: 'Vibrant Candy Pop', zhHans: '糖果波普', zhHant: '糖果波普', ko: '캔디 팝',
     cfg: { brightness: 6, contrast: 18, saturation: 55, temperature: 8, tint: 12, bloomGlow: 20, vignette: 15 } },
 ];
 J.gradeLut = id => J.GRADE_LUTS.find(l => l.id === id) || J.GRADE_LUTS[0];
@@ -40663,6 +40662,16 @@ const LOOP_COPY = {
   off:  { ja: '循環', en: 'Loop', titleJa: '不循環', titleEn: 'No loop' },
 };
 const isEn = () => document.documentElement.lang === 'en';
+function uiLabel(item) {
+  if (!item) return '';
+  const lang = document.documentElement.lang || 'ja';
+  if (lang === 'vi' && item.vi) return item.vi;
+  if (lang === 'en' && item.en) return item.en;
+  if (lang === 'zh-Hans' && item.zhHans) return item.zhHans;
+  if (lang === 'zh-Hant' && item.zhHant) return item.zhHant;
+  if (lang === 'ko' && item.ko) return item.ko;
+  return item.name || '';
+}
 function cutAround(t) {
   const c = J.cutAt(S.plan, t);
   if (c) return c;
@@ -41494,8 +41503,8 @@ function fillCutPick() {
 // word-time editor: which lines have their word rows open (renderLines rebuilds the rows on every replan)
 const wordEdOpen = new Set();
 function wordEditRows(ln, i) {
-  const rows = (ln.wordTimes || []).map((w, k) => `<span class="wrow"><span class="w">${escapeHtml(w.text || '')}</span><input class="wstart mono" type="number" step="0.01" min="0" value="${w.start.toFixed(2)}" data-k="${k}" title="起始（秒）" aria-label="${i + 1}行目 ${escapeHtml(w.text || '')} の開始秒"><span class="wend mono">〜 ${w.end.toFixed(2)}</span></span>`).join('');
-  return `<span class="whead">単語の時刻</span>${rows}`;
+  const rows = (ln.wordTimes || []).map((w, k) => `<span class="wrow"><span class="w">${escapeHtml(w.text || '')}</span><input class="wstart mono" type="number" step="0.01" min="0" value="${w.start.toFixed(2)}" data-k="${k}" title="起始（秒）" aria-label="第 ${i + 1} 行 ${escapeHtml(w.text || '')} 開始時間"><span class="wend mono">〜 ${w.end.toFixed(2)}</span></span>`).join('');
+  return `<span class="whead">逐詞時間</span>${rows}`;
 }
 function renderLines() {
   const ol = $('lineList'); ol.innerHTML = ''; S.lineEls = []; S.curLine = -2;
@@ -41522,7 +41531,7 @@ function renderLines() {
       <div class="meta"><span class="cuts"></span>
       <span class="tools">
         <button class="icon ghost edit" title="修改這一行的歌詞" aria-label="修改第 ${i + 1} 行的歌詞">${ICON.pen}</button>
-        ${hasWords ? `<button class="icon ghost wtog" title="単語ごとの時刻" aria-label="${i + 1}行目の単語の時刻" aria-pressed="${wordEdOpen.has(i) ? 'true' : 'false'}">${ICON.clock}</button><button class="icon ghost wdel" title="この行の単語時刻を消す" aria-label="${i + 1}行目の単語時刻を消す">${ICON.x}</button>` : ''}
+        ${hasWords ? `<button class="icon ghost wtog" title="逐詞時間" aria-label="第 ${i + 1} 行逐詞時間" aria-pressed="${wordEdOpen.has(i) ? 'true' : 'false'}">${ICON.clock}</button><button class="icon ghost wdel" title="清除此行逐詞時間" aria-label="清除第 ${i + 1} 行逐詞時間">${ICON.x}</button>` : ''}
         ${ln.interlude ? '' : `<select class="ncut" aria-label="第 ${i + 1} 行的片段數">${cutOpts}</select>`}
         ${ln.interlude ? '' : `<select class="lay pro-only" aria-label="指定版面"></select>`}
         <button class="icon ghost tapfrom" title="從這一行重新點擊對拍" aria-label="從第 ${i + 1} 行點擊對拍">${ICON.tap}</button>
@@ -41568,7 +41577,7 @@ function renderLines() {
         }
       }
       replan(); flushSave();
-      toast('この行の単語時刻を消しました');
+      toast('已清除此行逐詞時間');
     });
     if (q('.wedit')) q('.wedit').addEventListener('change', e => {
       const inp = e.target.closest('.wstart');
@@ -41732,7 +41741,7 @@ function kfHasKeys(li) { // any keyframes on line li (live plan or its lock spec
 }
 function kfConfirmDropKeys(li) { // true = proceed (keys are dropped); false = cancel
   if (!kfHasKeys(li)) return true;
-  return window.confirm('ロックを外すとこの行のキーフレームが消えます。続けますか？');
+  return window.confirm('解鎖將刪除該行的關鍵影格，繼續嗎？');
 }
 function kfCommit(cut) { // refresh the lock snapshot with the live cut's keys, then replan + save
   const li = cut ? cut.line : -1;
@@ -41755,7 +41764,7 @@ function kfAddKey() {
   else { cut.keyframes.push(nk); cut.keyframes.sort((a, b) => a.t - b.t); KF.sel = cut.keyframes.indexOf(nk); }
   kfCommit(cut);
   drawTimeline(); renderKfPanel();
-  toast(wasLocked ? 'キーフレームを新增しました' : 'キーフレームを新增しました（行をロックしました）');
+  toast(wasLocked ? '已新增關鍵影格' : '已新增關鍵影格（已鎖定該行）');
 }
 function kfDeleteKey(idx) {
   const cut = kfActiveCut();
@@ -41765,7 +41774,7 @@ function kfDeleteKey(idx) {
   KF.sel = -1;
   kfCommit(cut);
   drawTimeline(); renderKfPanel();
-  toast('キーフレームを削除しました');
+  toast('已刪除關鍵影格');
 }
 function kfSetKey(idx, prop, value) { // one field of one key, from the panel (change event = one undo step)
   const cut = kfActiveCut();
@@ -41920,9 +41929,9 @@ function syncWdHint() { // usage hint / live readout / no-audio note; cached —
   let txt;
   if (WD.drag >= 0) txt = WD.liveText;
   else txt = (WD.snap
-    ? '波形の上の単語をドラッグで動かせます：区切りで端だけ、真ん中で単語ごと（Shiftで0.01秒、スナップ0.05秒オン）' // P4 v0.22.0: hint now covers the whole-word drag too
-    : '波形の上の単語をドラッグで動かせます：区切りで端だけ、真ん中で単語ごと（Shiftで0.01秒、スナップオフ）')
-    + (S.audio ? '' : '（音声無：時間で合わせられます）');
+    ? '可在波形上拖曳詞語調整時間：拖曳邊界調端點，拖曳中間整體移動（Shift 0.01s · 吸附 0.05s 開）' // P4 v0.22.0: hint now covers the whole-word drag too
+    : '可在波形上拖曳詞語調整時間：拖曳邊界調端點，拖曳中間整體移動（Shift 0.01s · 吸附關）')
+    + (S.audio ? '' : '（無音訊：仍可依時間對齊）');
   if (WD.hintCache !== txt) { WD.hintCache = txt; el.textContent = txt; }
 }
 function kfPoseText(cut) { // live readout for the playhead position
@@ -41947,7 +41956,7 @@ function updateKfPanelPose() { // called from updateTimeUI: cheap text update, f
 /* K4 v0.26.1 — display labels for the keyframe easing select (Japanese
    literals; vi/en live in app/i18n_vi.py + app/english.py, zh/ko/id show
    Japanese as for the other new labels). Keys must match J.keyframeEase. */
-const K4_EASE_LABEL = { linear: 'リニア', 'ease-in': 'イーズイン', 'ease-out': 'イーズアウト', 'ease-in-out': 'イーズイン、アウト', hold: 'ホールド' };
+const K4_EASE_LABEL = { linear: '線性', 'ease-in': '緩入', 'ease-out': '緩出', 'ease-in-out': '緩入緩出', hold: '停留' };
 function renderKfPanel() { // full rebuild: header + live pose + key rows + add button
   const el = $('kfPanel');
   if (!el) return;
@@ -41956,15 +41965,15 @@ function renderKfPanel() { // full rebuild: header + live pose + key rows + add 
   const head = document.createElement('div');
   head.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:4px 0 2px';
   const title = document.createElement('strong');
-  title.textContent = 'キーフレーム';
+  title.textContent = '關鍵影格';
   head.appendChild(title);
   const cutLbl = document.createElement('span');
   cutLbl.className = 'muted';
-  cutLbl.textContent = cut ? `${cut.line + 1}行目、${J.fmtTime(cut.start)}〜${J.fmtTime(cut.end)}` : '（ 個片段無）';
+  cutLbl.textContent = cut ? `${cut.line + 1}行目、${J.fmtTime(cut.start)}〜${J.fmtTime(cut.end)}` : '（無片段）';
   head.appendChild(cutLbl);
   const addBtn = document.createElement('button');
   addBtn.className = 'ghost small';
-  addBtn.textContent = '＋ 播放位置に新增';
+  addBtn.textContent = '＋ 在目前位置新增';
   addBtn.disabled = !cut;
   addBtn.addEventListener('click', kfAddKey);
   head.appendChild(addBtn);
@@ -41981,7 +41990,7 @@ function renderKfPanel() { // full rebuild: header + live pose + key rows + add 
     const empty = document.createElement('div');
     empty.className = 'muted';
     empty.style.cssText = 'padding:2px 0;font-size:12px';
-    empty.textContent = 'この 個片段にはキーフレームがありません。「＋ 播放位置に新增」で新增します。';
+    empty.textContent = '此片段尚無關鍵影格，點擊「＋ 在目前位置新增」建立。';
     el.appendChild(empty);
     return;
   }
@@ -42017,7 +42026,7 @@ function renderKfPanel() { // full rebuild: header + live pose + key rows + add 
       if (min != null) inp.min = String(min);
       if (max != null) inp.max = String(max);
       inp.style.cssText = `width:${w}px;padding:2px 4px`;
-      inp.setAttribute('aria-label', `キー${idx + 1} ${label}`);
+      inp.setAttribute('aria-label', `關鍵影格 ${idx + 1} ${label}`);
       inp.addEventListener('change', e => { const v = parseFloat(e.target.value); if (isFinite(v)) kfSetKey(idx, prop, v); else renderKfPanel(); });
       inp.addEventListener('click', () => { KF.sel = idx; drawTimeline(); });
       row.appendChild(inp);
@@ -42026,11 +42035,11 @@ function renderKfPanel() { // full rebuild: header + live pose + key rows + add 
     const easeLb = document.createElement('span');
     easeLb.className = 'muted';
     easeLb.style.cssText = 'font-size:11px';
-    easeLb.textContent = 'イージング';
+    easeLb.textContent = '緩動';
     row.appendChild(easeLb);
     const easeSel = document.createElement('select');
     easeSel.style.cssText = 'padding:2px 4px';
-    easeSel.setAttribute('aria-label', `キー${idx + 1} イージング`);
+    easeSel.setAttribute('aria-label', `關鍵影格 ${idx + 1} 緩動`);
     for (const name of Object.keys(J.keyframeEase)) {
       const opt = document.createElement('option');
       opt.value = name;
@@ -42042,7 +42051,7 @@ function renderKfPanel() { // full rebuild: header + live pose + key rows + add 
     row.appendChild(easeSel);
     const del = document.createElement('button');
     del.className = 'ghost small';
-    del.textContent = 'キーを削除';
+    del.textContent = '刪除關鍵影格';
     del.addEventListener('click', () => kfDeleteKey(idx));
     row.appendChild(del);
     list.appendChild(row);
@@ -42069,7 +42078,7 @@ function loadLrc(text) {
   // M7 v0.32.0: report overlaps after import, but never fix silently — the button does that, by hand
   if (J.validateLyricsTimings) {
     const v = J.validateLyricsTimings(S.project);
-    if (v.hasIssues) setTimeout(() => toast(`重なりが ${v.overlapCount + v.errorCount} 件あります。「重なりを直す」で直せます`), 1200);
+    if (v.hasIssues) setTimeout(() => toast(`發現 ${v.overlapCount + v.errorCount} 處重疊，可點擊「修復重疊」處理`), 1200);
   }
 }
 function saveLrc() {
@@ -42096,12 +42105,12 @@ function runAutoFix() {
   pushEdit();
   const rep = J.autoFixLyricsOverlaps(S.project);
   replan(); flushSave(); renderLines();
-  if (!rep.fixed) toast('重なりはありませんでした');
+  if (!rep.fixed) toast('沒有重疊');
   else {
     const byRule = {};
     for (const d of rep.details) byRule[d.rule] = (byRule[d.rule] || 0) + 1;
     const parts = Object.entries(byRule).map(([r, c]) => `${r}×${c}`);
-    toast(`重なりを ${rep.fixed} 件直しました（${parts.join('、')}）${rep.after.hasIssues ? ' — まだ残りがあります' : ''}`);
+    toast(`已修復 ${rep.fixed} 處重疊（${parts.join('、')}）${rep.after.hasIssues ? ' — 仍有殘留' : ''}`);
   }
   return rep;
 }
@@ -42111,8 +42120,8 @@ function syncM7Bar() {
   const v = J.validateLyricsTimings ? J.validateLyricsTimings(S.project) : { overlapCount: 0, errorCount: 0, hasIssues: false };
   const n = v.overlapCount + v.errorCount;
   btn.disabled = !v.hasIssues;
-  btn.textContent = n ? `重なりを直す（${n}）` : '重なりを直す';
-  if (note) note.textContent = n ? `重なり ${n} 件` : '';
+  btn.textContent = n ? `修復重疊（${n}）` : '修復重疊';
+  if (note) note.textContent = n ? `重疊 ${n} 處` : '';
   if (duo) duo.checked = !!S.project.duo;
   if (syl) syl.checked = !!S.project.syllableKaraoke;   // P5 v0.34.0
 }
@@ -42121,10 +42130,10 @@ function initM7Bar() {
   if (!list || $('lyrFixOverlap')) return;
   const bar = document.createElement('div');
   bar.className = 'row'; bar.style.cssText = 'gap:6px;flex-wrap:wrap;margin:6px 0';
-  bar.innerHTML = `<button type="button" id="lyrFixOverlap" class="ghost small">重なりを直す</button>`
-    + `<label class="row" style="gap:6px"><input id="lyrDuo" type="checkbox"> 2行カラオケ</label>`
-    + `<label class="row" style="gap:6px"><input id="lyrSyllable" type="checkbox"> 音節カラオケ</label>`
-    + `<button type="button" id="lyrResetPos" class="ghost small">位置をリセット</button>`
+  bar.innerHTML = `<button type="button" id="lyrFixOverlap" class="ghost small">修復重疊</button>`
+    + `<label class="row" style="gap:6px"><input id="lyrDuo" type="checkbox"> 雙行卡拉OK</label>`
+    + `<label class="row" style="gap:6px"><input id="lyrSyllable" type="checkbox"> 音節卡拉OK</label>`
+    + `<button type="button" id="lyrResetPos" class="ghost small">重設位置</button>`
     + `<span id="lyrOverlapNote" class="muted"></span>`;
   list.before(bar);
   bar.querySelector('#lyrFixOverlap').addEventListener('click', runAutoFix);
@@ -42135,8 +42144,8 @@ function initM7Bar() {
     pushEdit(); S.project.syllableKaraoke = !!ev.target.checked; replan(); flushSave();
   });
   bar.querySelector('#lyrResetPos').addEventListener('click', () => {
-    if (!Object.keys(S.project.lineOffsets || {}).length) { toast('ずらした行はありません'); return; }
-    pushEdit(); S.project.lineOffsets = {}; replan(); flushSave(); toast('文字の位置をリセットしました');
+    if (!Object.keys(S.project.lineOffsets || {}).length) { toast('沒有移動過的行'); return; }
+    pushEdit(); S.project.lineOffsets = {}; replan(); flushSave(); toast('已重設文字位置');
   });
   syncM7Bar();
 }
@@ -42692,9 +42701,9 @@ function renderFx() {
   // v0.14.0: beat-synced motion — toggle + strength + beat interval (rebuilt with the other fx controls)
   const bfx = S.project.fx;
   const beatBox = document.createElement('div');
-  beatBox.innerHTML = `<label class="row" style="gap:6px"><input id="fxBeatSync" type="checkbox"${bfx.beatSync ? ' checked' : ''}> 拍に合わせて動く</label>`
-    + `<div class="slider"><label for="fxBeatAmt">拍の強さ</label><input id="fxBeatAmt" type="range" min="0" max="1" step="0.01" value="${bfx.beatAmt ?? 0.7}"><output>${Math.round((bfx.beatAmt ?? 0.7) * 100)}</output></div>`
-    + `<label class="field">拍の間隔<select id="fxBeatEvery"><option value="1">毎拍</option><option value="2">2拍ごと</option><option value="4">4拍ごと</option></select></label>`;
+  beatBox.innerHTML = `<label class="row" style="gap:6px"><input id="fxBeatSync" type="checkbox"${bfx.beatSync ? ' checked' : ''}> 隨節拍律動</label>`
+    + `<div class="slider"><label for="fxBeatAmt">節拍強度</label><input id="fxBeatAmt" type="range" min="0" max="1" step="0.01" value="${bfx.beatAmt ?? 0.7}"><output>${Math.round((bfx.beatAmt ?? 0.7) * 100)}</output></div>`
+    + `<label class="field">節拍間隔<select id="fxBeatEvery"><option value="1">每拍</option><option value="2">每 2 拍</option><option value="4">每 4 拍</option></select></label>`;
   box.appendChild(beatBox);
   const bSync = beatBox.querySelector('#fxBeatSync'), bAmt = beatBox.querySelector('#fxBeatAmt'), bAmtOut = beatBox.querySelector('output'), bEvery = beatBox.querySelector('#fxBeatEvery');
   bEvery.value = String(bfx.beatEvery || 1);
@@ -42706,10 +42715,10 @@ function renderFx() {
   // v0.19.0: 3D text — toggle + depth + mode + shadow (built like the beatSync block above)
   const tfx = S.project.fx;
   const tBox = document.createElement('div');
-  tBox.innerHTML = `<label class="row" style="gap:6px"><input id="fxThreeD" type="checkbox"${tfx.threeD ? ' checked' : ''}> 3Dテキスト</label>`
-    + `<div class="slider"><label for="fxThreeDepth">3Dの深さ</label><input id="fxThreeDepth" type="range" min="0" max="1" step="0.01" value="${tfx.threeDepth ?? 0.7}"><output>${Math.round((tfx.threeDepth ?? 0.7) * 100)}</output></div>`
-    + `<label class="field">3Dモード<select id="fxThreeMode"><option value="plane">平面3D</option><option value="block">立体ブロック</option></select></label>`
-    + `<label class="row" style="gap:6px"><input id="fxThreeShadow" type="checkbox"${tfx.threeShadow ? ' checked' : ''}> 影をつける</label>`;
+  tBox.innerHTML = `<label class="row" style="gap:6px"><input id="fxThreeD" type="checkbox"${tfx.threeD ? ' checked' : ''}> 3D 文字</label>`
+    + `<div class="slider"><label for="fxThreeDepth">3D 深度</label><input id="fxThreeDepth" type="range" min="0" max="1" step="0.01" value="${tfx.threeDepth ?? 0.7}"><output>${Math.round((tfx.threeDepth ?? 0.7) * 100)}</output></div>`
+    + `<label class="field">3D 模式<select id="fxThreeMode"><option value="plane">平面 3D</option><option value="block">立體方塊</option></select></label>`
+    + `<label class="row" style="gap:6px"><input id="fxThreeShadow" type="checkbox"${tfx.threeShadow ? ' checked' : ''}> 加入陰影</label>`;
   box.appendChild(tBox);
   const tOn = tBox.querySelector('#fxThreeD'), tDepth = tBox.querySelector('#fxThreeDepth'), tDepthOut = tBox.querySelector('output'),
     tMode = tBox.querySelector('#fxThreeMode'), tShadow = tBox.querySelector('#fxThreeShadow');
@@ -42721,7 +42730,7 @@ function renderFx() {
   syncThreeDis();
   tOn.addEventListener('change', () => {
     tfx.threeD = tOn.checked; syncThreeDis();
-    if (tfx.threeD && J.text3d) J.text3d.load().then(ok => { if (!ok) toast('3Dの読み込みに失敗しました。2D表示のままです'); replan(); });
+    if (tfx.threeD && J.text3d) J.text3d.load().then(ok => { if (!ok) toast('3D 載入失敗，維持 2D 顯示'); replan(); });
     replan();
   });
   tDepth.addEventListener('input', () => { tfx.threeDepth = +tDepth.value; tDepthOut.textContent = Math.round(tDepth.value * 100); replanSoon(120); });
@@ -42731,7 +42740,7 @@ function renderFx() {
       // M2: parse the font subsets now so the block layer is ready (a miss
       // just falls back to the plane for the first frames — never a fake)
       if (J.text3d) J.text3d._loadFonts();
-      toast('立体ブロック：Be Vietnam Pro 400/700のベトナム語のみ。日本語や他字型は平面3Dで表示します');
+      toast('立體方塊僅支援 Be Vietnam Pro 400/700，其他字型將退回平面 3D');
     }
     replan();
   });
@@ -42740,12 +42749,12 @@ function renderFx() {
   const gfx = S.project.fx;
   if (!gfx.grade || typeof gfx.grade !== 'object') gfx.grade = { lut: 'none', strength: 1 };
   const gBox = document.createElement('div');
-  const lutCats = { cinema: '映画', vintage: 'ヴィンテージ', creative: 'クリエイティブ', moody: 'ムーディー', clean: 'クリーン' };
-  const lutOpts = (J.GRADE_LUTS || []).map(l => `<option value="${l.id}"${l.id === gfx.grade.lut ? ' selected' : ''}>${l.name}${lutCats[l.cat] ? '（' + lutCats[l.cat] + '）' : ''}</option>`).join('');
-  gBox.innerHTML = `<label class="field">カラーグレーディング<select id="fxGradeLut">${lutOpts}</select></label>`
-    + `<div class="slider"><label for="fxGradeStrength">グレーディングの強さ</label><input id="fxGradeStrength" type="range" min="0" max="1" step="0.01" value="${gfx.grade.strength ?? 1}"><output>${Math.round((gfx.grade.strength ?? 1) * 100)}</output></div>`
-    + `<div class="slider"><label for="fxParticleLayers">粒子の層</label><input id="fxParticleLayers" type="range" min="1" max="5" step="1" value="${gfx.particleLayers ?? 2}"><output>${gfx.particleLayers ?? 2}</output></div>`
-    + `<label class="row" style="gap:6px"><input id="fxParticleReact" type="checkbox"${gfx.particleReact !== false ? ' checked' : ''}> 音楽に反応する粒子</label>`;
+  const lutCats = { cinema: '電影', vintage: '復古', creative: '創意', moody: '氛圍', clean: '自然' };
+  const lutOpts = (J.GRADE_LUTS || []).map(l => `<option value="${l.id}"${l.id === gfx.grade.lut ? ' selected' : ''}>${uiLabel(l)}${lutCats[l.cat] ? '（' + lutCats[l.cat] + '）' : ''}</option>`).join('');
+  gBox.innerHTML = `<label class="field">調色（LUT）<select id="fxGradeLut">${lutOpts}</select></label>`
+    + `<div class="slider"><label for="fxGradeStrength">調色強度</label><input id="fxGradeStrength" type="range" min="0" max="1" step="0.01" value="${gfx.grade.strength ?? 1}"><output>${Math.round((gfx.grade.strength ?? 1) * 100)}</output></div>`
+    + `<div class="slider"><label for="fxParticleLayers">粒子層數</label><input id="fxParticleLayers" type="range" min="1" max="5" step="1" value="${gfx.particleLayers ?? 2}"><output>${gfx.particleLayers ?? 2}</output></div>`
+    + `<label class="row" style="gap:6px"><input id="fxParticleReact" type="checkbox"${gfx.particleReact !== false ? ' checked' : ''}> 隨音樂反應的粒子</label>`;
   box.appendChild(gBox);
   const gLut = gBox.querySelector('#fxGradeLut'), gStr = gBox.querySelector('#fxGradeStrength'), gStrOut = gBox.querySelector('#fxGradeStrength + output'),
     gLay = gBox.querySelector('#fxParticleLayers'), gLayOut = gBox.querySelector('#fxParticleLayers + output'), gReact = gBox.querySelector('#fxParticleReact');
@@ -42756,17 +42765,17 @@ function renderFx() {
   // v0.31.0 M6: master EQ (10 bands) — global, live on the preview audio
   const eqNow = () => S.project.eq || (S.project.eq = J.eqDefault());
   const eBox = document.createElement('div');
-  const eqPresetOpts = (J.EQ_PRESETS || []).map(p => `<option value="${p.id}"${p.id === eqNow().preset ? ' selected' : ''}>${p.name}</option>`).join('')
+  const eqPresetOpts = (J.EQ_PRESETS || []).map(p => `<option value="${p.id}"${p.id === eqNow().preset ? ' selected' : ''}>${uiLabel(p)}</option>`).join('')
     + `<option value="custom"${eqNow().preset === 'custom' ? ' selected' : ''}>自訂</option>`;
   const bandRows = (J.EQ_BANDS || []).map(b => {
     const v = eqNow().bands ? eqNow().bands[b.id] ?? 0 : 0;
     return `<div class="slider"><label for="fxEqBand_${b.id}">${b.label}</label><input id="fxEqBand_${b.id}" type="range" min="-12" max="12" step="0.5" value="${v}"><output>${v > 0 ? '+' : ''}${v}</output></div>`;
   }).join('');
-  eBox.innerHTML = `<label class="field">マスターEQ<select id="fxEqPreset">${eqPresetOpts}</select></label>`
-    + `<label class="row" style="gap:6px"><input id="fxEqBypass" type="checkbox"${eqNow().bypass ? ' checked' : ''}> EQをバイパス</label>`
-    + `<div class="slider"><label for="fxEqPreamp">プリアンプ</label><input id="fxEqPreamp" type="range" min="-6" max="6" step="0.5" value="${eqNow().preamp ?? 0}"><output>${(eqNow().preamp ?? 0) > 0 ? '+' : ''}${eqNow().preamp ?? 0}</output></div>`
-    + `<label class="field">ロー 個片段<select id="fxEqLowCut">${[0, 20, 30, 40, 80].map(f => `<option value="${f}"${(eqNow().lowCut ?? 0) === f ? ' selected' : ''}>${f === 0 ? 'オフ' : f + 'Hz'}</option>`).join('')}</select></label>`
-    + `<label class="field">ハイ 個片段<select id="fxEqHighCut">${[20000, 18000, 16000, 14000].map(f => `<option value="${f}"${(eqNow().highCut ?? 20000) === f ? ' selected' : ''}>${f === 20000 ? 'オフ' : (f / 1000) + 'kHz'}</option>`).join('')}</select></label>`
+  eBox.innerHTML = `<label class="field">主等化器（EQ）<select id="fxEqPreset">${eqPresetOpts}</select></label>`
+    + `<label class="row" style="gap:6px"><input id="fxEqBypass" type="checkbox"${eqNow().bypass ? ' checked' : ''}> 旁路 EQ</label>`
+    + `<div class="slider"><label for="fxEqPreamp">前級增益</label><input id="fxEqPreamp" type="range" min="-6" max="6" step="0.5" value="${eqNow().preamp ?? 0}"><output>${(eqNow().preamp ?? 0) > 0 ? '+' : ''}${eqNow().preamp ?? 0}</output></div>`
+    + `<label class="field">低切<select id="fxEqLowCut">${[0, 20, 30, 40, 80].map(f => `<option value="${f}"${(eqNow().lowCut ?? 0) === f ? ' selected' : ''}>${f === 0 ? '關閉' : f + 'Hz'}</option>`).join('')}</select></label>`
+    + `<label class="field">高切<select id="fxEqHighCut">${[20000, 18000, 16000, 14000].map(f => `<option value="${f}"${(eqNow().highCut ?? 20000) === f ? ' selected' : ''}>${f === 20000 ? '關閉' : (f / 1000) + 'kHz'}</option>`).join('')}</select></label>`
     + bandRows;
   box.appendChild(eBox);
   const eqMarkCustom = () => { const e = eqNow(); if (e.preset !== 'custom') { e.preset = 'custom'; const ps = eBox.querySelector('#fxEqPreset'); if (ps) ps.value = 'custom'; } };
@@ -42801,21 +42810,21 @@ function renderFx() {
   const stList0 = S.project.stickers || (S.project.stickers = []);
   const stSel = stList0.find(s => s.id === selStickerId) || stList0[0] || null;
   if (stSel) selStickerId = stSel.id; else selStickerId = null;
-  const stOpts = `<option value="none">ステッカーを選択</option>` + (J.LOTTIE_STICKERS || []).map(s => `<option value="${s.id}">${s.name}</option>`).join('');
-  const stItems = stList0.map(s => { const d = J.lottieSticker(s.anim); return `<button type="button" class="st-item${stSel && s.id === stSel.id ? ' on' : ''}" data-st="${s.id}">${d ? d.name : s.anim} ${s.start.toFixed(1)}–${s.end.toFixed(1)}s</button>`; }).join('') || '<span class="st-none">ステッカー無</span>';
-  stBox.innerHTML = `<label class="field">ステッカー<select id="fxStickerSel">${stOpts}</select></label>`
-    + `<div class="row" style="gap:6px"><button type="button" id="fxStickerAdd" class="ghost">ステッカーを新增</button><button type="button" id="fxStickerRemove" class="ghost"${stSel ? '' : ' disabled'}>削除</button></div>`
+  const stOpts = `<option value="none">選擇貼圖</option>` + (J.LOTTIE_STICKERS || []).map(s => `<option value="${s.id}">${uiLabel(s)}</option>`).join('');
+  const stItems = stList0.map(s => { const d = J.lottieSticker(s.anim); return `<button type="button" class="st-item${stSel && s.id === stSel.id ? ' on' : ''}" data-st="${s.id}">${d ? uiLabel(d) : s.anim} ${s.start.toFixed(1)}–${s.end.toFixed(1)}s</button>`; }).join('') || '<span class="st-none">尚無貼圖</span>';
+  stBox.innerHTML = `<label class="field">貼圖<select id="fxStickerSel">${stOpts}</select></label>`
+    + `<div class="row" style="gap:6px"><button type="button" id="fxStickerAdd" class="ghost">新增貼圖</button><button type="button" id="fxStickerRemove" class="ghost"${stSel ? '' : ' disabled'}>刪除</button></div>`
     + `<div id="fxStickerList">${stItems}</div>`
-    + (stSel ? `<div class="slider"><label for="fxStickerX">横の位置</label><input id="fxStickerX" type="range" min="0" max="100" step="1" value="${Math.round(stSel.x * 100)}"><output>${Math.round(stSel.x * 100)}%</output></div>`
-    + `<div class="slider"><label for="fxStickerY">縦の位置</label><input id="fxStickerY" type="range" min="0" max="100" step="1" value="${Math.round(stSel.y * 100)}"><output>${Math.round(stSel.y * 100)}%</output></div>`
-    + `<div class="slider"><label for="fxStickerSize">大きさ</label><input id="fxStickerSize" type="range" min="5" max="60" step="1" value="${Math.round(stSel.size * 100)}"><output>${Math.round(stSel.size * 100)}%</output></div>`
+    + (stSel ? `<div class="slider"><label for="fxStickerX">水平位置</label><input id="fxStickerX" type="range" min="0" max="100" step="1" value="${Math.round(stSel.x * 100)}"><output>${Math.round(stSel.x * 100)}%</output></div>`
+    + `<div class="slider"><label for="fxStickerY">垂直位置</label><input id="fxStickerY" type="range" min="0" max="100" step="1" value="${Math.round(stSel.y * 100)}"><output>${Math.round(stSel.y * 100)}%</output></div>`
+    + `<div class="slider"><label for="fxStickerSize">大小</label><input id="fxStickerSize" type="range" min="5" max="60" step="1" value="${Math.round(stSel.size * 100)}"><output>${Math.round(stSel.size * 100)}%</output></div>`
     + `<label class="field">起始（秒）<input id="fxStickerStart" type="number" min="0" step="0.1" value="${stSel.start}"></label>`
-    + `<label class="field">終了（秒）<input id="fxStickerEnd" type="number" min="0" step="0.1" value="${stSel.end}"></label>` : '');
+    + `<label class="field">結束（秒）<input id="fxStickerEnd" type="number" min="0" step="0.1" value="${stSel.end}"></label>` : '');
   box.appendChild(stBox);
   const stCur = () => (S.project.stickers || []).find(s => s.id === selStickerId) || null;
   stBox.querySelector('#fxStickerAdd').addEventListener('click', () => {
     const anim = stBox.querySelector('#fxStickerSel').value;
-    if (anim === 'none' || !J.lottieSticker(anim)) { toast('ステッカーを選んでください'); return; }
+    if (anim === 'none' || !J.lottieSticker(anim)) { toast('請先選擇貼圖'); return; }
     const [a, b] = stickerSpanForNow();
     const st = J.stickerDefault(anim, a, b);
     (S.project.stickers || (S.project.stickers = [])).push(st);
@@ -43027,21 +43036,21 @@ async function codecNote() {
   // M1: fast export needs MediaRecorder with at least one supported mime
   const fastOk = !!(J.fastExportSupported && J.fastExportSupported());
   ['btnMP4Fast', 'eMP4Fast'].forEach(id => { $(id).disabled = !fastOk; });
-  if (!fastOk) ['btnMP4Fast', 'eMP4Fast'].forEach(id => { $(id).title = 'このブラウザは高速書き出し（MediaRecorder）に対応していません。MP4書き出し（オフライン）を使ってください。'; });
+  if (!fastOk) ['btnMP4Fast', 'eMP4Fast'].forEach(id => { $(id).title = '此瀏覽器不支援快速匯出（MediaRecorder），請使用離線 MP4 匯出。'; });
   if (!vc) $('eMP4').title = '這個瀏覽器不支援匯出 MP4（建議使用 Chrome / Edge）';
 }
 const EXP_BTNS = ['btnMP4', 'btnMP4Fast', 'btnPNG', 'btnPNGA', 'btnPNGL', 'eMP4', 'btnMP4File', 'eMP4File', 'eMP4Fast', 'ePNG', 'ePNGA', 'ePNGL'];
 /* M1: fast-export failures arrive as codes from 14_mediarec.js (that file is not localised) */
 const FAST_ERR = {
   'cancelled': 'キャンセルしました',
-  'no-recorder': 'このブラウザは高速書き出し（MediaRecorder）に対応していません。MP4書き出し（オフライン）を使ってください。',
-  'no-mime': 'このブラウザは高速書き出しに対応していません。MP4書き出し（オフライン）を使ってください。',
-  'no-view': 'プレビューが準備できていません。',
-  'no-video': 'プレビューの映像を取り込めませんでした。',
-  'stalled': '書き出し中に画面が止まりました。タブを開いたまま、もう一度試してください。',
-  'timeout': '高速書き出しが時間切れになりました。MP4書き出し（オフライン）を使ってください。',
-  'no-chunks': '録画データがありませんでした。もう一度試してください。',
-  'advance-failed': 'プレイリストの次の曲に切り替えられませんでした。もう一度試してください。',
+  'no-recorder': '此瀏覽器不支援快速匯出（MediaRecorder），請使用離線 MP4 匯出。',
+  'no-mime': '此瀏覽器不支援快速匯出，請使用離線 MP4 匯出。',
+  'no-view': '預覽尚未就緒。',
+  'no-video': '無法擷取預覽畫面。',
+  'stalled': '匯出時畫面停止，請停留分頁開啟後重試。',
+  'timeout': '快速匯出逾時，請使用離線 MP4 匯出。',
+  'no-chunks': '未錄到影片資料，請重試。',
+  'advance-failed': '無法切換到播放清單下一首，請重試。',
 };
 function baseName() {
   const k = J.keyMode(S.project);
@@ -43083,7 +43092,7 @@ async function runExport(kind) {
     if (kind === 'mp4fast') {
       // M1 v0.24.0: realtime MediaRecorder capture of the live preview (a second export mode next to offline)
       const range = scopeAll ? null : exportRange(), span = J.exportSpan(S.plan, range);
-      const fastProg = p => `高速書き出し中（リアルタイム） ${Math.floor(p * 100)}%`;
+      const fastProg = p => `快速匯出中（即時） ${Math.floor(p * 100)}%`;
       let plOpt = null;
       if (scopeAll) {
         // whole playlist: start at song 1 so the recording covers every song in order
@@ -43101,7 +43110,7 @@ async function runExport(kind) {
       S.fastLast = { mime: r.mime, label: r.info.label, audio: r.audio, audioWanted: r.audioWanted, width: r.width, height: r.height, duration: r.duration, wallMs: Math.round(r.wallMs) };
       const ext = J.fastFileExt(r.mime);
       const name = baseName() + (scopeAll ? '_playlist' : rangeSuffix()) + '_fast.' + ext;
-      txt.textContent = `完成 ${(r.blob.size / 1048576).toFixed(1)}MB、${r.info.label}、${((performance.now() - t0) / 1000).toFixed(0)}秒（リアルタイム）` + (scopeAll ? `、プレイリスト全${plOpt.count}曲` : '');
+      txt.textContent = `完成 ${(r.blob.size / 1048576).toFixed(1)}MB、${r.info.label}、${((performance.now() - t0) / 1000).toFixed(0)}秒（即時）` + (scopeAll ? `、プレイリスト全${plOpt.count}曲` : '');
       const res = await J.saveFile(name, r.blob);
       if (res === 'declined') txt.textContent += '（已取消儲存）';
       offerShare(boxes, r.blob, name);
@@ -43115,15 +43124,15 @@ async function runExport(kind) {
         } else {
           await J.saveFile(baseName() + rangeSuffix() + '_audio.wav', J.audioWav(S.audio.buffer, span.dur, span.t0));
         }
-        txt.textContent += '。音声が入らなかったため、音声を WAV で別に保存しました';
+        txt.textContent += '。未錄到音訊，已另存為 WAV';
       } else if (S.project.includeAudio !== false && !S.audio && S.project.audioName) txt.textContent += '。尚未匯入歌曲，因此影片沒有聲音（請從「匯入歌曲」重新載入）';
-      else if (S.project.includeAudio === false) txt.textContent += '。音声無で書き出しました';
+      else if (S.project.includeAudio === false) txt.textContent += '。已無聲匯出';
     } else if (kind === 'mp4' || kind === 'mp4file') {
       const range = scopeAll ? null : exportRange(), span = J.exportSpan(S.plan, range);
       let r, segs = null;
       if (scopeAll) {
         // M4: one MP4 for the whole playlist — segments are built from snapshots (the editor is untouched)
-        segs = await playlistSegments((done, total) => onProgress(done / total * 0.05, 'プレイリストの曲を準備中…'));
+        segs = await playlistSegments((done, total) => onProgress(done / total * 0.05, '正在準備播放清單歌曲…'));
         r = await J.exportMP4({ plan: segs[0].plan, project: proj, audio: segs[0].audio, quality: S.project.quality || 'high', onProgress, signal: ac.signal, range: null, file, segments: segs });
       } else {
         r = await J.exportMP4({ plan: S.plan, project: proj, audio: S.project.includeAudio !== false ? S.audio : null, quality: S.project.quality || 'high', onProgress, signal: ac.signal, range, file });
@@ -43357,7 +43366,7 @@ function bind() {
     const act = btn ? btn.dataset.act : null;
     if (act === 'up') moveTrack(i, -1);
     else if (act === 'down') moveTrack(i, 1);
-    else if (act === 'del') { if (window.confirm('この曲をプレイリストから削除しますか？')) await removeTrack(i); }
+    else if (act === 'del') { if (window.confirm('要從播放清單刪除此歌曲嗎？')) await removeTrack(i); }
     else await switchTrack(i);
   });
   const imgFileInput = $('imageFile');
@@ -43365,7 +43374,7 @@ function bind() {
     imgFileInput.addEventListener('change', e => {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
-      if (file.size > 15 * 1024 * 1024) { toast('画像ファイルが大きすぎます'); return; }
+      if (file.size > 15 * 1024 * 1024) { toast('圖片檔案過大'); return; }
       const reader = new FileReader();
       reader.onload = ev => {
         const dataUrl = ev.target.result;
@@ -43392,15 +43401,7 @@ function bind() {
       res.img.onload = () => {
         J.userImageElement = res.img;
         J.userImageData = res.dataUrl;
-        const nameMap = {
-          galaxy: '🌌 Vũ trụ Deep Galaxy',
-          cyberpunk: '🌃 Thành phố Cyberpunk',
-          lofi_sunset: '☕ Hoàng hôn Lo-Fi Chill',
-          stage: '🎙️ Sân khấu Spotlight',
-          night_rain: '🌧️ Mưa đêm thành phố',
-          retro_vinyl: '📼 Đĩa than Vinyl cổ điển',
-          dark_minimal: '🖤 Đen khói huyền bí'
-        };
+        const opt = stockPresetSel.options[stockPresetSel.selectedIndex];
         const motionMap = {
           galaxy: 'float',
           cyberpunk: 'beatpulse',
@@ -43410,7 +43411,7 @@ function bind() {
           retro_vinyl: 'spin',
           dark_minimal: 'kenburns'
         };
-        const stockName = nameMap[val] || val;
+        const stockName = (opt && opt.textContent) || val;
         J.userImageName = stockName;
         J.userImageMode = motionMap[val] || 'kenburns';
         J.userImageDim = 0.45;
@@ -43427,7 +43428,7 @@ function bind() {
       delete S.project.image;
       if ($('imageFile')) $('imageFile').value = '';
       syncImageUI(); commit(); replan();
-      toast('画像を消しました');
+      toast('已清除背景圖片');
     });
   }
   const imgModeSel = $('imageModeSel');
@@ -43452,7 +43453,7 @@ function bind() {
   $('btnTap').addEventListener('click', () => (S.tap ? stopTap() : startTap()));
   $('btnWhisper').addEventListener('click', whisperRun);
   $('btnAlign1Click').addEventListener('click', whisperRun);
-  $('btnWhisperCancel').addEventListener('click', () => { whisperState.cancel = true; whisperSetStatus('cancelling', '中止しています…', 0); });
+  $('btnWhisperCancel').addEventListener('click', () => { whisperState.cancel = true; whisperSetStatus('cancelling', '正在取消…', 0); });
   $('whisperModel').addEventListener('change', e => {
     whisperModel = e.target.value in WHISPER_MODELS ? e.target.value : 'tiny';
     whisperPipe = null; whisperState.modelLoaded = false;
@@ -43479,11 +43480,11 @@ function bind() {
         whisperSetStatus('done', msg, 0);
         toast(msg);
       } else {
-        whisperSetStatus('done', '適用する行がありません — チェックと開始時刻を確認してください', 0);
-        toast('適用する行がありません — チェックと開始時刻を確認してください');
+        whisperSetStatus('done', '沒有可套用的行 — 請檢查勾選與開始時間', 0);
+        toast('沒有可套用的行 — 請檢查勾選與開始時間');
       }
     } else if (whisperReview) {
-      whisperSetStatus('done', '確認画面を閉じました — タイミングは変更しませんでした', 0);
+      whisperSetStatus('done', '已關閉確認畫面 — 未變更時間', 0);
     }
     whisperReview = null;
   });
@@ -43665,7 +43666,7 @@ function bind() {
   const openTerms = () => { if (dlg.showModal) { if (!dlg.open) dlg.showModal(); } else dlg.setAttribute('open', ''); };
   document.querySelectorAll('.terms-open').forEach(b => b.addEventListener('click', openTerms));
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close ? dlg.close() : dlg.removeAttribute('open'); });   // click on the backdrop
-  $('btnSave').addEventListener('click', () => { snapshotCurrentItem(); J.saveFile(baseName() + '.lyricwave.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '0.35.1' }), null, 1)); });
+  $('btnSave').addEventListener('click', () => { snapshotCurrentItem(); J.saveFile(baseName() + '.lyricwave.json', JSON.stringify(Object.assign({}, S.project, { appVersion: '0.36.0' }), null, 1)); });
   $('btnAE').addEventListener('click', () => J.saveFile(baseName() + rangeSuffix() + '_ae.json', JSON.stringify(J.planForAE(S.plan, S.project, exportRange()), null, 1)));
   audioNameDefault = $('audioName').textContent;
   $('btnClearLyrics').addEventListener('click', clearLyrics);
@@ -43677,11 +43678,11 @@ function bind() {
   }));
   $('fileLrc').addEventListener('change', async e => {
     const f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return;
-    if (f.size > 2e6) { toast('ファイルが大きすぎます'); return; }
+    if (f.size > 2e6) { toast('檔案過大'); return; }
     let text = '';
     try { const buf = await f.arrayBuffer(); try { text = new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch (e2) { text = new TextDecoder('shift_jis').decode(buf); } }
-    catch (err) { toast('ファイルを読み込めませんでした'); return; }
-    if (!text.trim()) { toast('ファイルが空です'); return; }
+    catch (err) { toast('無法讀取檔案'); return; }
+    if (!text.trim()) { toast('檔案為空'); return; }
     // SRT / VTT / SSA-ASS → standard LRC, then the same path as an LRC file:
     // line times from the cue starts, word times from \k / timestamp tags
     const fmt = J.detectSubsFormat ? J.detectSubsFormat(text) : 'txt';
@@ -43689,7 +43690,7 @@ function bind() {
     if (fmt === 'srt' || fmt === 'vtt' || fmt === 'ass') {
       const lang = J.detectLang ? J.detectLang(text) : 'vi';
       subs = J.parseSubs(text, lang);
-      if (!subs.cues.length) { toast('字幕が見つかりませんでした（時刻付きのキューがありません）'); return; }
+      if (!subs.cues.length) { toast('找不到附時間的字幕'); return; }
       text = J.subsToLrc(subs);
     }
     if (S.project.lyrics.trim() && !window.confirm('今の歌詞を読み込んだ内容に置き換えます（行ごとの時刻、指定、書き出す範囲も消えます。「元に戻す」で戻せます）。よろしいですか？')) return;
@@ -43786,8 +43787,8 @@ async function applyTrack(i, opts) {
     $('audioName').textContent = `${item.audioName}（${J.fmtTime(a.duration)}、約${a.bpm}BPM）`;
   } else {
     S.audio = null;
-    $('audioName').textContent = (item.audioName || '') + '（曲が読み込まれていません）';
-    if (item.audioName) toast('曲が読み込まれていません — 「曲を読み込む」から読み込み直してください');
+    $('audioName').textContent = (item.audioName || '') + '（未載入音樂）';
+    if (item.audioName) toast('尚未載入音樂 — 請透過「載入音樂」重新匯入');
   }
   syncUI(); replan(); seek(0); renderPlaylist(); flushSave();
   if (opts.autoplay) play();
@@ -43800,7 +43801,7 @@ async function switchTrack(i, opts) {
   i = Math.max(0, Math.min(pl.items.length - 1, i | 0));
   if (i === pl.current && !opts.force) return false;
   if (S.tap || S.switching) return false;
-  if (S.exporting && !opts.fromExport) { toast('書き出し中は切り替えられません'); return false; }
+  if (S.exporting && !opts.fromExport) { toast('匯出中無法切換歌曲'); return false; }
   S.switching = true;
   const wasPlaying = S.playing;
   const autoplay = opts.autoplay != null ? opts.autoplay : wasPlaying;
@@ -43818,7 +43819,7 @@ async function switchTrack(i, opts) {
   } finally { S.switching = false; }
 }
 function addCurrentToPlaylist() {
-  if (S.exporting || S.tap) { toast('書き出し中は新增できません'); return false; }
+  if (S.exporting || S.tap) { toast('匯出中無法新增歌曲'); return false; }
   const pl = S.project.playlist;
   // keep the edits of the song we are leaving before the new item copies the live project
   if (pl.items.length) {
@@ -43834,9 +43835,9 @@ function addCurrentToPlaylist() {
   return true;
 }
 async function addPlaylistFiles(files) {
-  if (S.exporting || S.tap) { toast('書き出し中は新增できません'); return false; }
+  if (S.exporting || S.tap) { toast('匯出中無法新增歌曲'); return false; }
   const list = Array.from(files || []).filter(f => f && /\.(mp3|wav|m4a|aac|ogg|flac)$/i.test(f.name || ''));
-  if (!list.length) { toast('音声ファイルが見つかりませんでした'); return false; }
+  if (!list.length) { toast('找不到音訊檔案'); return false; }
   const pl = S.project.playlist;
   let added = 0;
   for (const f of list) {
@@ -43870,7 +43871,7 @@ async function addPlaylistFiles(files) {
 async function removeTrack(i) {
   const pl = S.project.playlist;
   if (!pl.items.length || i < 0 || i >= pl.items.length) return false;
-  if (S.exporting || S.tap) { toast('書き出し中は削除できません'); return false; }
+  if (S.exporting || S.tap) { toast('匯出中無法刪除歌曲'); return false; }
   pause();
   const [removed] = pl.items.splice(i, 1);
   if (removed && removed.audioKey) {
@@ -43909,16 +43910,17 @@ function renderPlaylist() {
     const num = document.createElement('span'); num.className = 'pl-num muted mono'; num.textContent = String(i + 1);
     const btn = document.createElement('button'); btn.className = 'pl-play'; btn.dataset.act = 'play';
     btn.title = it.audioName || '';
-    btn.textContent = `${J.playlistItemTitle(it, i)}${it.duration > 0 ? ' — ' + J.fmtTime(it.duration) : ''}`;
+    const rawTitle = (it.title && it.title.trim()) || (it.audioName && it.audioName.replace(/\.[^.]+$/, '')) || `曲目 ${i + 1}`;
+    btn.textContent = `${rawTitle}${it.duration > 0 ? ' — ' + J.fmtTime(it.duration) : ''}`;
     li.appendChild(num); li.appendChild(btn);
-    for (const [act, label, title] of [['up', '↑', '上へ'], ['down', '↓', '下へ'], ['del', '✕', '削除']]) {
+    for (const [act, label, title] of [['up', '↑', '上移'], ['down', '↓', '下移'], ['del', '✕', '刪除']]) {
       const b = document.createElement('button'); b.className = 'ghost small pl-btn'; b.dataset.act = act; b.textContent = label; b.title = title;
       li.appendChild(b);
     }
     list.appendChild(li);
   });
   const total = $('plTotal');
-  if (total) total.textContent = pl.items.length ? `全 ${pl.items.length} 曲、合計 ${J.fmtTime(J.playlistTotalDuration(pl.items))}` : 'プレイリストは空です（今の曲だけの動作です）';
+  if (total) total.textContent = pl.items.length ? `共 ${pl.items.length} 首 · 總計 ${J.fmtTime(J.playlistTotalDuration(pl.items))}` : '播放清單為空（僅單曲模式）';
   const an = $('plAutoNext'); if (an) an.checked = pl.autoPlayNext !== false;
   const rp = $('plRepeat'); if (rp) rp.value = pl.repeat || 'all';
   const row = $('expScopeRow');
@@ -44153,8 +44155,8 @@ function whisperLyricLines() {
 }
 function whisperLoadErrorText(e) {
   const m = (e && e.message) ? String(e.message) : String(e || '');
-  if (/Failed to fetch/i.test(m)) return 'CDNに接続できませんでした（ネットワークを確認してください）';
-  if (/SyntaxError|Unexpected token|not a module|did not export pipeline/i.test(m)) return 'ライブラリの形式が正しくありません';
+  if (/Failed to fetch/i.test(m)) return '無法連線到 CDN（請檢查網路）';
+  if (/SyntaxError|Unexpected token|not a module|did not export pipeline/i.test(m)) return '函式庫格式不正確';
   return m ? m.slice(0, 120) : '不明なエラー';
 }
 function whisperLoadLib() {
@@ -44179,7 +44181,7 @@ function whisperRenderUI() {
   const c = $('btnWhisperCancel');
   if (c) c.hidden = !busy;
   const st = $('whisperStatus');
-  if (st) st.textContent = whisperState.note || '未実行 — 本物の音声と歌詞が必要です';
+  if (st) st.textContent = whisperState.note || '尚未執行 — 需要真實音訊與歌詞';
 }
 function whisperApply(res, rows) {
   // apply only the review rows the user checked, in one edit (one Ctrl+Z takes it all back).
@@ -44257,8 +44259,8 @@ function whisperLoadModel(T) {
 }
 function whisperCancelDone() {
   whisperState.cancel = false;
-  whisperSetStatus('done', '中止しました — タイミングは変更しませんでした', 0);
-  toast('中止しました — タイミングは変更しませんでした');
+  whisperSetStatus('done', '已取消 — 未變更時間', 0);
+  toast('已取消 — 未變更時間');
 }
 function whisperInitModelSelect() {
   const sel = $('whisperModel');
@@ -44278,8 +44280,8 @@ function whisperOpenReview(res, rows, stats) {
   whisperReview = { res, rows };
   const dlg = $('whisperReviewDlg');
   if (!dlg) return;
-  $('whisperReviewSummary').textContent = `「${stats.good}行がよく一致、${stats.check}行は要確認、${stats.novoice}行は声無 — ${stats.matchedWords}/${stats.totalWords}語」`;
-  $('whisperReviewHint').textContent = '要確認の行は適用されません。聴いて、開始時刻を直して、チェックを付けてから適用できます。正確なタイミングが要るときは、lyric-align（外部ツール）の Enhanced LRC を読み込んでください。';
+  $('whisperReviewSummary').textContent = `「${stats.good}行がよく一致、${stats.check}行は需確認、${stats.novoice}行は無人聲 — ${stats.matchedWords}/${stats.totalWords}語」`;
+  $('whisperReviewHint').textContent = '需確認の行は適用されません。聴いて、開始時刻を直して、チェックを付けてから適用できます。正確なタイミングが要るときは、lyric-align（外部ツール）の Enhanced LRC を読み込んでください。';
   const box = $('whisperReviewRows');
   box.innerHTML = '';
   rows.forEach(r => {
@@ -44287,7 +44289,7 @@ function whisperOpenReview(res, rows, stats) {
     row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line);';
     const cb = document.createElement('input');
     cb.type = 'checkbox'; cb.checked = r.checked; cb.dataset.index = String(r.index);
-    cb.setAttribute('aria-label', 'この行を適用');
+    cb.setAttribute('aria-label', '套用此行');
     const txt = document.createElement('span');
     txt.style.cssText = 'flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
     txt.textContent = r.text;
@@ -44296,10 +44298,10 @@ function whisperOpenReview(res, rows, stats) {
     meta.textContent = r.matched + '/' + r.total + ' · ' + (r.total ? Math.round(r.matched / r.total * 100) : 0) + '%';
     const badge = document.createElement('span');
     badge.className = 'muted';
-    badge.textContent = r.status === 'good' ? '一致が良い' : r.status === 'novoice' ? '声無' : '要確認';
+    badge.textContent = r.status === 'good' ? '比對良好' : r.status === 'novoice' ? '無人聲' : '需確認';
     const playBtn = document.createElement('button');
     playBtn.type = 'button'; playBtn.className = 'ghost small'; playBtn.dataset.listen = '1';
-    playBtn.textContent = '聴く';
+    playBtn.textContent = '試聽';
     playBtn.addEventListener('click', () => whisperPlayRow(r, playBtn));
     const startIn = document.createElement('input');
     startIn.type = 'number'; startIn.step = 'any'; startIn.min = '0';   // step="any": Whisper times have 3 decimals (0.417) — a fixed step would make the input invalid and block the dialog's Apply button (QA-020)
@@ -44307,7 +44309,7 @@ function whisperOpenReview(res, rows, stats) {
     startIn.style.width = '76px';
     startIn.value = r.start != null ? r.start.toFixed(2) : '';
     startIn.placeholder = '—';
-    startIn.setAttribute('aria-label', '開始時刻（秒）');
+    startIn.setAttribute('aria-label', '開始時間（秒）');
     row.append(cb, txt, meta, badge, playBtn, startIn);
     box.appendChild(row);
   });
@@ -44334,65 +44336,65 @@ function whisperPlayRow(r, btn) {
 function whisperStopListen() {
   if (whisperState.listenTimer) { clearInterval(whisperState.listenTimer); whisperState.listenTimer = 0; }
   const dlg = $('whisperReviewDlg');
-  if (dlg) dlg.querySelectorAll('[data-listen="1"]').forEach(b => { b.textContent = '聴く'; });
+  if (dlg) dlg.querySelectorAll('[data-listen="1"]').forEach(b => { b.textContent = '試聽'; });
 }
 async function whisperRun() {
   if (['loading-lib', 'loading-model', 'transcribing', 'aligning', 'vad', 'cancelling'].includes(whisperState.status)) return;
   const lines = whisperLyricLines();
-  if (!lines.length) { toast('歌詞がありません — 歌詞を入力してから実行してください'); return; }
+  if (!lines.length) { toast('沒有歌詞 — 請先輸入歌詞'); return; }
   const audio = whisperGetAudio();
-  if (!audio) { toast('音声がありません — 曲を読み込んでから実行してください'); return; }
+  if (!audio) { toast('沒有音訊 — 請先載入音樂'); return; }
   const lang = whisperLang();
   whisperState.cancel = false;
   // stage 1: light energy VAD (a silence filter, not a voice detector — see J.whisperVad).
   // almost no voice-like energy at all: stop honestly instead of letting Whisper hallucinate times.
-  whisperSetStatus('vad', '声のある区間を調べています…', 0);
+  whisperSetStatus('vad', '正在偵測人聲區間…', 0);
   const vad = J.whisperVad(audio.data, 16000);
   whisperState.vad = vad;
   if (vad.voicedRatio < 0.02) {
     whisperState.lastRun = { matchedLines: 0, totalLines: lines.length, matchedWords: 0, totalWords: 0, unmatched: lines.map(l => l.text) };
-    whisperSetStatus('done', 'この音声に声らしい区間がほとんどありません — タイミングは変更しませんでした', 0);
-    toast('この音声に声らしい区間がほとんどありません — タイミングは変更しませんでした');
+    whisperSetStatus('done', '音訊中幾乎沒有人聲區間 — 未變更時間', 0);
+    toast('音訊中幾乎沒有人聲區間 — 未變更時間');
     return;
   }
   // stage 2: library + model (base/small fall back to tiny once if their load fails)
   let T = null;
   try {
-    whisperSetStatus('loading-lib', 'ライブラリを読み込んでいます…', 0);
+    whisperSetStatus('loading-lib', '正在載入 Whisper 函式庫…', 0);
     T = await whisperLoadLib();
   } catch (e) {
     const reason = whisperLoadErrorText(e);
-    whisperSetStatus('error', 'ライブラリを読み込めませんでした — ' + reason, 0);
-    toast('ライブラリを読み込めませんでした — ' + reason);
+    whisperSetStatus('error', '無法載入 Whisper 函式庫 — ' + reason, 0);
+    toast('無法載入 Whisper 函式庫 — ' + reason);
     return;
   }
   if (whisperState.cancel) return whisperCancelDone();
   const modelOk = await whisperLoadModel(T);
   if (!modelOk) {
-    whisperSetStatus('error', 'モデルを読み込めませんでした — ネットワークを確認して、もう一度お試しください', 0);
-    toast('モデルを読み込めませんでした — ネットワークを確認して、もう一度お試しください');
+    whisperSetStatus('error', '無法載入模型 — 請檢查網路後重試', 0);
+    toast('無法載入模型 — 請檢查網路後重試');
     return;
   }
   if (whisperState.cancel) return whisperCancelDone();
   // stage 3: transcribe the whole audio in one call (the pipeline chunks it internally)
   let out = null;
   try {
-    whisperSetStatus('transcribing', '音声を聴いて、1語ずつ認識しています — ブラウザ内で実行中です。長い曲は数分かかることがあります…', 0);
+    whisperSetStatus('transcribing', '正在瀏覽器內逐詞辨識音訊，長歌曲可能需要數分鐘…', 0);
     out = await whisperPipe(audio.data, { language: lang, return_timestamps: 'word', chunk_length_s: 30, stride_length_s: 5 });
   } catch (e) {
-    whisperSetStatus('error', 'Whisperでエラーが発生しました: ' + (e && e.message ? e.message : e), 0);
-    toast('Whisperでエラーが発生しました — 今のタイミングをそのまま残します');
+    whisperSetStatus('error', 'Whisper 發生錯誤：' + (e && e.message ? e.message : e), 0);
+    toast('Whisper 發生錯誤 — 保留目前時間');
     return;
   }
   if (whisperState.cancel) return whisperCancelDone();
   // stage 4: drop words outside voiced spans, align against the user's own lyrics, open the review screen.
   // nothing is applied here — the user checks each line first (whisperApply runs from the dialog).
-  whisperSetStatus('aligning', '単語を歌詞と照合しています…', 0);
+  whisperSetStatus('aligning', '正在將辨識結果與歌詞對齊…', 0);
   const chunks = whisperChunks(out, lang);
   if (!chunks.length) {
     whisperState.lastRun = { matchedLines: 0, totalLines: lines.length, matchedWords: 0, totalWords: 0, unmatched: lines.map(l => l.text) };
-    whisperSetStatus('done', 'Whisperはこの音声から単語を認識できませんでした — 今のタイミングをそのまま残します', 0);
-    toast('Whisperはこの音声から単語を認識できませんでした — 今のタイミングをそのまま残します');
+    whisperSetStatus('done', 'Whisper 未從此音訊辨識出詞語 — 保留目前時間', 0);
+    toast('Whisper 未從此音訊辨識出詞語 — 保留目前時間');
     return;
   }
   const words = J.whisperFilterWords(chunks, vad.spans, 0.1);
@@ -44407,8 +44409,8 @@ async function whisperRun() {
   });
   const stats = J.whisperReviewStats(rows);
   whisperState.lastRun = { matchedLines: stats.good, totalLines: lines.length, matchedWords: stats.matchedWords, totalWords: stats.totalWords, unmatched: rows.filter(r => r.status !== 'good').map(r => r.text) };
-  whisperSetStatus('review', '照合が終わりました — 確認画面でチェックしてから適用してください', 0);
-  if (stats.check + stats.novoice > 0) toast('Whisperでは合わせにくい曲です — lyric-align（外部ツール）で作った Enhanced LRC を読み込むと正確です。');
+  whisperSetStatus('review', '比對完成 — 請在確認畫面勾選後套用', 0);
+  if (stats.check + stats.novoice > 0) toast('此歌曲較難由 Whisper 對齊 — 建議使用外部工具 lyric-align 產生 Enhanced LRC 後匯入。');
   whisperOpenReview(res, rows, stats);
 }
 
@@ -45834,14 +45836,14 @@ J.viz3dCubeBin = (dist, n) => Math.min(n - 1, Math.floor(dist * n * 0.65));
 /* id, Japanese display name, Vietnamese, English — the picker shows the
    Japanese literal (i18n pass) like every other effect name. */
 J.LOTTIE_STICKERS = [
-  { id: 'stVinyl', name: 'レコード', vi: 'Đĩa than xoay', en: 'Spinning vinyl' },
-  { id: 'stEqualizer', name: 'イコライザー', vi: 'Sóng nhạc equalizer', en: 'Equalizer wave' },
-  { id: 'stHeart', name: 'ハート', vi: 'Trái tim neon đập', en: 'Neon beating heart' },
-  { id: 'stNotes', name: '音符', vi: 'Nốt nhạc bay', en: 'Dancing music notes' },
-  { id: 'stLightning', name: '雷', vi: 'Tia sét cyber', en: 'Cyber lightning bolt' },
-  { id: 'stSpeaker', name: 'スピーカー', vi: 'Loa bass nảy', en: 'Pumping bass speaker' },
-  { id: 'stSparkle', name: '星', vi: 'Sao lấp lánh', en: 'Sparkling stars' },
-  { id: 'stFlame', name: '炎', vi: 'Ngọn lửa theo nhạc', en: 'Fire flame beat' },
+  { id: 'stVinyl', name: 'レコード', vi: 'Đĩa than xoay', en: 'Spinning vinyl', zhHans: '旋转黑胶', zhHant: '旋轉黑膠', ko: '회전 바이닐' },
+  { id: 'stEqualizer', name: 'イコライザー', vi: 'Sóng nhạc equalizer', en: 'Equalizer wave', zhHans: '均衡器音波', zhHant: '等化器音波', ko: '이퀄라이저 파형' },
+  { id: 'stHeart', name: 'ハート', vi: 'Trái tim neon đập', en: 'Neon beating heart', zhHans: '霓虹跳动爱心', zhHant: '霓虹跳動愛心', ko: '네온 하트' },
+  { id: 'stNotes', name: '音符', vi: 'Nốt nhạc bay', en: 'Dancing music notes', zhHans: '跃动音符', zhHant: '躍動音符', ko: '춤추는 음표' },
+  { id: 'stLightning', name: '雷', vi: 'Tia sét cyber', en: 'Cyber lightning bolt', zhHans: '赛博闪电', zhHant: '賽博閃電', ko: '사이버 번개' },
+  { id: 'stSpeaker', name: 'スピーカー', vi: 'Loa bass nảy', en: 'Pumping bass speaker', zhHans: '重低音音箱', zhHant: '重低音喇叭', ko: '베이스 스피커' },
+  { id: 'stSparkle', name: '星', vi: 'Sao lấp lánh', en: 'Sparkling stars', zhHans: '闪烁星星', zhHant: '閃爍星星', ko: '반짝이는 별' },
+  { id: 'stFlame', name: '炎', vi: 'Ngọn lửa theo nhạc', en: 'Fire flame beat', zhHans: '节拍火焰', zhHant: '節拍火焰', ko: '비트 불꽃' },
 ];
 J.lottieSticker = (id) => J.LOTTIE_STICKERS.find(s => s.id === id) || null;
 /* { w, h, fr, ip, op } of an embedded animation, or null when unknown */

@@ -1,6 +1,6 @@
 # LyricWave Studio — Trình Tạo Video Kinetic Typography Chuyên Nghiệp
 
-**Các phiên bản ngôn ngữ:** [Mở ứng dụng (Tiếng Việt)](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/) · [English](en/) · [日本語](ja/) · [Bahasa Indonesia](id/) · [繁體中文](zh-hant/) · [简体中文](zh-hans/) · [한국어](ko/)
+**Các phiên bản ngôn ngữ:** [Mở ứng dụng (Tiếng Việt)](https://duyhuongngv2.github.io/AURA-STUDIO-Lyrics/) · [English](en/) · [日本語](ja/) · [繁體中文](zh-hant/) · [简体中文](zh-hans/) · [한국어](ko/)
 
 > Dựa trên [JIZURA](https://github.com/852wa/JIZURA) của 852wa (giấy phép MIT) — đã đổi tên và Việt hóa thành LyricWave Studio.
 

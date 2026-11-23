@@ -28,6 +28,16 @@ const LOOP_COPY = {
   off:  { ja: 'ループ', en: 'Loop', titleJa: '繰り返しなし', titleEn: 'No loop' },
 };
 const isEn = () => document.documentElement.lang === 'en';
+function uiLabel(item) {
+  if (!item) return '';
+  const lang = document.documentElement.lang || 'ja';
+  if (lang === 'vi' && item.vi) return item.vi;
+  if (lang === 'en' && item.en) return item.en;
+  if (lang === 'zh-Hans' && item.zhHans) return item.zhHans;
+  if (lang === 'zh-Hant' && item.zhHant) return item.zhHant;
+  if (lang === 'ko' && item.ko) return item.ko;
+  return item.name || '';
+}
 function cutAround(t) {
   const c = J.cutAt(S.plan, t);
   if (c) return c;
@@ -2106,7 +2116,7 @@ function renderFx() {
   if (!gfx.grade || typeof gfx.grade !== 'object') gfx.grade = { lut: 'none', strength: 1 };
   const gBox = document.createElement('div');
   const lutCats = { cinema: '映画', vintage: 'ヴィンテージ', creative: 'クリエイティブ', moody: 'ムーディー', clean: 'クリーン' };
-  const lutOpts = (J.GRADE_LUTS || []).map(l => `<option value="${l.id}"${l.id === gfx.grade.lut ? ' selected' : ''}>${l.name}${lutCats[l.cat] ? '（' + lutCats[l.cat] + '）' : ''}</option>`).join('');
+  const lutOpts = (J.GRADE_LUTS || []).map(l => `<option value="${l.id}"${l.id === gfx.grade.lut ? ' selected' : ''}>${uiLabel(l)}${lutCats[l.cat] ? '（' + lutCats[l.cat] + '）' : ''}</option>`).join('');
   gBox.innerHTML = `<label class="field">カラーグレーディング<select id="fxGradeLut">${lutOpts}</select></label>`
     + `<div class="slider"><label for="fxGradeStrength">グレーディングの強さ</label><input id="fxGradeStrength" type="range" min="0" max="1" step="0.01" value="${gfx.grade.strength ?? 1}"><output>${Math.round((gfx.grade.strength ?? 1) * 100)}</output></div>`
     + `<div class="slider"><label for="fxParticleLayers">粒子の層</label><input id="fxParticleLayers" type="range" min="1" max="5" step="1" value="${gfx.particleLayers ?? 2}"><output>${gfx.particleLayers ?? 2}</output></div>`
@@ -2121,7 +2131,7 @@ function renderFx() {
   // v0.31.0 M6: master EQ (10 bands) — global, live on the preview audio
   const eqNow = () => S.project.eq || (S.project.eq = J.eqDefault());
   const eBox = document.createElement('div');
-  const eqPresetOpts = (J.EQ_PRESETS || []).map(p => `<option value="${p.id}"${p.id === eqNow().preset ? ' selected' : ''}>${p.name}</option>`).join('')
+  const eqPresetOpts = (J.EQ_PRESETS || []).map(p => `<option value="${p.id}"${p.id === eqNow().preset ? ' selected' : ''}>${uiLabel(p)}</option>`).join('')
     + `<option value="custom"${eqNow().preset === 'custom' ? ' selected' : ''}>カスタム</option>`;
   const bandRows = (J.EQ_BANDS || []).map(b => {
     const v = eqNow().bands ? eqNow().bands[b.id] ?? 0 : 0;
@@ -2166,8 +2176,8 @@ function renderFx() {
   const stList0 = S.project.stickers || (S.project.stickers = []);
   const stSel = stList0.find(s => s.id === selStickerId) || stList0[0] || null;
   if (stSel) selStickerId = stSel.id; else selStickerId = null;
-  const stOpts = `<option value="none">ステッカーを選択</option>` + (J.LOTTIE_STICKERS || []).map(s => `<option value="${s.id}">${s.name}</option>`).join('');
-  const stItems = stList0.map(s => { const d = J.lottieSticker(s.anim); return `<button type="button" class="st-item${stSel && s.id === stSel.id ? ' on' : ''}" data-st="${s.id}">${d ? d.name : s.anim} ${s.start.toFixed(1)}–${s.end.toFixed(1)}s</button>`; }).join('') || '<span class="st-none">ステッカーなし</span>';
+  const stOpts = `<option value="none">ステッカーを選択</option>` + (J.LOTTIE_STICKERS || []).map(s => `<option value="${s.id}">${uiLabel(s)}</option>`).join('');
+  const stItems = stList0.map(s => { const d = J.lottieSticker(s.anim); return `<button type="button" class="st-item${stSel && s.id === stSel.id ? ' on' : ''}" data-st="${s.id}">${d ? uiLabel(d) : s.anim} ${s.start.toFixed(1)}–${s.end.toFixed(1)}s</button>`; }).join('') || '<span class="st-none">ステッカーなし</span>';
   stBox.innerHTML = `<label class="field">ステッカー<select id="fxStickerSel">${stOpts}</select></label>`
     + `<div class="row" style="gap:6px"><button type="button" id="fxStickerAdd" class="ghost">ステッカーを追加</button><button type="button" id="fxStickerRemove" class="ghost"${stSel ? '' : ' disabled'}>削除</button></div>`
     + `<div id="fxStickerList">${stItems}</div>`
@@ -2757,15 +2767,7 @@ function bind() {
       res.img.onload = () => {
         J.userImageElement = res.img;
         J.userImageData = res.dataUrl;
-        const nameMap = {
-          galaxy: '🌌 Vũ trụ Deep Galaxy',
-          cyberpunk: '🌃 Thành phố Cyberpunk',
-          lofi_sunset: '☕ Hoàng hôn Lo-Fi Chill',
-          stage: '🎙️ Sân khấu Spotlight',
-          night_rain: '🌧️ Mưa đêm thành phố',
-          retro_vinyl: '📼 Đĩa than Vinyl cổ điển',
-          dark_minimal: '🖤 Đen khói huyền bí'
-        };
+        const opt = stockPresetSel.options[stockPresetSel.selectedIndex];
         const motionMap = {
           galaxy: 'float',
           cyberpunk: 'beatpulse',
@@ -2775,7 +2777,7 @@ function bind() {
           retro_vinyl: 'spin',
           dark_minimal: 'kenburns'
         };
-        const stockName = nameMap[val] || val;
+        const stockName = (opt && opt.textContent) || val;
         J.userImageName = stockName;
         J.userImageMode = motionMap[val] || 'kenburns';
         J.userImageDim = 0.45;
@@ -3274,7 +3276,8 @@ function renderPlaylist() {
     const num = document.createElement('span'); num.className = 'pl-num muted mono'; num.textContent = String(i + 1);
     const btn = document.createElement('button'); btn.className = 'pl-play'; btn.dataset.act = 'play';
     btn.title = it.audioName || '';
-    btn.textContent = `${J.playlistItemTitle(it, i)}${it.duration > 0 ? ' — ' + J.fmtTime(it.duration) : ''}`;
+    const rawTitle = (it.title && it.title.trim()) || (it.audioName && it.audioName.replace(/\.[^.]+$/, '')) || `曲 ${i + 1}`;
+    btn.textContent = `${rawTitle}${it.duration > 0 ? ' — ' + J.fmtTime(it.duration) : ''}`;
     li.appendChild(num); li.appendChild(btn);
     for (const [act, label, title] of [['up', '↑', '上へ'], ['down', '↓', '下へ'], ['del', '✕', '削除']]) {
       const b = document.createElement('button'); b.className = 'ghost small pl-btn'; b.dataset.act = act; b.textContent = label; b.title = title;
